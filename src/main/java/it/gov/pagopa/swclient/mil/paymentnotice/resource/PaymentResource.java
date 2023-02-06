@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import io.vertx.core.eventbus.EventBus;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.VerifyPaymentNoticeResponse;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AdditionalPaymentInformations;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -113,17 +114,17 @@ public class PaymentResource extends BasePaymentResource {
 		
 		return paymentService.get(transactionId)
 				.onFailure().transform(t -> {
-					Log.errorf(t, "[%s] REDIS error while retrieving data", ErrorCode.REDIS_ERROR_WHILE_RETRIEVING_PAYMENT_RESULT);
+					Log.errorf(t, "[%s] REDIS error while retrieving data", ErrorCode.ERROR_RETRIEVING_DATA_FROM_REDIS);
 					return new InternalServerErrorException(Response
 							.status(Status.INTERNAL_SERVER_ERROR)
-							.entity(new Errors(List.of(ErrorCode.REDIS_ERROR_WHILE_RETRIEVING_PAYMENT_RESULT)))
+							.entity(new Errors(List.of(ErrorCode.ERROR_RETRIEVING_DATA_FROM_REDIS)))
 							.build());
 				})
 				.onItem().ifNull().failWith(() ->{
-					Log.errorf("[%s] REDIS transactionId not found", ErrorCode.REDIS_ERROR_PAYMENT_RESULT_WITH_TRANSACTION_ID_NOT_FOUND);
+					Log.errorf("[%s] REDIS transactionId not found", ErrorCode.UNKNOWN_PAYMENT_TRANSACTION);
 					return new NotFoundException(Response
 							.status(Status.NOT_FOUND)
-							.entity(new Errors(List.of(ErrorCode.REDIS_ERROR_PAYMENT_RESULT_WITH_TRANSACTION_ID_NOT_FOUND)))
+							.entity(new Errors(List.of(ErrorCode.UNKNOWN_PAYMENT_TRANSACTION)))
 							.build());
 				})
 				.map(res -> {
@@ -150,10 +151,10 @@ public class PaymentResource extends BasePaymentResource {
 		
 		return paymentService.set(transactionId, receivePaymentStatusRequest)
 				.onFailure().transform(t -> {
-					Log.errorf(t, "[%s] REDIS error saving session in cache", ErrorCode.REDIS_ERROR_WHILE_SAVING_PAYMENT_RESULT);
+					Log.errorf(t, "[%s] REDIS error saving session in cache", ErrorCode.ERROR_STORING_DATA_INTO_REDIS);
 					return new InternalServerErrorException(Response
 							.status(Status.INTERNAL_SERVER_ERROR)
-							.entity(new Errors(List.of(ErrorCode.REDIS_ERROR_WHILE_SAVING_PAYMENT_RESULT)))
+							.entity(new Errors(List.of(ErrorCode.ERROR_STORING_DATA_INTO_REDIS)))
 							.build());
 				})
 				.map(res -> {
@@ -181,52 +182,35 @@ public class PaymentResource extends BasePaymentResource {
 		return nodeRestService.closePayment(nodeClosePaymentRequest)
 			.onItemOrFailure()
 			.transform((closePayRes, error) -> {
-				boolean isResponseOK = false;
+				boolean outcomeOk = false;
 				if (error != null) {
 					Log.errorf(error, "Error calling the node closePayment service");
 				 	if (error instanceof ClientWebApplicationException webEx) {
-						// un unparsable response is wrapped in a ClientWebApplicationException exception
-						// with 404 status, so we need to distinguish it from the real 404 case
-						if (ExceptionUtils.indexOfThrowable(webEx, JsonParseException.class) != -1) {
-							Log.debug("Node closePayment returned an unparsable response, responding with outcome OK");
-							isResponseOK = true;
-						} else {
-							int nodeResponseStatus = webEx.getResponse().getStatus();
-							switch (nodeResponseStatus) {
-								case 400, 404, 422 ->
-									// for these three statuses we return outcome ko
-									Log.debugf("Node closePayment returned a %s status response, responding with outcome KO", nodeResponseStatus);
-								default -> {
-									// for any other status we return outcome ok
-									Log.debugf("Node closePayment returned a %s status response, responding with outcome OK", nodeResponseStatus);
-									isResponseOK = true;
-								}
-							}
-						}
+						outcomeOk = validateClosePaymentError(webEx);
 					}
 					else if (error instanceof TimeoutException) {
 						Log.debug("Node closePayment went in timeout, responding with outcome OK");
-						isResponseOK = true; // for a timeout we return outcome ok
+						outcomeOk = true; // for a timeout we return outcome ok
 					}
 					else {
 						// in any other case we return 500
 				    	return Response
 								.status(Status.INTERNAL_SERVER_ERROR)
-				    			.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_NODE_SERVICE)))
+				    			.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_NODE_REST_SERVICES)))
 								.build();
 					}
 			    }
 				else {
 					Log.debugf("Node closePayment service responded %s", closePayRes);
 					if (Outcome.OK.name().equals(closePayRes.getOutcome())) {
-						isResponseOK = true;
+						outcomeOk = true;
 					}
 			    }
 
 				// returning response
 				ClosePaymentResponse closePaymentResponse = new ClosePaymentResponse();
 				Response.ResponseBuilder responseBuilder = Response.status(Status.OK);
-				if (isResponseOK) {
+				if (outcomeOk) {
 					closePaymentResponse.setOutcome(Outcome.OK);
 					responseBuilder
 							.location(URI.create("/payment/" + closePaymentRequest.getTransactionId()))
@@ -244,6 +228,37 @@ public class PaymentResource extends BasePaymentResource {
 
 	}
 
+	/**
+	 * Checks if a ClientWebApplicationException (wrapping a status != 2xx) or an unparsable response
+	 * returned from the REST client connecting to the node closePayment REST API should be mapped to an OK outcome
+	 * @param webEx the exception returned by the rest client
+	 * @return true if the error maps to an OK outcome, false otherwise
+	 */
+	private boolean validateClosePaymentError(ClientWebApplicationException webEx) {
+
+		boolean outcomeOk = false;
+
+		// un unparsable response is wrapped in a ClientWebApplicationException exception
+		// with 404 status, so we need to distinguish it from the real 404 case
+		if (ExceptionUtils.indexOfThrowable(webEx, JsonParseException.class) != -1) {
+			Log.debug("Node closePayment returned an unparsable response, responding with outcome OK");
+			outcomeOk = true;
+		} else {
+			int nodeResponseStatus = webEx.getResponse().getStatus();
+			switch (nodeResponseStatus) {
+				case 400, 404, 422 ->
+					// for these three statuses we return outcome ko
+					Log.debugf("Node closePayment returned a %s status response, responding with outcome KO", nodeResponseStatus);
+				default -> {
+					// for any other status we return outcome ok
+					Log.debugf("Node closePayment returned a %s status response, responding with outcome OK", nodeResponseStatus);
+					outcomeOk = true;
+				}
+			}
+		}
+		return outcomeOk;
+	}
+
 	private NodeClosePaymentRequest createNodeClosePaymentRequest(ClosePaymentRequest closePaymentRequest, PspConfiguration pspConfiguration, String channel) {
 
 		NodeClosePaymentRequest nodeClosePaymentRequest =
@@ -259,6 +274,8 @@ public class PaymentResource extends BasePaymentResource {
 		nodeClosePaymentRequest.setTotalAmount(new BigDecimal(closePaymentRequest.getTotalAmount()).divide(new BigDecimal(100)));
 		nodeClosePaymentRequest.setFee(new BigDecimal(closePaymentRequest.getFee()).divide(new BigDecimal(100)));
 		nodeClosePaymentRequest.setTimestampOperation(closePaymentRequest.getTimestampOp());
+
+		nodeClosePaymentRequest.setAdditionalPaymentInformations(new AdditionalPaymentInformations());
 
 		return nodeClosePaymentRequest;
 	}

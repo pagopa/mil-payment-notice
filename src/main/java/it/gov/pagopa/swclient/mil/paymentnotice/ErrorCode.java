@@ -43,23 +43,23 @@ public final class ErrorCode {
 
 
 	// integration errors - mongodb
-
 	public static final String UNKNOWN_ACQUIRER_ID			 								= MODULE_ID + "000024";
 	public static final String ERROR_RETRIEVING_DATA_FROM_MONGO 							= MODULE_ID + "000025";
 
 
 	// integration errors - redis
-	public static final String REDIS_ERROR_WHILE_RETRIEVING_PAYMENT_RESULT					= MODULE_ID + "000025";
-	public static final String REDIS_ERROR_PAYMENT_RESULT_WITH_TRANSACTION_ID_NOT_FOUND		= MODULE_ID + "000026";
-	public static final String REDIS_ERROR_WHILE_SAVING_PAYMENT_RESULT						= MODULE_ID + "000027";
+	public static final String ERROR_RETRIEVING_DATA_FROM_REDIS 							= MODULE_ID + "000025";
+	public static final String ERROR_STORING_DATA_INTO_REDIS 								= MODULE_ID + "000026";
+	public static final String UNKNOWN_PAYMENT_TRANSACTION 									= MODULE_ID + "000027";
 
 
 	// integration error node - soap client
-	public static final String ERROR_NODE 													= MODULE_ID + "000028";
-	public static final String ERROR_CALLING_NODE_SERVICE									= MODULE_ID + "000029";
+	public static final String ERROR_CALLING_NODE_SOAP_SERVICES 							= MODULE_ID + "000028";
 
 
 	// integration error node - rest client
+	public static final String ERROR_CALLING_NODE_REST_SERVICES								 = MODULE_ID + "000029";
+
 
 	private ErrorCode() {
 	}

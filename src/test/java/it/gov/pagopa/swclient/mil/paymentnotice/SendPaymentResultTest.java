@@ -157,7 +157,7 @@ class SendPaymentResultTest {
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.REDIS_ERROR_WHILE_RETRIEVING_PAYMENT_RESULT));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_RETRIEVING_DATA_FROM_REDIS));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("paymentDate"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("payments"));
@@ -221,7 +221,7 @@ class SendPaymentResultTest {
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.REDIS_ERROR_WHILE_SAVING_PAYMENT_RESULT));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_STORING_DATA_INTO_REDIS));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 
 	}

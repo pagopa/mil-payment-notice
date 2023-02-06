@@ -256,7 +256,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_NODE));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
@@ -399,7 +399,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_NODE));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));

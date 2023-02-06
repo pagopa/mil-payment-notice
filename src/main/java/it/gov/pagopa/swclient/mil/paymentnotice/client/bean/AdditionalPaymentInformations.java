@@ -1,5 +1,8 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.client.bean;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+@JsonSerialize
 public class AdditionalPaymentInformations {
 
 	public AdditionalPaymentInformations() {

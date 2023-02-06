@@ -110,10 +110,10 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 
 		return nodeWrapper.verifyPaymentNotice(verifyPaymentNoticeReq)
 				.onFailure().transform(t -> {
-					Log.errorf(t, "[%s] Error calling the node verifyPaymentNotice service", ErrorCode.ERROR_NODE);
+					Log.errorf(t, "[%s] Error calling the node verifyPaymentNotice service", ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES);
 					return new InternalServerErrorException(Response
 							.status(Status.INTERNAL_SERVER_ERROR)
-							.entity(new Errors(List.of(ErrorCode.ERROR_NODE)))
+							.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES)))
 							.build());
 				})
 				.map(nodeResponse -> {

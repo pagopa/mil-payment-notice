@@ -20,10 +20,7 @@
 		<quarkus.platform.version>2.16.0.Final</quarkus.platform.version>
 		<skipITs>true</skipITs>
 		<common.version>1.1.5</common.version>
-		
-		<!-- CXF related properties -->
-    	<quarkus.cxf.version>1.7.3</quarkus.cxf.version>
-		
+
 		<!-- JaCoCo Properties -->
 	    <jacoco.version>0.8.6</jacoco.version>
 	   
@@ -35,6 +32,13 @@
 				<groupId>${quarkus.platform.group-id}</groupId>
 				<artifactId>${quarkus.platform.artifact-id}</artifactId>
 				<version>${quarkus.platform.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.quarkiverse.cxf</groupId>
+				<artifactId>quarkus-cxf-bom</artifactId>
+				<version>1.7.3</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -85,19 +89,16 @@
 		<dependency>
 			<groupId>io.quarkiverse.cxf</groupId>
 			<artifactId>quarkus-cxf</artifactId>
-			<version>${quarkus.cxf.version}</version>
 		</dependency>
 		<!-- CXF logging -->
 		<dependency>
 			<groupId>io.quarkiverse.cxf</groupId>
 			<artifactId>quarkus-cxf-rt-features-logging</artifactId>
-			<version>${quarkus.cxf.version}</version>
 		</dependency>
 		<!-- Provides async non-blocking client calls for CXF -->
 		<dependency>
 			<groupId>io.quarkiverse.cxf</groupId>
 			<artifactId>quarkus-cxf-rt-transports-http-hc5</artifactId>
-			<version>${quarkus.cxf.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -145,18 +146,14 @@
 			<version>4.3.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongodb-driver-sync</artifactId>
-			<version>4.8.2</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-codegen-plugin</artifactId>
+				<!-- in version 4.x the javax.*  packages are migrated to jakarta .*
+				     so it's not compatible with quarkus cxf  -->
 				<version>3.5.5</version>
 				<executions>
 					<execution>

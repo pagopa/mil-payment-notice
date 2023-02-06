@@ -1,42 +1,59 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.client.bean;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
 
 public class NodeClosePaymentRequest {
 
 	@NotNull
-	private List<String> paymentTokens;
+	@Size(min = 1)
+	private List<@Pattern(regexp = "^[ -~]{1,35}$") String> paymentTokens;
 
 	@NotNull
+	@Pattern(regexp = "OK|KO")
 	private String outcome;
 
 	@NotNull
+	@Pattern(regexp = "^[ -~]{1,35}$")
 	private String idPsp;
 
 	@NotNull
+	@Pattern(regexp = "^[ -~]{1,35}$")
 	private String pspBroker;
 
 	@NotNull
+	@Pattern(regexp = "^[ -~]{1,35}$")
 	private String idChannel;
 
 	@NotNull
+	@Pattern(regexp = "PAGOBANCOMAT|DEBIT_CARD|CREDIT_CARD|BANK_ACCOUNT|CASH")
 	private String paymentMethod;
 
 	@NotNull
+	@Pattern(regexp = "^[a-zA-Z0-9]{1,255}$")
 	private String transactionId;
 
 	@NotNull
+	@Min(value = 1L)
+	@Max(value = 999999999L)
 	private BigDecimal totalAmount;
 
 	@NotNull
+	@Min(value = 1L)
+	@Max(value = 999999999L)
 	private BigDecimal fee;
 
 	@NotNull
+	@Pattern(regexp = "\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\\d|3[0-1])T(2[0-3]|[01]\\d):[0-5]\\d:[0-5]\\d")
 	private String timestampOperation;
 
 	@NotNull
+
 	private AdditionalPaymentInformations additionalPaymentInformations;
 
 
