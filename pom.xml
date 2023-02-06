@@ -23,8 +23,6 @@
 
 		<!-- JaCoCo Properties -->
 	    <jacoco.version>0.8.6</jacoco.version>
-	   
-	    <sonar.exclusions>src/main/java/it/gov/pagopa/pagopa_api/**</sonar.exclusions>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -163,7 +161,6 @@
 							<goal>wsdl2java</goal>
 						</goals>
 						<configuration>
-							<sourceRoot>${project.basedir}/src/main/java/</sourceRoot>
 							<wsdlOptions>
 								<wsdlOption>
 									<!-- Use a publicly available SOAP service -->
