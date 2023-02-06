@@ -1,0 +1,21 @@
+{
+    "priority": 4,
+    "request": {
+        "method": "POST",
+        "url": "/closepayment",
+        "bodyPatterns" : [
+            {
+                "matchesJsonPath" : "$[?(@.transactionId == '50a4853f77694cfe91386961a3ff0646')]"
+            }
+        ]
+    },
+    "response": {
+        "status": 408,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "jsonBody": {
+            "error": "error message 408"
+        }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "priority": 1,
+    "request": {
+        "method": "POST",
+        "urlPathPattern": "/nodo/node-for-psp/v1",
+        "headers": {
+            "SOAPAction": {
+                "equalTo": "\"verifyPaymentNotice\""
+            }
+        },
+        "bodyPatterns" : [
+            {
+                "matchesXPath" : "//fiscalCode[text()='77777777777']"
+            }
+        ]
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "text/xml; charset=UTF-8",
+            "sessionId": "27782811-b467-48c9-b6f5-621083cea190",
+            "Request-Context": "appId=cid-v1:58b37248-3089-47ba-aa07-a2844fabe46a"
+        },
+        "bodyFileName": "verifyPaymentNotice_ok.xml"
+    }
+}

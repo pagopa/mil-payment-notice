@@ -5,7 +5,10 @@ import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.Adapter1;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtMetadata;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtRichiestaMarcaDaBollo;
 
@@ -50,7 +53,9 @@ import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtRichiestaMarcaDaBollo;
 public class CtTransferPSPV2 {
 
     protected int idTransfer;
-    @XmlElement(required = true)
+    @XmlElement(required = true, type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal transferAmount;
     @XmlElement(required = true)
     protected String fiscalCodePA;
@@ -82,7 +87,7 @@ public class CtTransferPSPV2 {
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getTransferAmount() {
@@ -94,7 +99,7 @@ public class CtTransferPSPV2 {
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setTransferAmount(BigDecimal value) {

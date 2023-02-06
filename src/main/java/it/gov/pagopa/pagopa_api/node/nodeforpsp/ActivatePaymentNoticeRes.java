@@ -4,7 +4,11 @@ package it.gov.pagopa.pagopa_api.node.nodeforpsp;
 import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.Adapter1;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtResponse;
 
 
@@ -49,6 +53,9 @@ public class ActivatePaymentNoticeRes
     extends CtResponse
 {
 
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal totalAmount;
     protected String paymentDescription;
     protected String fiscalCodePA;
@@ -63,7 +70,7 @@ public class ActivatePaymentNoticeRes
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getTotalAmount() {
@@ -75,7 +82,7 @@ public class ActivatePaymentNoticeRes
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setTotalAmount(BigDecimal value) {

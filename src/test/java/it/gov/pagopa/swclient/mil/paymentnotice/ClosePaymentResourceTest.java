@@ -2,19 +2,22 @@ package it.gov.pagopa.swclient.mil.paymentnotice;
 
 import static io.restassured.RestAssured.given;
 
-import java.text.ParseException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
-import javax.ws.rs.InternalServerErrorException;
-import javax.xml.datatype.DatatypeConfigurationException;
-
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -23,65 +26,90 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.smallrye.mutiny.Uni;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentResponse;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.PaymentRequestBody;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.PspInfo;
-import it.gov.pagopa.swclient.mil.paymentnotice.client.NodoService;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PNEntity;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PNRepository;
-import it.gov.pagopa.swclient.mil.paymentnotice.exception.NodeExceptionManageKo;
-import it.gov.pagopa.swclient.mil.paymentnotice.exception.NodeExceptionManageOk;
-import it.gov.pagopa.swclient.mil.paymentnotice.resource.ClosePaymentResource;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfEntity;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfRepository;
+import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 
 @QuarkusTest
-@TestHTTPEndpoint(ClosePaymentResource.class)
+@TestHTTPEndpoint(PaymentResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ClosePaymentResourceTest {
 	
-	private final static String SESSION_ID			= "a6a666e6-97da-4848-b568-99fedccb642c";
-	private final static String API_VERSION			= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
+	final static String SESSION_ID			= "a6a666e6-97da-4848-b568-99fedccb642c";
+	final static String API_VERSION			= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
 	
 	@InjectMock
 	@RestClient
-	private NodoService nodoService;
+    NodeRestService nodeRestService;
 	
 	@InjectMock
-	private PNRepository pnRepository;
-	
-	@Test
-	void testClosePayment_200() throws ParseException, DatatypeConfigurationException {
-		
-		PspInfo pspInfo = new PspInfo();
-		pspInfo.setPspBroker("brocker");
-		pspInfo.setPspId("09127491649");
-		pspInfo.setPspPassword("xxjaldo");
-		
-		PNEntity pnEntity 	= new PNEntity();
-		pnEntity.acquirerId = "4585625";
-		pnEntity.pspInfo	= pspInfo;
-		
-		PaymentRequestBody paymentRequestBody = new PaymentRequestBody();
-		paymentRequestBody.setOutcome(Outcome.OK.toString());
+	PspConfRepository pspConfRepository;
+
+	PspConfEntity pspConfEntity;
+
+	ClosePaymentRequest closePaymentRequestOK;
+
+	ClosePaymentRequest closePaymentRequestKO;
+
+	@BeforeAll
+	void createTestObjects() {
+
+		// PSP configuration
+		PspConfiguration pspInfo = new PspConfiguration();
+		pspInfo.setPspId("AGID_01");
+		pspInfo.setPspBroker("97735020584");
+		pspInfo.setPspPassword("pwd_AgID");
+
+		pspConfEntity = new PspConfEntity();
+		pspConfEntity.acquirerId = "4585625";
+		pspConfEntity.pspConfiguration = pspInfo;
+
+		closePaymentRequestOK = new ClosePaymentRequest();
+		closePaymentRequestOK.setOutcome(Outcome.OK.toString());
 		List<String> tokens = new ArrayList<>();
 		tokens.add("648fhg36s95jfg7DS");
-		paymentRequestBody.setPaymentTokens(tokens);
-		paymentRequestBody.setPaymentMethod("PAGOBANCOMAT");
-		paymentRequestBody.setTransactionId("517a4216840E461fB011036A0fd134E1");
-		paymentRequestBody.setTotalAmount(234234);
-		paymentRequestBody.setFee(897);
-		paymentRequestBody.setTimestampOp("2022-11-12T08:53:55");
+		closePaymentRequestOK.setPaymentTokens(tokens);
+		closePaymentRequestOK.setPaymentMethod("PAGOBANCOMAT");
+		closePaymentRequestOK.setTransactionId("517a4216840E461fB011036A0fd134E1");
+		closePaymentRequestOK.setTotalAmount(BigInteger.valueOf(234234));
+		closePaymentRequestOK.setFee(BigInteger.valueOf(897));
+		closePaymentRequestOK.setTimestampOp("2022-11-12T08:53:55");
+
+		closePaymentRequestKO = new ClosePaymentRequest();
+		closePaymentRequestKO.setOutcome(Outcome.KO.toString());
+		closePaymentRequestKO.setPaymentTokens(tokens);
+		closePaymentRequestKO.setPaymentMethod("PAGOBANCOMAT");
+		closePaymentRequestKO.setTransactionId("517a4216840E461fB011036A0fd134E1");
+		closePaymentRequestKO.setTotalAmount(BigInteger.valueOf(234234));
+		closePaymentRequestKO.setFee(BigInteger.valueOf(897));
+		closePaymentRequestKO.setTimestampOp("2022-11-12T08:53:55");
+
+
+		// node close response OK
+
+
+		// node close response KO
+
+
+	}
+
+	@Test
+	void testClosePayment_200_node200_OK() {
+
+		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
+		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-		.when(pnRepository.findByIdOptional(Mockito.any(String.class)))
-		.thenReturn(Uni.createFrom().item(Optional.of(pnEntity)));
-		
-		ClosePaymentResponse closePayentResponse = new ClosePaymentResponse();
-		closePayentResponse.setOutcome(Outcome.OK.toString());
-		
-		Mockito.when(nodoService.closePayment(Mockito.any(ClosePaymentRequest.class)))
-		.thenReturn(Uni.createFrom().item(closePayentResponse));
+				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+
+		Mockito
+				.when(nodeRestService.closePayment(Mockito.any()))
+				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
 		
 		
 		Response response = given()
@@ -94,54 +122,202 @@ class ClosePaymentResourceTest {
 						"TerminalId", "0aB9wXyZ",
 						"SessionId", SESSION_ID)
 				.and()
-				.body(paymentRequestBody)
+				.body(closePaymentRequestOK)
 				.when()
-				.post("/payment")
+				.post("/")
 				.then()
 				.extract()
 				.response();
 
-	        Assertions.assertEquals(200, response.statusCode());
-	        Assertions.assertNotNull(response.getHeader("Location"));
-	        Assertions.assertNotNull(response.getHeader("Retry-after"));
-	        Assertions.assertNotNull(response.getHeader("Max-Retry"));
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+		Assertions.assertEquals(Outcome.OK.name(), response.jsonPath().getString("outcome"));
+		Assertions.assertTrue(response.getHeader("Location") != null &&
+				response.getHeader("Location").endsWith("/" + closePaymentRequestOK.getTransactionId()));
+	    Assertions.assertNotNull(response.getHeader("Retry-after"));
+	    Assertions.assertNotNull(response.getHeader("Max-Retry"));
+
+	}
+
+	@Test
+	void testClosePayment_200_node200_KO() {
+
+		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
+		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
+
+		Mockito
+				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+
+		Mockito
+				.when(nodeRestService.closePayment(Mockito.any()))
+				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(
+						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
+						"Version", API_VERSION,
+						"AcquirerId", "4585625",
+						"Channel", "ATM",
+						"TerminalId", "0aB9wXyZ",
+						"SessionId", SESSION_ID)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+		Assertions.assertEquals(Outcome.KO.name(), response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.getHeader("Location"));
+		Assertions.assertNull(response.getHeader("Retry-after"));
+		Assertions.assertNull(response.getHeader("Max-Retry"));
+
+	}
+
+
+	@ParameterizedTest
+	@ValueSource(ints = {400, 404, 422})
+	void testClosePayment_200_nodeError_KO(int statusCode) {
+
+		Mockito
+				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+
+		Mockito
+				.when(nodeRestService.closePayment(Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(() -> new ClientWebApplicationException(statusCode)));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(
+						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
+						"Version", API_VERSION,
+						"AcquirerId", "4585625",
+						"Channel", "ATM",
+						"TerminalId", "0aB9wXyZ",
+						"SessionId", SESSION_ID)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+		Assertions.assertEquals(Outcome.KO.name(), response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.getHeader("Location"));
+		Assertions.assertNull(response.getHeader("Retry-after"));
+		Assertions.assertNull(response.getHeader("Max-Retry"));
+
+	}
+
+
+	@ParameterizedTest
+	@ValueSource(ints = {408, 500})
+	void testClosePayment_200_nodeError_OK(int status) {
+
+		Mockito
+				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+
+		Mockito
+				.when(nodeRestService.closePayment(Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(() -> new ClientWebApplicationException(status)));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(
+						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
+						"Version", API_VERSION,
+						"AcquirerId", "4585625",
+						"Channel", "ATM",
+						"TerminalId", "0aB9wXyZ",
+						"SessionId", SESSION_ID)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+		Assertions.assertEquals(Outcome.OK.name(), response.jsonPath().getString("outcome"));
+		Assertions.assertTrue(response.getHeader("Location") != null &&
+				response.getHeader("Location").endsWith("/" + closePaymentRequestOK.getTransactionId()));
+		Assertions.assertNotNull(response.getHeader("Retry-after"));
+		Assertions.assertNotNull(response.getHeader("Max-Retry"));
+
+	}
+
+
+	@Test
+	void testClosePayment_200_nodeTimeout() {
+
+		Mockito
+				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+
+		Mockito
+				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
+				.thenReturn(Uni.createFrom().failure(new TimeoutException()));
+		
+		
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(
+						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
+						"Version", API_VERSION,
+						"AcquirerId", "4585625",
+						"Channel", "ATM",
+						"TerminalId", "0aB9wXyZ",
+						"SessionId", SESSION_ID)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+		Assertions.assertEquals(Outcome.OK.name(), response.jsonPath().getString("outcome"));
+		Assertions.assertNotNull(response.getHeader("Location"));
+		Assertions.assertTrue(response.getHeader("Location") != null &&
+				response.getHeader("Location").endsWith("/" + closePaymentRequestOK.getTransactionId()));
+		Assertions.assertNotNull(response.getHeader("Retry-after"));
+		Assertions.assertNotNull(response.getHeader("Max-Retry"));
 	     
 	}
-	
+
+
 	@Test
-	void testClosePaymentNodeResponseIs_TimeoutException_return_200() throws ParseException, DatatypeConfigurationException {
-		
-		PspInfo pspInfo = new PspInfo();
-		pspInfo.setPspBroker("brocker");
-		pspInfo.setPspId("09127491649");
-		pspInfo.setPspPassword("xxjaldo");
-		
-		PNEntity pnEntity 	= new PNEntity();
-		pnEntity.acquirerId = "4585625";
-		pnEntity.pspInfo	= pspInfo;
-		
-		PaymentRequestBody paymentRequestBody = new PaymentRequestBody();
-		paymentRequestBody.setOutcome(Outcome.OK.toString());
-		List<String> tokens = new ArrayList<>();
-		tokens.add("648fhg36s95jfg7DS");
-		paymentRequestBody.setPaymentTokens(tokens);
-		paymentRequestBody.setPaymentMethod("PAGOBANCOMAT");
-		paymentRequestBody.setTransactionId("517a4216840E461fB011036A0fd134E1");
-		paymentRequestBody.setTotalAmount(234234);
-		paymentRequestBody.setFee(897);
-		paymentRequestBody.setTimestampOp("2022-11-12T08:53:55");
+	void testClosePaymentKO_200_nodeOK() {
+
+		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
+		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-		.when(pnRepository.findByIdOptional(Mockito.any(String.class)))
-		.thenReturn(Uni.createFrom().item(Optional.of(pnEntity)));
-		
-		ClosePaymentResponse closePayentResponse = new ClosePaymentResponse();
-		closePayentResponse.setOutcome(Outcome.OK.toString());
-		
-		Mockito.when(nodoService.closePayment(Mockito.any(ClosePaymentRequest.class)))
-		.thenReturn(Uni.createFrom().failure(new TimeoutException()));
-		
-		
+				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+
+		Mockito
+				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
+				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
+
+
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(
@@ -152,187 +328,15 @@ class ClosePaymentResourceTest {
 						"TerminalId", "0aB9wXyZ",
 						"SessionId", SESSION_ID)
 				.and()
-				.body(paymentRequestBody)
+				.body(closePaymentRequestKO)
 				.when()
-				.post("/payment")
+				.post("/")
 				.then()
 				.extract()
 				.response();
 
-	        Assertions.assertEquals(200, response.statusCode());
-	        Assertions.assertNotNull(response.getHeader("Location"));
-	        Assertions.assertNotNull(response.getHeader("Retry-after"));
-	        Assertions.assertNotNull(response.getHeader("Max-Retry"));
-	     
-	}
-	
-	@Test
-	void testClosePaymentNodeResponseIs_400_return_200() throws ParseException, DatatypeConfigurationException {
-		
-		PspInfo pspInfo = new PspInfo();
-		pspInfo.setPspBroker("brocker");
-		pspInfo.setPspId("09127491649");
-		pspInfo.setPspPassword("xxjaldo");
-		
-		PNEntity pnEntity 	= new PNEntity();
-		pnEntity.acquirerId = "4585625";
-		pnEntity.pspInfo	= pspInfo;
-		
-		PaymentRequestBody paymentRequestBody = new PaymentRequestBody();
-		paymentRequestBody.setOutcome(Outcome.OK.toString());
-		List<String> tokens = new ArrayList<>();
-		tokens.add("648fhg36s95jfg7DS");
-		paymentRequestBody.setPaymentTokens(tokens);
-		paymentRequestBody.setPaymentMethod("PAGOBANCOMAT");
-		paymentRequestBody.setTransactionId("517a4216840E461fB011036A0fd134E1");
-		paymentRequestBody.setTotalAmount(234234);
-		paymentRequestBody.setFee(897);
-		paymentRequestBody.setTimestampOp("2022-11-12T08:53:55");
+		Assertions.assertEquals(202, response.statusCode());
 
-		Mockito
-		.when(pnRepository.findByIdOptional(Mockito.any(String.class)))
-		.thenReturn(Uni.createFrom().item(Optional.of(pnEntity)));
-		
-		ClosePaymentResponse closePayentResponse = new ClosePaymentResponse();
-		closePayentResponse.setOutcome(Outcome.OK.toString());
-		
-		Mockito.when(nodoService.closePayment(Mockito.any(ClosePaymentRequest.class)))
-		.thenReturn(Uni.createFrom().failure(new NodeExceptionManageKo()));
-		
-		
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
-				.and()
-				.body(paymentRequestBody)
-				.when()
-				.post("/payment")
-				.then()
-				.extract()
-				.response();
-
-	        Assertions.assertEquals(200, response.statusCode());
-	        Assertions.assertEquals(Outcome.KO.toString(), response.jsonPath().getString("outcome"));
-	     
-	}
-	
-	@Test
-	void testClosePaymentNodeResponseIs_408_return_200() throws ParseException, DatatypeConfigurationException {
-		
-		PspInfo pspInfo = new PspInfo();
-		pspInfo.setPspBroker("brocker");
-		pspInfo.setPspId("09127491649");
-		pspInfo.setPspPassword("xxjaldo");
-		
-		PNEntity pnEntity 	= new PNEntity();
-		pnEntity.acquirerId = "4585625";
-		pnEntity.pspInfo	= pspInfo;
-		
-		PaymentRequestBody paymentRequestBody = new PaymentRequestBody();
-		paymentRequestBody.setOutcome(Outcome.OK.toString());
-		List<String> tokens = new ArrayList<>();
-		tokens.add("648fhg36s95jfg7DS");
-		paymentRequestBody.setPaymentTokens(tokens);
-		paymentRequestBody.setPaymentMethod("PAGOBANCOMAT");
-		paymentRequestBody.setTransactionId("517a4216840E461fB011036A0fd134E1");
-		paymentRequestBody.setTotalAmount(234234);
-		paymentRequestBody.setFee(897);
-		paymentRequestBody.setTimestampOp("2022-11-12T08:53:55");
-
-		Mockito
-		.when(pnRepository.findByIdOptional(Mockito.any(String.class)))
-		.thenReturn(Uni.createFrom().item(Optional.of(pnEntity)));
-		
-		ClosePaymentResponse closePayentResponse = new ClosePaymentResponse();
-		closePayentResponse.setOutcome(Outcome.OK.toString());
-		
-		Mockito.when(nodoService.closePayment(Mockito.any(ClosePaymentRequest.class)))
-		.thenReturn(Uni.createFrom().failure(new NodeExceptionManageOk()));
-		
-		
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
-				.and()
-				.body(paymentRequestBody)
-				.when()
-				.post("/payment")
-				.then()
-				.extract()
-				.response();
-
-	        Assertions.assertEquals(200, response.statusCode());
-	        Assertions.assertNotNull(response.getHeader("Location"));
-	        Assertions.assertNotNull(response.getHeader("Retry-after"));
-	        Assertions.assertNotNull(response.getHeader("Max-Retry"));
-	     
-	}
-	
-	@Test
-	void testClosePaymentResponds_500() throws ParseException, DatatypeConfigurationException {
-		
-		PspInfo pspInfo = new PspInfo();
-		pspInfo.setPspBroker("brocker");
-		pspInfo.setPspId("09127491649");
-		pspInfo.setPspPassword("xxjaldo");
-		
-		PNEntity pnEntity 	= new PNEntity();
-		pnEntity.acquirerId = "4585625";
-		pnEntity.pspInfo	= pspInfo;
-		
-		PaymentRequestBody paymentRequestBody = new PaymentRequestBody();
-		paymentRequestBody.setOutcome(Outcome.OK.toString());
-		List<String> tokens = new ArrayList<>();
-		tokens.add("648fhg36s95jfg7DS");
-		paymentRequestBody.setPaymentTokens(tokens);
-		paymentRequestBody.setPaymentMethod("PAGOBANCOMAT");
-		paymentRequestBody.setTransactionId("517a4216840E461fB011036A0fd134E1");
-		paymentRequestBody.setTotalAmount(234234);
-		paymentRequestBody.setFee(897);
-		paymentRequestBody.setTimestampOp("2022-11-12T08:53:55");
-
-		Mockito
-		.when(pnRepository.findByIdOptional(Mockito.any(String.class)))
-		.thenReturn(Uni.createFrom().item(Optional.of(pnEntity)));
-		
-		ClosePaymentResponse closePayentResponse = new ClosePaymentResponse();
-		closePayentResponse.setOutcome(Outcome.OK.toString());
-		
-		Mockito.when(nodoService.closePayment(Mockito.any(ClosePaymentRequest.class)))
-		.thenReturn(Uni.createFrom().failure(new InternalServerErrorException()));
-		
-		
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
-				.and()
-				.body(paymentRequestBody)
-				.when()
-				.post("/payment")
-				.then()
-				.extract()
-				.response();
-
-	        Assertions.assertEquals(500, response.statusCode());
-	     
 	}
 	
 }

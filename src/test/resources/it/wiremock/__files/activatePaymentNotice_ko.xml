@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:common="http://pagopa-api.pagopa.gov.it/xsd/common-types/v1.0.0/" xmlns:nfp="http://pagopa-api.pagopa.gov.it/node/nodeForPsp.xsd">
+    <soapenv:Body>
+        <nfp:activatePaymentNoticeV2Response>
+            <outcome>KO</outcome>
+            <fault>
+                <faultCode>PPT_SINTASSI_EXTRAXSD</faultCode>
+                <faultString>Errore di sintassi extra XSD.</faultString>
+                <id>NodoDeiPagamentiSPC</id>
+                <description>Errore validazione XML [Envelope/Body/verifyPaymentNoticeReq/qrCode/noticeNumber] - cvc-pattern-valid: il valore &quot;30205&quot; non è valido come facet rispetto al pattern &quot;[0-9]{18}&quot; per il tipo 'stNoticeNumber'.</description>
+            </fault>
+        </nfp:activatePaymentNoticeV2Response>
+    </soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,21 @@
+{
+    "priority": 2,
+    "request": {
+        "method": "POST",
+        "url": "/closepayment",
+        "bodyPatterns" : [
+            {
+                "matchesJsonPath" : "$[?(@.transactionId == '0af4576bd3654abb83713ae84b32ce50')]"
+            }
+        ]
+    },
+    "response": {
+        "status": 400,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "jsonBody": {
+            "error": "error message 400"
+        }
+    }
+}

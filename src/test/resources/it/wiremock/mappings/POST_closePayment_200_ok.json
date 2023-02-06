@@ -1,0 +1,16 @@
+{
+    "priority": 100,
+    "request": {
+        "method": "POST",
+        "url": "/closepayment"
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "jsonBody": {
+            "outcome": "OK"
+        }
+    }
+}

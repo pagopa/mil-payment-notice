@@ -7,7 +7,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.Adapter1;
 
 
 /**
@@ -43,7 +45,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 })
 public class CtPaymentOptionBollettinoDescription {
 
-    @XmlElement(required = true)
+    @XmlElement(required = true, type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal amount;
     @XmlElement(required = true)
     @XmlSchemaType(name = "string")
@@ -58,7 +62,7 @@ public class CtPaymentOptionBollettinoDescription {
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getAmount() {
@@ -70,7 +74,7 @@ public class CtPaymentOptionBollettinoDescription {
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setAmount(BigDecimal value) {

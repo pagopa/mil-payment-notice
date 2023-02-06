@@ -1,25 +1,32 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.bean;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+@RegisterForReflection
 public class ClosePaymentResponse {
-	
-	private String outcome;
 
-	public ClosePaymentResponse() {}
-	
-	public ClosePaymentResponse(String outcoume) {
-		this.outcome = outcoume;
-	}
+	@NotNull
+	@Pattern(regexp = "^(?:OK|KO)$")
+	private Outcome outcome;
 
-	public String getOutcome() {
+
+	public Outcome getOutcome() {
 		return outcome;
 	}
 
-	public void setOutcome(String outcome) {
+	public void setOutcome(Outcome outcome) {
 		this.outcome = outcome;
 	}
 
+
 	@Override
 	public String toString() {
-		return "ClosePaymentResponse [outcome=" + outcome + "]";
+		final StringBuilder sb = new StringBuilder("ClosePaymentResponse{");
+		sb.append("outcome=").append(outcome);
+		sb.append('}');
+		return sb.toString();
 	}
 }

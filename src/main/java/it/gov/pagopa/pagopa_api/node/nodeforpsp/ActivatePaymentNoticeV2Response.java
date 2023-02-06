@@ -4,7 +4,11 @@ package it.gov.pagopa.pagopa_api.node.nodeforpsp;
 import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.Adapter1;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtMetadata;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtResponse;
 
@@ -60,6 +64,9 @@ public class ActivatePaymentNoticeV2Response
     extends CtResponse
 {
 
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal totalAmount;
     protected String paymentDescription;
     protected String fiscalCodePA;
@@ -69,7 +76,13 @@ public class ActivatePaymentNoticeV2Response
     protected CtTransferListPSPV2 transferList;
     protected CtMetadata metadata;
     protected String creditorReferenceId;
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal suggestedUserFee;
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal suggestedPaFee;
     protected String suggestedIdBundle;
     protected String suggestedIdCiBundle;
@@ -79,7 +92,7 @@ public class ActivatePaymentNoticeV2Response
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getTotalAmount() {
@@ -91,7 +104,7 @@ public class ActivatePaymentNoticeV2Response
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setTotalAmount(BigDecimal value) {
@@ -295,7 +308,7 @@ public class ActivatePaymentNoticeV2Response
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getSuggestedUserFee() {
@@ -307,7 +320,7 @@ public class ActivatePaymentNoticeV2Response
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setSuggestedUserFee(BigDecimal value) {
@@ -319,7 +332,7 @@ public class ActivatePaymentNoticeV2Response
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getSuggestedPaFee() {
@@ -331,7 +344,7 @@ public class ActivatePaymentNoticeV2Response
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setSuggestedPaFee(BigDecimal value) {

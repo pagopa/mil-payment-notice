@@ -17,18 +17,17 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>2.14.3.Final</quarkus.platform.version>
+		<quarkus.platform.version>2.16.0.Final</quarkus.platform.version>
 		<skipITs>true</skipITs>
 		<common.version>1.1.5</common.version>
 		
 		<!-- CXF related properties -->
-    	<quarkus.cxf.version>1.0.0</quarkus.cxf.version>
-		<cxf.version>3.5.2</cxf.version>
+    	<quarkus.cxf.version>1.7.3</quarkus.cxf.version>
 		
 		<!-- JaCoCo Properties -->
 	    <jacoco.version>0.8.6</jacoco.version>
 	   
-	    <sonar.exclusions>it.gov.pagopa.pagopa_api.node.nodeforpsp/*.java</sonar.exclusions>
+	    <sonar.exclusions>src/main/java/it/gov/pagopa/pagopa_api/**</sonar.exclusions>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -72,6 +71,40 @@
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-redis-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-vertx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-container-image-docker</artifactId>
+		</dependency>
+		<!-- Core CXF dependency -->
+		<dependency>
+			<groupId>io.quarkiverse.cxf</groupId>
+			<artifactId>quarkus-cxf</artifactId>
+			<version>${quarkus.cxf.version}</version>
+		</dependency>
+		<!-- CXF logging -->
+		<dependency>
+			<groupId>io.quarkiverse.cxf</groupId>
+			<artifactId>quarkus-cxf-rt-features-logging</artifactId>
+			<version>${quarkus.cxf.version}</version>
+		</dependency>
+		<!-- Provides async non-blocking client calls for CXF -->
+		<dependency>
+			<groupId>io.quarkiverse.cxf</groupId>
+			<artifactId>quarkus-cxf-rt-transports-http-hc5</artifactId>
+			<version>${quarkus.cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
@@ -95,32 +128,28 @@
 			<artifactId>quarkus-jacoco</artifactId>
 			<scope>test</scope>
 		</dependency>
-		 <!-- Core CXF dependency -->
-	    <dependency>
-	      <groupId>io.quarkiverse.cxf</groupId>
-	      <artifactId>quarkus-cxf</artifactId>
-	      <version>${quarkus.cxf.version}</version>
-	    </dependency>
-	    <!-- CXF logging -->
-	    <dependency>
-	      <groupId>io.quarkiverse.cxf</groupId>
-	      <artifactId>quarkus-cxf-rt-features-logging</artifactId>
-	      <version>${quarkus.cxf.version}</version>
-	    </dependency>
-		<!-- Provides async non-blocking client calls for CXF -->
-	    <dependency>
-	      <groupId>org.apache.cxf</groupId>
-	      <artifactId>cxf-rt-transports-http-hc5</artifactId>
-	      <version>${cxf.version}</version>
-	    </dependency>
-	    <dependency>
-		    <groupId>io.quarkus</groupId>
-		    <artifactId>quarkus-redis-client</artifactId>
-		</dependency>
 		<dependency>
 		    <groupId>org.jacoco</groupId> 
 		    <artifactId>jacoco-maven-plugin</artifactId>
-		    <version>0.8.6</version>
+		    <version>0.8.8</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>4.3.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-sync</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -128,7 +157,7 @@
 			<plugin>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-codegen-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>3.5.5</version>
 				<executions>
 					<execution>
 						<id>generate-sources</id>
@@ -145,6 +174,7 @@
 									<!-- Specify a binding file to support asynchronous calls -->
 									<bindingFiles>
 										<bindingFile>${project.basedir}/src/main/resources/async_binding.xml</bindingFile>
+										<bindingFile>${project.basedir}/src/main/resources/stAmountXmlBinding.xml</bindingFile>
 									</bindingFiles>
 									<extraargs>
 										<extraarg>-autoNameResolution</extraarg>

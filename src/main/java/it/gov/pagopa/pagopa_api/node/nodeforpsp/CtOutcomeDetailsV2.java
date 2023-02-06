@@ -7,7 +7,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.Adapter1;
 
 
 /**
@@ -58,8 +60,13 @@ public class CtOutcomeDetailsV2 {
     protected StPaymentMethod paymentMethod;
     @XmlSchemaType(name = "string")
     protected StPaymentChannel paymentChannel;
-    @XmlElement(required = true)
+    @XmlElement(required = true, type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal fee;
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal primaryCiIncurredFee;
     protected String idBundle;
     protected String idCiBundle;
@@ -125,7 +132,7 @@ public class CtOutcomeDetailsV2 {
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getFee() {
@@ -137,7 +144,7 @@ public class CtOutcomeDetailsV2 {
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setFee(BigDecimal value) {
@@ -149,7 +156,7 @@ public class CtOutcomeDetailsV2 {
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getPrimaryCiIncurredFee() {
@@ -161,7 +168,7 @@ public class CtOutcomeDetailsV2 {
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setPrimaryCiIncurredFee(BigDecimal value) {

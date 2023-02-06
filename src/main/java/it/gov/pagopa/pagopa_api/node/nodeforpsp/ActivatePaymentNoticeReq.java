@@ -8,7 +8,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.Adapter1;
 
 
 /**
@@ -66,7 +68,9 @@ public class ActivatePaymentNoticeReq {
     @XmlElement(required = true)
     protected CtQrCode qrCode;
     protected BigInteger expirationTime;
-    @XmlElement(required = true)
+    @XmlElement(required = true, type = String.class)
+    @XmlJavaTypeAdapter(Adapter1 .class)
+    @XmlSchemaType(name = "decimal")
     protected BigDecimal amount;
     @XmlSchemaType(name = "date")
     protected XMLGregorianCalendar dueDate;
@@ -245,7 +249,7 @@ public class ActivatePaymentNoticeReq {
      * 
      * @return
      *     possible object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public BigDecimal getAmount() {
@@ -257,7 +261,7 @@ public class ActivatePaymentNoticeReq {
      * 
      * @param value
      *     allowed object is
-     *     {@link BigDecimal }
+     *     {@link String }
      *     
      */
     public void setAmount(BigDecimal value) {

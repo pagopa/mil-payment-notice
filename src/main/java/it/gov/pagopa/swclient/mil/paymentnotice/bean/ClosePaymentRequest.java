@@ -1,93 +1,117 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.bean;
 
+import java.math.BigInteger;
 import java.util.List;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
 
 public class ClosePaymentRequest {
 
-	private List<String> paymentTokens;
+	@NotNull(message = "[" + ErrorCode.ERROR_OUTCOME_MUST_NOT_BE_NULL + "] outcome must not be null")
+	@Pattern(regexp = "OK|KO", message = "[" + ErrorCode.ERROR_OUTCOME_MUST_MATCH_MATCH_REGEXP + "] outcome must match \"{regexp}\"")
 	private String outcome;
-	private String idPsp;
-	private String pspBroker;
-	private String idChannel;
+
+	@NotNull(message = "[" + ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_NOT_BE_NULL + "] paymentTokens must not be null")
+	@Size(max = 5, message = "[" + ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_HAVE_AT_MOST + "] paymentTokens must have at most {max} elements")
+	private List<@Pattern(regexp = "^[ -~]{1,35}$", message = "[" + ErrorCode.ERROR_PAYMENT_TOKEN_MATCH_MATCH_REGEXP + "] paymentTokens element must match \"{regexp}\"") String> paymentTokens;
+
+	@NotNull(message = "[" + ErrorCode.ERROR_PAYMENT_METHOD_MUST_NOT_BE_NULL + "] paymentMethod must not be null")
+	@Pattern(regexp = "PAGOBANCOMAT|DEBIT_CARD|CREDIT_CARD|BANK_ACCOUNT|CASH", message = "[" + ErrorCode.ERROR_PAYMENT_METHOD_MUST_MATCH_REGEXP + "] paymentMethod must match \"{regexp}\"")
 	private String paymentMethod;
+
+	@NotNull(message = "[" + ErrorCode.ERROR_TRANSACTION_ID_MUST_NOT_BE_NULL + "] transactionId must not be null")
+	@Pattern(regexp = "^[a-zA-Z0-9]{1,255}$", message = "[" + ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP + "] transactionId must match \"{regexp}\"")
 	private String transactionId;
-	private String totalAmount;
-	private String fee;
-	private String timestampOperation;
-	private AdditionaPaymentInformation additionaPaymentInformation;
-	public List<String> getPaymentTokens() {
-		return paymentTokens;
-	}
-	public void setPaymentTokens(List<String> paymentTokens) {
-		this.paymentTokens = paymentTokens;
-	}
+
+	@NotNull(message = "[" + ErrorCode.ERROR_TOTAL_AMOUNT_MUST_NOT_BE_NULL + "] totalAmount must not be null")
+	@Min(value = 1L, message = "[" + ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_GREATER_THAN + "] totalAmount must be greater than {value}")
+	@Max(value = 99999999999L, message = "[" + ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_LESS_THAN + "] totalAmount must less than {value}")
+	private BigInteger totalAmount;
+
+	@NotNull(message = "[" + ErrorCode.ERROR_FEE_MUST_NOT_BE_NULL + "] fee must match not be null")
+	@Min(value = 1L, message = "[" + ErrorCode.ERROR_FEE_MUST_BE_GREATER_THAN + "] fee must be greater than {value}")
+	@Max(value = 99999999999L, message = "[" + ErrorCode.ERROR_FEE_MUST_BE_LESS_THAN + "] fee must less than {value}")
+	private BigInteger fee;
+
+	@NotNull(message = "[" + ErrorCode.ERROR_TIMESTAMP_OP_MUST_NOT_BE_NULL + "] timestampOp must not be null")
+	@Pattern(regexp = "\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\\d|3[0-1])T(2[0-3]|[01]\\d):[0-5]\\d:[0-5]\\d", message = "[" + ErrorCode.ERROR_TIMESTAMP_OP_MUST_MATCH_REGEXP + "] timestampOp must match \"{regexp}\"")
+	private String timestampOp;
+
+
 	public String getOutcome() {
 		return outcome;
 	}
+
 	public void setOutcome(String outcome) {
 		this.outcome = outcome;
 	}
-	public String getIdPsp() {
-		return idPsp;
-	}
-	public void setIdPsp(String idPsp) {
-		this.idPsp = idPsp;
-	}
-	public String getPspBroker() {
-		return pspBroker;
-	}
-	public void setPspBroker(String pspBroker) {
-		this.pspBroker = pspBroker;
-	}
-	public String getIdChannel() {
-		return idChannel;
-	}
-	public void setIdChannel(String idChannel) {
-		this.idChannel = idChannel;
-	}
+	
 	public String getPaymentMethod() {
 		return paymentMethod;
 	}
+
 	public void setPaymentMethod(String paymentMethod) {
 		this.paymentMethod = paymentMethod;
 	}
+
 	public String getTransactionId() {
 		return transactionId;
 	}
+
 	public void setTransactionId(String transactionId) {
 		this.transactionId = transactionId;
 	}
-	public String getTotalAmount() {
+
+	public BigInteger getTotalAmount() {
 		return totalAmount;
 	}
-	public void setTotalAmount(String totalAmount) {
-		this.totalAmount = totalAmount;
+
+	public void setTotalAmount(BigInteger amount) {
+		this.totalAmount = amount;
 	}
-	public String getFee() {
+
+	public BigInteger getFee() {
 		return fee;
 	}
-	public void setFee(String fee) {
+
+	public void setFee(BigInteger fee) {
 		this.fee = fee;
 	}
-	public String getTimestampOperation() {
-		return timestampOperation;
+
+	public String getTimestampOp() {
+		return timestampOp;
 	}
-	public void setTimestampOperation(String timestampOperation) {
-		this.timestampOperation = timestampOperation;
+
+	public void setTimestampOp(String timestampOp) {
+		this.timestampOp = timestampOp;
 	}
-	public AdditionaPaymentInformation getAdditionaPaymentInformation() {
-		return additionaPaymentInformation;
+
+	public List<String> getPaymentTokens() {
+		return paymentTokens;
 	}
-	public void setAdditionaPaymentInformation(AdditionaPaymentInformation additionaPaymentInformation) {
-		this.additionaPaymentInformation = additionaPaymentInformation;
+
+	public void setPaymentTokens(List<String> paymentTokens) {
+		this.paymentTokens = paymentTokens;
 	}
+
+
 	@Override
 	public String toString() {
-		return "ClosePaymentRequest [paymentTokens=" + paymentTokens + ", outcome=" + outcome + ", idPsp=" + idPsp
-				+ ", pspBroker=" + pspBroker + ", idChannel=" + idChannel + ", paymentMethod=" + paymentMethod
-				+ ", transactionId=" + transactionId + ", totalAmount=" + totalAmount + ", fee=" + fee
-				+ ", timestampOperation=" + timestampOperation + ", additionaPaymentInformation="
-				+ additionaPaymentInformation + "]";
+		final StringBuilder sb = new StringBuilder("ClosePaymentRequest{");
+		sb.append("outcome='").append(outcome).append('\'');
+		sb.append(", paymentTokens=").append(paymentTokens);
+		sb.append(", paymentMethod='").append(paymentMethod).append('\'');
+		sb.append(", transactionId='").append(transactionId).append('\'');
+		sb.append(", totalAmount=").append(totalAmount);
+		sb.append(", fee=").append(fee);
+		sb.append(", timestampOp='").append(timestampOp).append('\'');
+		sb.append('}');
+		return sb.toString();
 	}
-	
 }
