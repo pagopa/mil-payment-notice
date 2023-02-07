@@ -37,6 +37,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 	/**
 	 * Retrieve the data of a payment notice by its qr-code.
 	 * The qr code contains, encoded, the tax code of the company and the payment notice number
+	 *
 	 * @param headers the object containing all the common headers used by the mil services
 	 * @param qrCode the qr-code
 	 * @return a {@link VerifyPaymentNoticeResponse} containing the data of the payment notice retrieved from the node
@@ -54,13 +55,14 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 		QrCode parsedQrCode = QrCode.parse(qrCode);
 
 		return retrievePSPConfiguration(headers.getAcquirerId()).
-				chain(pspConf -> callNodeVerifyPaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(), pspConf, headers.getChannel()));
+				chain(pspConf -> callNodeVerifyPaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(), pspConf));
 
 	}
 
 
 	/**
 	 * Retrieve the data of a payment notice by its number and the tax code of the company
+	 *
 	 * @param headers the object containing all the common headers used by the mil services
 	 * @param paTaxCode the tax code of the pa that created the payment notice
 	 * @param noticeNumber the number of the payment notice
@@ -80,20 +82,20 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 		Log.debugf("verifyByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber", headers, paTaxCode, noticeNumber);
 
 		return retrievePSPConfiguration(headers.getAcquirerId()).
-				chain(pspConf -> callNodeVerifyPaymentNotice(paTaxCode, noticeNumber, pspConf, headers.getChannel()));
+				chain(pspConf -> callNodeVerifyPaymentNotice(paTaxCode, noticeNumber, pspConf));
 
 	}
 
 
 	/**
 	 * Branch of the verifyPaymentNotice Uni that retrieves the payment notice detail from the node
+	 *
 	 * @param paTaxCode the tax code of the pa that created the payment notice
 	 * @param noticeNumber the number of the payment notice
 	 * @param pspConfiguration the configuration of the PSP retrieved from the DB
-	 * @param channel the channel from which the request to verify the payment notice was done
-	 * @return an @{@link Uni} emitting a @{@link VerifyPaymentNoticeResponse} containing the data retrieved from the node
+	 * @return an {@link Uni} emitting a {@link VerifyPaymentNoticeResponse} containing the data retrieved from the node
 	 */
-	private Uni<Response> callNodeVerifyPaymentNotice(String paTaxCode, String noticeNumber, PspConfiguration pspConfiguration, String channel) {
+	private Uni<Response> callNodeVerifyPaymentNotice(String paTaxCode, String noticeNumber, PspConfiguration pspConfiguration) {
 
 		CtQrCode ctQrCode = new CtQrCode();
 		ctQrCode.setFiscalCode(paTaxCode);
@@ -103,7 +105,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 
 		verifyPaymentNoticeReq.setIdPSP(pspConfiguration.getPspId());
 		verifyPaymentNoticeReq.setIdBrokerPSP(pspConfiguration.getPspBroker());
-		verifyPaymentNoticeReq.setIdChannel("97735020584_03"); // FIXME find correct mapping idChannel->terminalId?
+		verifyPaymentNoticeReq.setIdChannel(pspConfiguration.getIdChannel());
 		verifyPaymentNoticeReq.setPassword(pspConfiguration.getPspPassword());
 
 		verifyPaymentNoticeReq.setQrCode(ctQrCode);
@@ -134,6 +136,12 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 	}
 
 
+	/**
+	 * Builds the OK response of the verifyPayment API based on the response from the node
+	 *
+	 * @param response the {@link VerifyPaymentNoticeRes} from the node
+	 * @return
+	 */
 	private VerifyPaymentNoticeResponse buildResponseOk(VerifyPaymentNoticeRes response) {
 		VerifyPaymentNoticeResponse verifyResponse = new VerifyPaymentNoticeResponse();
 		verifyResponse.setOutcome(response.getOutcome().value());
@@ -151,6 +159,12 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 	}
 
 
+	/**
+	 * Builds the KO response of the verifyPayment API based on the response from the node
+	 *
+	 * @param response the {@link VerifyPaymentNoticeRes} from the node
+	 * @return
+	 */
 	private VerifyPaymentNoticeResponse buildResponseKo(VerifyPaymentNoticeRes response) {
 		VerifyPaymentNoticeResponse verifyResponse = new VerifyPaymentNoticeResponse();
 		verifyResponse.setOutcome(

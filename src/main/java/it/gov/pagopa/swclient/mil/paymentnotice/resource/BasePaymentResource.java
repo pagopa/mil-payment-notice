@@ -19,6 +19,9 @@ import java.util.stream.Stream;
 
 public class BasePaymentResource {
 
+	/**
+	 * The configuration object cotaining the mapping between
+	 */
 	@Inject
 	NodeErrorMapping nodeErrorMapping;
 
@@ -31,8 +34,9 @@ public class BasePaymentResource {
 
 	/**
 	 * Retrieves the PSP configuration from the database by acquirer id, and emits it as a Uni
+	 *
 	 * @param acquirerId the id of the acquirer
-	 * @return the @{@link Uni} emitting a @{@link PspConfiguration}
+	 * @return the {@link Uni} emitting a {@link PspConfiguration}
 	 */
 	protected Uni<PspConfiguration> retrievePSPConfiguration(String acquirerId) {
 		Log.debugf("retrievePSPConfiguration - acquirerId: %s ", acquirerId);
@@ -60,6 +64,7 @@ public class BasePaymentResource {
 
 	/**
 	 * Remaps the fault error from the node to an outcome based on the mapping in the property
+	 *
 	 * @param faultCode the fault code returned by the node
 	 * @param originalFaultCode the original fault code returned by the node (could be empty)
 	 * @return the mapped outcome

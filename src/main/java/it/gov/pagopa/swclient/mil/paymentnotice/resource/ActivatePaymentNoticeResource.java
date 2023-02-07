@@ -39,7 +39,10 @@ import it.gov.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
 
 @Path("/paymentNotices")
 public class ActivatePaymentNoticeResource extends BasePaymentResource {
-	
+
+	/**
+	 * The expiration time of the payment token passed to the node
+	 */
 	@ConfigProperty(name="paymentnotice.activatepayment.expiration-time")
 	BigInteger paymentNoticeExpirationTime;
 
@@ -47,6 +50,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 	/**
 	 * Activate a payment notice by its qr-code.
 	 * The qr code contains, encoded, the tax code of the company and the payment notice number
+	 *
 	 * @param headers the object containing all the common headers used by the mil services
 	 * @param qrCode the qr-code
 	 * @param activatePaymentNoticeRequest an {@link ActivatePaymentNoticeRequest}
@@ -68,13 +72,14 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 
 		return retrievePSPConfiguration(headers.getAcquirerId()).
 				chain(pspConf -> callNodeActivatePaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(),
-						pspConf, activatePaymentNoticeRequest, headers.getChannel()));
+						pspConf, activatePaymentNoticeRequest));
 
 	}
 
 
 	/**
 	 * Activate a payment notice by its number and the tax code of the company
+	 *
 	 * @param headers the object containing all the common headers used by the mil services
 	 * @param paTaxCode the tax code of the pa that created the payment notice
 	 * @param noticeNumber the number of the payment notice
@@ -94,24 +99,25 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 			
 			@Valid ActivatePaymentNoticeRequest activatePaymentNoticeRequest) {
 
-		Log.debugf("activateByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber, body: %s", headers, paTaxCode, noticeNumber, activatePaymentNoticeRequest);
+		Log.debugf("activateByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber, body: %s",
+				headers, paTaxCode, noticeNumber, activatePaymentNoticeRequest);
 
 		return retrievePSPConfiguration(headers.getAcquirerId()).
-				chain(pspConf -> callNodeActivatePaymentNotice(paTaxCode, noticeNumber, pspConf, activatePaymentNoticeRequest, headers.getChannel()));
+				chain(pspConf -> callNodeActivatePaymentNotice(paTaxCode, noticeNumber, pspConf, activatePaymentNoticeRequest));
 	}
 
 
 	/**
 	 * Branch of the activatePaymentNotice Uni that retrieves the payment notice detail from the node
+	 *
 	 * @param paTaxCode the tax code of the pa that created the payment notice
 	 * @param noticeNumber the number of the payment notice
 	 * @param pspConfiguration the configuration of the PSP retrieved from the DB
 	 * @param activatePaymentNoticeRequest the object received in request of the activatePaymentNotice
-	 * @param channel the channel from which the request to activate the payment notice was done
-	 * @return an @{@link Uni} emitting a @{@link ActivatePaymentNoticeResponse} containing the result of the activation of the payment notice
+	 * @return a {@link Uni} emitting an {@link ActivatePaymentNoticeResponse} containing the result of the activation of the payment notice
 	 */
 	private Uni<Response> callNodeActivatePaymentNotice(String paTaxCode, String noticeNumber, PspConfiguration pspConfiguration,
-														ActivatePaymentNoticeRequest activatePaymentNoticeRequest, String channel) {
+														ActivatePaymentNoticeRequest activatePaymentNoticeRequest) {
 
 		CtQrCode ctQrCode = new CtQrCode();
 		ctQrCode.setFiscalCode(paTaxCode);
@@ -120,7 +126,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 		ActivatePaymentNoticeV2Request nodeActivateRequest = new ActivatePaymentNoticeV2Request();
 		nodeActivateRequest.setIdPSP(pspConfiguration.getPspId());
 		nodeActivateRequest.setIdBrokerPSP(pspConfiguration.getPspBroker());
-		nodeActivateRequest.setIdChannel("97735020584_03"); // FIXME find correct mapping idChannel->terminalId?
+		nodeActivateRequest.setIdChannel(pspConfiguration.getIdChannel());
 		nodeActivateRequest.setPassword(pspConfiguration.getPspPassword());
 
 		nodeActivateRequest.setIdempotencyKey(activatePaymentNoticeRequest.getIdempotencyKey());
@@ -150,7 +156,13 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 					return Response.status(Status.OK).entity(activatePaymentNoticeResponse).build();
 		});
 	}
-	
+
+	/**
+	 * Builds the OK response of the verifyPayment API based on the response from the node
+	 *
+	 * @param response the {@link ActivatePaymentNoticeV2Response} from the node
+	 * @return
+	 */
 	private ActivatePaymentNoticeResponse buildResponseOk(ActivatePaymentNoticeV2Response response) {
 		ActivatePaymentNoticeResponse activateResponse = new ActivatePaymentNoticeResponse();
 		activateResponse.setOutcome(response.getOutcome().value());
@@ -169,6 +181,12 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 		return activateResponse;
 	}
 
+	/**
+	 * Builds the KO response of the verifyPayment API based on the response from the node
+	 *
+	 * @param response the {@link ActivatePaymentNoticeV2Response} from the node
+	 * @return
+	 */
 	private ActivatePaymentNoticeResponse buildResponseKo(ActivatePaymentNoticeV2Response response) {
 
 		ActivatePaymentNoticeResponse activatePaymentNoticeResponse = new ActivatePaymentNoticeResponse();

@@ -7,13 +7,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.google.common.collect.Maps;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.StAmountOptionPSP;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.VerifyPaymentNoticeResource;
@@ -21,6 +26,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -410,7 +418,7 @@ class VerifyPaymentNoticeResourceTest {
 		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
 
 	}
-	
+
 	@Test
 	void testVerifyNoticePaTaxCodeAndNoticeNumber_pspInfoNotFound() {
 

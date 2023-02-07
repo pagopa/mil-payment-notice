@@ -168,6 +168,10 @@ class SendPaymentResultTest {
 	void testReceivePaymentStatus_200() {
 
 		Mockito
+				.when(paymentService.get(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(new ReceivePaymentStatusRequest()));
+
+		Mockito
 				.when(paymentService.set(Mockito.any(String.class), Mockito.any(ReceivePaymentStatusRequest.class)))
 				.thenReturn(Uni.createFrom().voidItem());
 
@@ -193,11 +197,79 @@ class SendPaymentResultTest {
 		Assertions.assertEquals(Outcome.OK.toString(), response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
 	}
+
+	@Test
+	void testReceivePaymentStatus_404() {
+
+		Mockito
+				.when(paymentService.get(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().nullItem());
+
+		Mockito
+				.when(paymentService.set(Mockito.any(String.class), Mockito.any(ReceivePaymentStatusRequest.class)))
+				.thenReturn(Uni.createFrom().voidItem());
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(
+						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
+						"Version", API_VERSION,
+						"AcquirerId", "4585625",
+						"Channel", "ATM",
+						"TerminalId", "0aB9wXyZ",
+						"SessionId", SESSION_ID)
+				.and()
+				.pathParam("transactionId", TRANSACTION_ID)
+				.body(paymentStatus)
+				.when()
+				.post("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(404, response.statusCode());
+		Assertions.assertEquals("PAYMENT_NOT_FOUND", response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+	}
+
+	@Test
+	void testReceivePaymentStatus_500_RedisErrorGet() {
+
+		Mockito
+				.when(paymentService.get(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().failure(() -> new RuntimeException()));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(
+						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
+						"Version", API_VERSION,
+						"AcquirerId", "4585625",
+						"Channel", "ATM",
+						"TerminalId", "0aB9wXyZ",
+						"SessionId", SESSION_ID)
+				.and()
+				.pathParam("transactionId", TRANSACTION_ID)
+				.when()
+				.post("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_RETRIEVING_DATA_FROM_REDIS));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+
+	}
 	
 	@Test
-	void testPostSendPaymentResult_500_RedisError() {
-		
-		
+	void testReceivePaymentStatus_500_RedisError() {
+
+		Mockito
+				.when(paymentService.get(Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(new ReceivePaymentStatusRequest()));
+
 		Mockito
 				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
 				.thenReturn(Uni.createFrom().failure(() -> new RuntimeException()));

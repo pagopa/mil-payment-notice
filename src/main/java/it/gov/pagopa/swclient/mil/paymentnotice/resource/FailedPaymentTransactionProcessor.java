@@ -16,11 +16,15 @@ import java.time.Duration;
 @ApplicationScoped
 public class FailedPaymentTransactionProcessor {
 
+    /**
+     * The reactive REST client for the node interfaces
+     */
     @RestClient
     NodeRestService nodeRestService;
 
     /**
      * Consumes the event of failed payment transaction
+     *
      * @param nodeClosePaymentRequest the object received in request of the closePayment
      */
     @ConsumeEvent("failedPaymentTransaction")
@@ -36,6 +40,13 @@ public class FailedPaymentTransactionProcessor {
 
     }
 
+    /**
+     * Calls the closePayment API on the node and return its response as an {@link Uni}.
+     * If the outcome is "KO" it is considered an error and response with a failure.
+     *
+     * @param nodeClosePaymentRequest the request to be sent to the node
+     * @return an {@link Uni} emitting the response from the node, or a failure otherwise
+     */
     private Uni<NodeClosePaymentResponse> callNodeClosePayment(NodeClosePaymentRequest nodeClosePaymentRequest) {
         return nodeRestService.closePayment(nodeClosePaymentRequest)
                 .onItem().transform(Unchecked.function(r -> {

@@ -45,7 +45,9 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 
 	JedisPool jedisPool;
 
-	String transactionId;
+	String nodeTransactionId;
+
+	String clientTransactionId;
 
 	@Override
 	public void setIntegrationTestContext(DevServicesContext devServicesContext) {
@@ -59,7 +61,8 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 		String redisExposedPort = devServicesContext.devServicesProperties().get("test.redis.exposed-port");
 		jedisPool = new JedisPool("127.0.0.1", Integer.parseInt(redisExposedPort));
 
-		transactionId = UUID.randomUUID().toString().replaceAll("-", "");
+		nodeTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
+		clientTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
 
 		Payment payment = new Payment();
 		payment.setCompany("ASL Roma");
@@ -78,7 +81,8 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 		paymentStatus.setPayments(paymentList);
 
 		try (Jedis jedis = jedisPool.getResource()) {
-			jedis.set(transactionId, new ObjectMapper().writeValueAsString(paymentStatus));
+			jedis.set(nodeTransactionId, new ObjectMapper().writeValueAsString(paymentStatus));
+			jedis.set(clientTransactionId, new ObjectMapper().writeValueAsString(new ReceivePaymentStatusRequest()));
 		} catch (JsonProcessingException e) {
 			logger.error("Error while saving payment transaction in redis", e);
 		}
@@ -97,7 +101,7 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
 				.and()
-				.pathParam("transactionId", transactionId)
+				.pathParam("transactionId", nodeTransactionId)
 				.when()
 				.get("/{transactionId}")
 				.then()
@@ -177,8 +181,6 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 	@Test
 	void testReceivePaymentStatus_200() {
 
-		String receivedTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
-
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(
@@ -188,7 +190,7 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
 				.and()
-				.pathParam("transactionId", receivedTransactionId)
+				.pathParam("transactionId", clientTransactionId)
 				.body(paymentStatus)
 				.when()
 				.post("/{transactionId}")
@@ -202,7 +204,7 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 
 		// test data on redis
 		try (Jedis jedis = jedisPool.getResource()) {
-			String redisPaymentTransaction = jedis.get(transactionId);
+			String redisPaymentTransaction = jedis.get(clientTransactionId);
 			Assertions.assertNotNull(redisPaymentTransaction);
 			ReceivePaymentStatusRequest storedPaymentStatus =
 					new ObjectMapper().readValue(redisPaymentTransaction, ReceivePaymentStatusRequest.class);
@@ -228,6 +230,33 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+
+	@Test
+	void testReceivePaymentStatus_404() {
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(
+						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
+						"Version", API_VERSION,
+						"AcquirerId", "4585625",
+						"Channel", "ATM",
+						"TerminalId", "0aB9wXyZ")
+				.and()
+				.pathParam("transactionId", UUID.randomUUID().toString().replaceAll("-", ""))
+				.body(paymentStatus)
+				.when()
+				.post("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(404, response.statusCode());
+		Assertions.assertEquals("PAYMENT_NOT_FOUND", response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+
 	}
 
 

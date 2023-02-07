@@ -5,18 +5,32 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+/**
+ * Response of the receivePaymentStatus API
+ */
 @RegisterForReflection
 public class ReceivePaymentStatusResponse {
 
+	/**
+	 * The outcome of the operation
+	 */
 	@NotNull
 	@Pattern(regexp = "^OK$")
 	private String outcome;
 
 
+	/**
+	 * Gets outcome
+	 * @return value of outcome
+	 */
 	public String getOutcome() {
 		return outcome;
 	}
 
+	/**
+	 * Sets outcome
+	 * @param outcome value of outcome
+	 */
 	public void setOutcome(String outcome) {
 		this.outcome = outcome;
 	}
