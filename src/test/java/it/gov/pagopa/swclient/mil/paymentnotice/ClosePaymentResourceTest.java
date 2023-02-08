@@ -10,6 +10,7 @@ import java.util.concurrent.TimeoutException;
 
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
+import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.api.Assertions;
@@ -48,6 +49,9 @@ class ClosePaymentResourceTest {
 	
 	@InjectMock
 	PspConfRepository pspConfRepository;
+
+	@InjectMock
+	PaymentService paymentService;
 
 	PspConfEntity pspConfEntity;
 
@@ -100,6 +104,10 @@ class ClosePaymentResourceTest {
 	@Test
 	void testClosePayment_200_node200_OK() {
 
+		Mockito
+				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
+				.thenReturn(Uni.createFrom().voidItem());
+
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
@@ -141,6 +149,10 @@ class ClosePaymentResourceTest {
 
 	@Test
 	void testClosePayment_200_node200_KO() {
+
+		Mockito
+				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
+				.thenReturn(Uni.createFrom().voidItem());
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
@@ -186,6 +198,10 @@ class ClosePaymentResourceTest {
 	void testClosePayment_200_nodeError_KO(int statusCode) {
 
 		Mockito
+				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
+				.thenReturn(Uni.createFrom().voidItem());
+
+		Mockito
 				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
 
@@ -226,6 +242,10 @@ class ClosePaymentResourceTest {
 	void testClosePayment_200_nodeError_OK(int status) {
 
 		Mockito
+				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
+				.thenReturn(Uni.createFrom().voidItem());
+
+		Mockito
 				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
 
@@ -264,6 +284,10 @@ class ClosePaymentResourceTest {
 
 	@Test
 	void testClosePayment_200_nodeTimeout() {
+
+		Mockito
+				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
+				.thenReturn(Uni.createFrom().voidItem());
 
 		Mockito
 				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
