@@ -1,7 +1,12 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.resource;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -293,17 +298,16 @@ public class PaymentResource extends BasePaymentResource {
 		if (ExceptionUtils.indexOfThrowable(webEx, JsonParseException.class) != -1) {
 			Log.debug("Node closePayment returned an unparsable response, responding with outcome OK");
 			outcomeOk = true;
-		} else {
+		}
+		else {
 			int nodeResponseStatus = webEx.getResponse().getStatus();
-			switch (nodeResponseStatus) {
-				case 400, 404, 422 ->
-					// for these three statuses we return outcome ko
-					Log.debugf("Node closePayment returned a %s status response, responding with outcome KO", nodeResponseStatus);
-				default -> {
-					// for any other status we return outcome ok
-					Log.debugf("Node closePayment returned a %s status response, responding with outcome OK", nodeResponseStatus);
-					outcomeOk = true;
-				}
+			// for these three statuses we return outcome ko
+			if (nodeResponseStatus == 400 || nodeResponseStatus == 404 || nodeResponseStatus == 422) {
+				Log.debugf("Node closePayment returned a %s status response, responding with outcome KO", nodeResponseStatus);
+			}
+			else {// for any other status we return outcome ok
+				Log.debugf("Node closePayment returned a %s status response, responding with outcome OK", nodeResponseStatus);
+				outcomeOk = true;
 			}
 		}
 		return outcomeOk;
@@ -315,7 +319,7 @@ public class PaymentResource extends BasePaymentResource {
 	 *
 	 * @param closePaymentRequest the {@link ClosePaymentRequest} received in request by the MIL
 	 * @param pspConfiguration the @{@link PspConfiguration} retrieved from the DB
-	 * @return
+	 * @return the {@link NodeClosePaymentRequest} to be sent to the node
 	 */
 	private NodeClosePaymentRequest createNodeClosePaymentRequest(ClosePaymentRequest closePaymentRequest, PspConfiguration pspConfiguration) {
 
@@ -329,9 +333,12 @@ public class PaymentResource extends BasePaymentResource {
 		nodeClosePaymentRequest.setIdChannel(pspConfiguration.getIdChannel());
 		nodeClosePaymentRequest.setPaymentMethod(closePaymentRequest.getPaymentMethod());
 		nodeClosePaymentRequest.setTransactionId(closePaymentRequest.getTransactionId());
-		nodeClosePaymentRequest.setTotalAmount(new BigDecimal(closePaymentRequest.getTotalAmount()).divide(new BigDecimal(100)));
-		nodeClosePaymentRequest.setFee(new BigDecimal(closePaymentRequest.getFee()).divide(new BigDecimal(100)));
-		nodeClosePaymentRequest.setTimestampOperation(closePaymentRequest.getTimestampOp()); // FIXME transform in 2022-02-22T14:41:58.811+01:00
+		// conversion from euro cents to euro
+		nodeClosePaymentRequest.setTotalAmount(new BigDecimal(closePaymentRequest.getTotalAmount()).divide(new BigDecimal(100), RoundingMode.HALF_DOWN));
+		nodeClosePaymentRequest.setFee(new BigDecimal(closePaymentRequest.getFee()).divide(new BigDecimal(100), RoundingMode.HALF_DOWN));
+		// transform the date from LocalDateTime to ZonedDateTime as requested by the closePayment on the node
+		ZonedDateTime timestampOperation = LocalDateTime.parse(closePaymentRequest.getTimestampOp()).atZone(ZoneId.of("UTC"));
+		nodeClosePaymentRequest.setTimestampOperation(timestampOperation.format(DateTimeFormatter.ISO_INSTANT));
 
 		nodeClosePaymentRequest.setAdditionalPaymentInformations(new AdditionalPaymentInformations());
 

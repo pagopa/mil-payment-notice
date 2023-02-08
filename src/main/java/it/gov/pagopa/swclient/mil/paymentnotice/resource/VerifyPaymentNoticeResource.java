@@ -140,7 +140,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 	 * Builds the OK response of the verifyPayment API based on the response from the node
 	 *
 	 * @param response the {@link VerifyPaymentNoticeRes} from the node
-	 * @return
+	 * @return the OK {@link VerifyPaymentNoticeResponse} to be returned by the API
 	 */
 	private VerifyPaymentNoticeResponse buildResponseOk(VerifyPaymentNoticeRes response) {
 		VerifyPaymentNoticeResponse verifyResponse = new VerifyPaymentNoticeResponse();
@@ -151,6 +151,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 		// only the first element of the payment list is returned
 		if (response.getPaymentList().getPaymentOptionDescription() != null) {
 			CtPaymentOptionDescription paymentOptionDescription = response.getPaymentList().getPaymentOptionDescription().get(0);
+			// conversion from euro to euro cents
 			verifyResponse.setAmount(paymentOptionDescription.getAmount().multiply(new BigDecimal(100)).toBigInteger());
 			verifyResponse.setDueDate(paymentOptionDescription.getDueDate().toString());
 			verifyResponse.setNote(paymentOptionDescription.getPaymentNote());
@@ -163,7 +164,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 	 * Builds the KO response of the verifyPayment API based on the response from the node
 	 *
 	 * @param response the {@link VerifyPaymentNoticeRes} from the node
-	 * @return
+	 * @return the KO {@link VerifyPaymentNoticeResponse} to be returned by the API
 	 */
 	private VerifyPaymentNoticeResponse buildResponseKo(VerifyPaymentNoticeRes response) {
 		VerifyPaymentNoticeResponse verifyResponse = new VerifyPaymentNoticeResponse();

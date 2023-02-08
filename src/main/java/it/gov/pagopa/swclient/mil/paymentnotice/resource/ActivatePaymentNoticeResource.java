@@ -2,6 +2,7 @@ package it.gov.pagopa.swclient.mil.paymentnotice.resource;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,7 +135,8 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 		nodeActivateRequest.setQrCode(ctQrCode);
 
 		nodeActivateRequest.setExpirationTime(paymentNoticeExpirationTime);
-		nodeActivateRequest.setAmount(new BigDecimal(activatePaymentNoticeRequest.getAmount()).divide(new BigDecimal(100)));
+		// conversion from euro cents to euro
+		nodeActivateRequest.setAmount(new BigDecimal(activatePaymentNoticeRequest.getAmount()).divide(new BigDecimal(100), RoundingMode.HALF_DOWN));
 
 		return nodeWrapper.activatePaymentNoticeV2Async(nodeActivateRequest)
 				.onFailure().transform(t-> {
@@ -158,14 +160,15 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 	}
 
 	/**
-	 * Builds the OK response of the verifyPayment API based on the response from the node
+	 * Builds the OK response of the activatePayment API based on the response from the node
 	 *
 	 * @param response the {@link ActivatePaymentNoticeV2Response} from the node
-	 * @return
+	 * @return the {@link ActivatePaymentNoticeResponse} to be returned by the API
 	 */
 	private ActivatePaymentNoticeResponse buildResponseOk(ActivatePaymentNoticeV2Response response) {
 		ActivatePaymentNoticeResponse activateResponse = new ActivatePaymentNoticeResponse();
 		activateResponse.setOutcome(response.getOutcome().value());
+		// conversion from euro cents to euro
 		activateResponse.setAmount(response.getTotalAmount().multiply(new BigDecimal(100)).toBigInteger());
 		activateResponse.setPaTaxCode(response.getFiscalCodePA());
 		activateResponse.setPaymentToken(response.getPaymentToken());
@@ -182,10 +185,10 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 	}
 
 	/**
-	 * Builds the KO response of the verifyPayment API based on the response from the node
+	 * Builds the KO response of the activatePayment API based on the response from the node
 	 *
 	 * @param response the {@link ActivatePaymentNoticeV2Response} from the node
-	 * @return
+	 * @return the {@link ActivatePaymentNoticeResponse} to be returned by the API
 	 */
 	private ActivatePaymentNoticeResponse buildResponseKo(ActivatePaymentNoticeV2Response response) {
 
