@@ -42,3 +42,10 @@ nb-configuration.xml
 .sonar
 .scannerwork
 
+#
+# Terraform
+#
+src/main/terraform/identity/.terraform/
+.terraform.lock.hcl
+
+
