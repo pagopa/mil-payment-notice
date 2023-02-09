@@ -1,0 +1,19 @@
+{
+    "priority": 8,
+    "request": {
+        "method": "POST",
+        "url": "/closepayment",
+        "bodyPatterns" : [
+            {
+                "matchesJsonPath" : "$[?(@.transactionId == '2720236097a54d2799a41671b0585747')]"
+            }
+        ]
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "bodyFileName": "unparsable.json"
+    }
+}

@@ -39,3 +39,13 @@ nb-configuration.xml
 # Local environment
 .env
 
+.sonar
+.scannerwork
+
+#
+# Terraform
+#
+src/main/terraform/identity/.terraform/
+.terraform.lock.hcl
+
+
