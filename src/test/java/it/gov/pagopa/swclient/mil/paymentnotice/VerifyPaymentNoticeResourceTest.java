@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
@@ -58,8 +59,6 @@ class VerifyPaymentNoticeResourceTest {
 	MilRestService milRestService;
 
 	VerifyPaymentNoticeRes verifyPaymentNoticeResOk;
-
-	VerifyPaymentNoticeRes verifyPaymentNoticeResKo;
 
 	AcquirerConfiguration acquirerConfiguration;
 
@@ -142,6 +141,9 @@ class VerifyPaymentNoticeResourceTest {
 		verifyPaymentNoticeResOk.setOfficeName("officeName");
 		verifyPaymentNoticeResOk.setCompanyName("companyName");
 
+	}
+
+	private VerifyPaymentNoticeRes generateKoNodeResponse(String faultCode, String originalFaultCode) {
 
 		// node verify response KO
 
@@ -158,19 +160,17 @@ class VerifyPaymentNoticeResourceTest {
 		//		</nfp:verifyPaymentNoticeRes>
 
 		CtFaultBean ctFaultBean = new CtFaultBean();
-		ctFaultBean.setFaultCode("PPT_SINTASSI_EXTRAXSD");
-		ctFaultBean.setFaultString("Errore di sintassi extra XSD.");
-		ctFaultBean.setId("NodoDeiPagamentiSPC");
-		ctFaultBean.setDescription("Errore validazione XML [Envelope/Body/verifyPaymentNoticeReq/qrCode/noticeNumber] - cvc-pattern-valid: il valore \"30205\" " +
-				"non è valido come facet rispetto al pattern \"[0-9]{18}\" per il tipo 'stNoticeNumber'.");
+		ctFaultBean.setFaultCode(faultCode);
+		ctFaultBean.setOriginalFaultCode(originalFaultCode);
 
-		verifyPaymentNoticeResKo = new VerifyPaymentNoticeRes();
-		verifyPaymentNoticeResKo.setOutcome(StOutcome.KO);
-		verifyPaymentNoticeResKo.setFault(ctFaultBean);
+		VerifyPaymentNoticeRes verifyPaymentNoticeRes = new VerifyPaymentNoticeRes();
+		verifyPaymentNoticeRes.setOutcome(StOutcome.KO);
+		verifyPaymentNoticeRes.setFault(ctFaultBean);
 
+		return verifyPaymentNoticeRes;
 	}
 
-	private static Stream<Arguments> provideNodeIntegrationErrorCases() {
+	private Stream<Arguments> provideNodeIntegrationErrorCases() {
 		return Stream.of(
 				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
 				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_500, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
@@ -179,7 +179,7 @@ class VerifyPaymentNoticeResourceTest {
 		);
 	}
 
-	private static Stream<Arguments> provideMilIntegrationErrorCases() {
+	private Stream<Arguments> provideMilIntegrationErrorCases() {
 		return Stream.of(
 				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
 				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_404, ErrorCode.UNKNOWN_ACQUIRER_ID),
@@ -278,8 +278,9 @@ class VerifyPaymentNoticeResourceTest {
 		Assertions.assertEquals(verifyPaymentNoticeResOk.getOfficeName(), response.jsonPath().getString("office"));
 	}
 	
-	@Test
-	void testVerifyByQrCode_200_nodeKo() {
+	@ParameterizedTest
+	@CsvFileSource(resources = "/node_error_mopping.csv", numLinesToSkip = 1)
+	void testVerifyByQrCode_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
 				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
@@ -287,7 +288,7 @@ class VerifyPaymentNoticeResourceTest {
 		
 		Mockito
 				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
-				.thenReturn(Uni.createFrom().item(verifyPaymentNoticeResKo));
+				.thenReturn(Uni.createFrom().item(generateKoNodeResponse(faultCode, originalFaultCode)));
 		
 		Response response = given()
 				.headers(commonHeaders)
@@ -301,7 +302,7 @@ class VerifyPaymentNoticeResourceTest {
 
 		Assertions.assertEquals(200, response.statusCode());
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
-		Assertions.assertEquals("WRONG_NOTICE_DATA", response.jsonPath().getString("outcome"));
+		Assertions.assertEquals(milOutcome, response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
@@ -411,8 +412,9 @@ class VerifyPaymentNoticeResourceTest {
 	}
 
 
-	@Test
-	void testVerifyByTaxCodeAndNoticeNumber_200_nodeKo() {
+	@ParameterizedTest
+	@CsvFileSource(resources = "/node_error_mopping.csv", numLinesToSkip = 1)
+	void testVerifyByTaxCodeAndNoticeNumber_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
 				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
@@ -420,7 +422,7 @@ class VerifyPaymentNoticeResourceTest {
 
 		Mockito
 				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
-				.thenReturn(Uni.createFrom().item(verifyPaymentNoticeResKo));
+				.thenReturn(Uni.createFrom().item(generateKoNodeResponse(faultCode, originalFaultCode)));
 
 		Response response = given()
 				.headers(commonHeaders)
@@ -435,7 +437,7 @@ class VerifyPaymentNoticeResourceTest {
 
 		Assertions.assertEquals(200, response.statusCode());
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
-		Assertions.assertEquals("WRONG_NOTICE_DATA", response.jsonPath().getString("outcome"));
+		Assertions.assertEquals(milOutcome, response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
@@ -511,5 +513,5 @@ class VerifyPaymentNoticeResourceTest {
 		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
 
 	}
-	
+
 }

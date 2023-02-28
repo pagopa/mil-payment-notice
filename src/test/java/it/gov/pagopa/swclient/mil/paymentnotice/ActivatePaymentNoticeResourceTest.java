@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
@@ -53,8 +54,6 @@ class ActivatePaymentNoticeResourceTest {
 	MilRestService milRestService;
 
 	ActivatePaymentNoticeV2Response nodeActivateResponseOk;
-
-	ActivatePaymentNoticeV2Response nodeActivateResponseKo;
 
 	AcquirerConfiguration acquirerConfiguration;
 
@@ -139,8 +138,11 @@ class ActivatePaymentNoticeResourceTest {
 		nodeActivateResponseOk.setTransferList(transferList);
 		nodeActivateResponseOk.setCreditorReferenceId("02051234567890124");
 
+	}
 
-		// node activate response KO
+	private ActivatePaymentNoticeV2Response generateKoNodeResponse(String faultCode, String originalFaultCode) {
+
+		// node verify response KO
 
 		//		<nfp:activatePaymentNoticeV2Response>
 		//			<outcome>KO</outcome>
@@ -155,21 +157,17 @@ class ActivatePaymentNoticeResourceTest {
 		//		</nfp:activatePaymentNoticeV2Response>
 
 		CtFaultBean ctFaultBean = new CtFaultBean();
-		ctFaultBean.setFaultCode("PPT_SINTASSI_EXTRAXSD");
-		ctFaultBean.setFaultString("Errore di sintassi extra XSD.");
-		ctFaultBean.setId("NodoDeiPagamentiSPC");
-		ctFaultBean.setDescription(
-				"Errore validazione XML [Envelope/Body/verifyPaymentNoticeReq/qrCode/noticeNumber] - cvc-pattern-valid: il valore \"30205\" " +
-				"non è valido come facet rispetto al pattern \"[0-9]{18}\" per il tipo 'stNoticeNumber'."
-		);
+		ctFaultBean.setFaultCode(faultCode);
+		ctFaultBean.setOriginalFaultCode(originalFaultCode);
 
-		nodeActivateResponseKo = new ActivatePaymentNoticeV2Response();
-		nodeActivateResponseKo.setOutcome(StOutcome.KO);
-		nodeActivateResponseKo.setFault(ctFaultBean);
+		ActivatePaymentNoticeV2Response activatePaymentNoticeV2Response = new ActivatePaymentNoticeV2Response();
+		activatePaymentNoticeV2Response.setOutcome(StOutcome.KO);
+		activatePaymentNoticeV2Response.setFault(ctFaultBean);
 
+		return activatePaymentNoticeV2Response;
 	}
 
-	private static Stream<Arguments> provideNodeIntegrationErrorCases() {
+	private Stream<Arguments> provideNodeIntegrationErrorCases() {
 		return Stream.of(
 				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
 				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_500, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
@@ -178,7 +176,7 @@ class ActivatePaymentNoticeResourceTest {
 		);
 	}
 
-	private static Stream<Arguments> provideMilIntegrationErrorCases() {
+	private Stream<Arguments> provideMilIntegrationErrorCases() {
 		return Stream.of(
 				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
 				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_404, ErrorCode.UNKNOWN_ACQUIRER_ID),
@@ -231,9 +229,10 @@ class ActivatePaymentNoticeResourceTest {
 		Assertions.assertEquals(StringUtils.EMPTY, response.jsonPath().getList("transfers", Transfer.class).get(1).getCategory());
 	     
 	}
-	
-	@Test
-	void testActivateByQrCode_200_nodeKo() {
+
+	@ParameterizedTest
+	@CsvFileSource(resources = "/node_error_mopping.csv", numLinesToSkip = 1)
+	void testActivateByQrCode_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
 				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
@@ -241,7 +240,7 @@ class ActivatePaymentNoticeResourceTest {
 		
 		Mockito
 				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
-				.thenReturn(Uni.createFrom().item(nodeActivateResponseKo));
+				.thenReturn(Uni.createFrom().item(generateKoNodeResponse(faultCode, originalFaultCode)));
 
 		ActivatePaymentNoticeRequest activateRequest = new ActivatePaymentNoticeRequest();
 		activateRequest.setAmount(10099L);
@@ -262,7 +261,7 @@ class ActivatePaymentNoticeResourceTest {
 
 		Assertions.assertEquals(200, response.statusCode());
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
-		Assertions.assertEquals("WRONG_NOTICE_DATA", response.jsonPath().getString("outcome"));
+		Assertions.assertEquals(milOutcome, response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));
@@ -384,8 +383,9 @@ class ActivatePaymentNoticeResourceTest {
 	     
 	}
 
-	@Test
-	void testActivateByTaxCodeAndNoticeNumber_200_nodeKo() {
+	@ParameterizedTest
+	@CsvFileSource(resources = "/node_error_mopping.csv", numLinesToSkip = 1)
+	void testActivateByTaxCodeAndNoticeNumber_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
 				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
@@ -393,7 +393,7 @@ class ActivatePaymentNoticeResourceTest {
 
 		Mockito
 				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
-				.thenReturn(Uni.createFrom().item(nodeActivateResponseKo));
+				.thenReturn(Uni.createFrom().item(generateKoNodeResponse(faultCode, originalFaultCode)));
 
 		ActivatePaymentNoticeRequest activateRequest = new ActivatePaymentNoticeRequest();
 		activateRequest.setAmount(10099L);
@@ -414,7 +414,7 @@ class ActivatePaymentNoticeResourceTest {
 
 		Assertions.assertEquals(200, response.statusCode());
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
-		Assertions.assertEquals("WRONG_NOTICE_DATA", response.jsonPath().getString("outcome"));
+		Assertions.assertEquals(milOutcome, response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));

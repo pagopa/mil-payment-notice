@@ -85,7 +85,7 @@ public class BasePaymentResource {
 		Integer outcomeErrorId = nodeErrorMapping.map().
 				get(Stream.of(faultCode, originalFaultCode)
 						.filter(s -> s != null && !s.isEmpty())
-						.collect(Collectors.joining(",")));
+						.collect(Collectors.joining("-")));
 		if (outcomeErrorId == null) {
 			Log.errorf("Could not find configured mapping for faultCode %s originalFaultCode %s, defaulting to UNEXPECTED_ERROR",
 					faultCode, originalFaultCode);
