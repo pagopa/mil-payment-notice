@@ -231,7 +231,7 @@ class ActivatePaymentNoticeResourceTest {
 	}
 
 	@ParameterizedTest
-	@CsvFileSource(resources = "/node_error_mopping.csv", numLinesToSkip = 1)
+	@CsvFileSource(resources = "/node_error_mapping.csv", numLinesToSkip = 1)
 	void testActivateByQrCode_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
@@ -384,7 +384,7 @@ class ActivatePaymentNoticeResourceTest {
 	}
 
 	@ParameterizedTest
-	@CsvFileSource(resources = "/node_error_mopping.csv", numLinesToSkip = 1)
+	@CsvFileSource(resources = "/node_error_mapping.csv", numLinesToSkip = 1)
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito

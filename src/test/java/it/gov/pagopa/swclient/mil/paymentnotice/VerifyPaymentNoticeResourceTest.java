@@ -279,7 +279,7 @@ class VerifyPaymentNoticeResourceTest {
 	}
 	
 	@ParameterizedTest
-	@CsvFileSource(resources = "/node_error_mopping.csv", numLinesToSkip = 1)
+	@CsvFileSource(resources = "/node_error_mapping.csv", numLinesToSkip = 1)
 	void testVerifyByQrCode_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
@@ -413,7 +413,7 @@ class VerifyPaymentNoticeResourceTest {
 
 
 	@ParameterizedTest
-	@CsvFileSource(resources = "/node_error_mopping.csv", numLinesToSkip = 1)
+	@CsvFileSource(resources = "/node_error_mapping.csv", numLinesToSkip = 1)
 	void testVerifyByTaxCodeAndNoticeNumber_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
