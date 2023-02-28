@@ -10,7 +10,7 @@
         ]
     },
     "response": {
-        "status": 404,
+        "status": 422,
         "headers": {
             "Content-Type": "application/json"
         },

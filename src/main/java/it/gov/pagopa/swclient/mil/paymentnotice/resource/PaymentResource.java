@@ -303,7 +303,7 @@ public class PaymentResource extends BasePaymentResource {
 		else {
 			int nodeResponseStatus = webEx.getResponse().getStatus();
 			// for these three statuses we return outcome ko
-			if (nodeResponseStatus == 400 || nodeResponseStatus == 404 || nodeResponseStatus == 422) {
+			if (nodeResponseStatus == 400 || nodeResponseStatus == 404) {
 				Log.debugf("Node closePayment returned a %s status response, responding with outcome KO", nodeResponseStatus);
 			}
 			else {// for any other status we return outcome ok

@@ -206,7 +206,7 @@ class ClosePaymentResourceTest {
 
 
 	@ParameterizedTest
-	@ValueSource(ints = {400, 404, 422})
+	@ValueSource(ints = {400, 404})
 	void testClosePayment_200_nodeError_KO(int statusCode) {
 
 		Mockito
@@ -244,7 +244,7 @@ class ClosePaymentResourceTest {
 
 
 	@ParameterizedTest
-	@ValueSource(ints = {408, 500})
+	@ValueSource(ints = {408, 422, 500})
 	void testClosePayment_200_nodeError_OK(int status) {
 
 		Mockito

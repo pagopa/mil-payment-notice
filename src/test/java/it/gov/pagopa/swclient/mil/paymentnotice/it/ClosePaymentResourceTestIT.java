@@ -137,8 +137,7 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 	@ParameterizedTest
 	@ValueSource(strings = {
 			PaymentTestData.PAY_TID_NODE_400,
-			PaymentTestData.PAY_TID_NODE_404,
-			PaymentTestData.PAY_TID_NODE_422})
+			PaymentTestData.PAY_TID_NODE_404})
 	void testClosePayment_200_nodeError_KO(String paymentTransactionId) {
 		
 		Response response = given()
@@ -171,6 +170,7 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 	@ValueSource(strings = {
 			PaymentTestData.PAY_TID_NODE_408,
 			PaymentTestData.PAY_TID_NODE_500,
+			PaymentTestData.PAY_TID_NODE_422,
 			PaymentTestData.PAY_TID_NODE_UNPARSABLE})
 	void testClosePayment_200_nodeError_OK(String paymentTransactionId) {
 
