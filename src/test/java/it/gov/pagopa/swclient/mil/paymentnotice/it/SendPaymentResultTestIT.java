@@ -8,10 +8,12 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.vertx.core.net.impl.TrustAllTrustManager;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Payment;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import org.apache.commons.lang3.BooleanUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,10 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +64,24 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 	@BeforeAll
 	void createTestObjects() {
 
+		// initializing redis client
 		String redisExposedPort = devServicesContext.devServicesProperties().get("test.redis.exposed-port");
-		jedisPool = new JedisPool("127.0.0.1", Integer.parseInt(redisExposedPort));
+		String password = devServicesContext.devServicesProperties().get("test.redis.password");
+		boolean tlsEnabled = BooleanUtils.toBoolean(devServicesContext.devServicesProperties().get("test.redis.tls"));
+		String redisURI = "redis" + (tlsEnabled ? "s" : "") + "://:" + password + "@127.0.0.1:" + redisExposedPort;
+		if (tlsEnabled) {
+			try {
+				SSLContext sslContext = SSLContext.getInstance("TLS");
+				sslContext.init(null, new TrustManager[] { TrustAllTrustManager.INSTANCE }, null);
+				jedisPool = new JedisPool(redisURI, sslContext.getSocketFactory(), null, (hostname, session) -> true);
+			}
+			catch (NoSuchAlgorithmException | KeyManagementException e) {
+				logger.error("Error while initializing sslContext for jedis", e);
+			}
+		}
+		else {
+			jedisPool = new JedisPool(redisURI);
+		}
 
 		nodeTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
 		clientTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -83,7 +105,8 @@ class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
 		try (Jedis jedis = jedisPool.getResource()) {
 			jedis.set(nodeTransactionId, new ObjectMapper().writeValueAsString(paymentStatus));
 			jedis.set(clientTransactionId, new ObjectMapper().writeValueAsString(new ReceivePaymentStatusRequest()));
-		} catch (JsonProcessingException e) {
+		}
+		catch (JsonProcessingException e) {
 			logger.error("Error while saving payment transaction in redis", e);
 		}
 	}

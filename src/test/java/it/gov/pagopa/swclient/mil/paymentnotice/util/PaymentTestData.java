@@ -1,7 +1,4 @@
-package it.gov.pagopa.swclient.mil.paymentnotice;
-
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+package it.gov.pagopa.swclient.mil.paymentnotice.util;
 
 public final class PaymentTestData {
 

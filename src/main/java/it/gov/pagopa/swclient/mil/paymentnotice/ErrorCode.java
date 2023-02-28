@@ -60,6 +60,8 @@ public final class ErrorCode {
 	// integration error node - rest client
 	public static final String ERROR_CALLING_NODE_REST_SERVICES								 = MODULE_ID + "000029";
 
+	public static final String ERROR_CALLING_MIL_REST_SERVICES								 = MODULE_ID + "00002A";
+
 
 	private ErrorCode() {
 	}

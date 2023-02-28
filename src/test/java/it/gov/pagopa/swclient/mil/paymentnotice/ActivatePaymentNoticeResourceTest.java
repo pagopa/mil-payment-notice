@@ -1,22 +1,5 @@
 package it.gov.pagopa.swclient.mil.paymentnotice;
 
-import static io.restassured.RestAssured.given;
-
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.util.Optional;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-
-import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.Transfer;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.mockito.Mockito;
-
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -26,54 +9,84 @@ import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.ActivatePaymentNoticeV2Response;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtTransferListPSPV2;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtTransferPSPV2;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfEntity;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfRepository;
-import it.gov.pagopa.swclient.mil.paymentnotice.resource.ActivatePaymentNoticeResource;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.Transfer;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.resource.ActivatePaymentNoticeResource;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 @TestHTTPEndpoint(ActivatePaymentNoticeResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ActivatePaymentNoticeResourceTest {
-	
-	final static String SESSION_ID			= "a6a666e6-97da-4848-b568-99fedccb642c";
-	final static String API_VERSION			= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
-	
-	final static String QR_CODE				= "qrCode";
-	final static String PAX_CODE			= "paxCode";
-	final static String NOTICE_NUMBER		= "noticeNumber";
 
-	
 	@InjectMock
 	NodeForPspWrapper pnWrapper;
-	
-	@InjectMock
-	PspConfRepository pspConfRepository;
 
-	PspConfEntity pspConfEntity;
+	@InjectMock
+	@RestClient
+	MilRestService milRestService;
 
 	ActivatePaymentNoticeV2Response nodeActivateResponseOk;
 
 	ActivatePaymentNoticeV2Response nodeActivateResponseKo;
 
+	AcquirerConfiguration acquirerConfiguration;
+
+	Map<String, String> commonHeaders;
+
+
 	@BeforeAll
 	void createTestObjects() {
 
-		// PSP configuration
-		PspConfiguration pspInfo = new PspConfiguration();
-		pspInfo.setPspId("AGID_01");
-		pspInfo.setPspBroker("97735020584");
-		pspInfo.setPspPassword("pwd_AgID");
+		// common headers
+		commonHeaders = new HashMap<>();
+		commonHeaders.put("RequestId", UUID.randomUUID().toString());
+		commonHeaders.put("Version", "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay");
+		commonHeaders.put("AcquirerId", "4585625");
+		commonHeaders.put("Channel", "ATM");
+		commonHeaders.put("TerminalId", "0aB9wXyZ");
+		commonHeaders.put("SessionId", UUID.randomUUID().toString());
 
-		pspConfEntity = new PspConfEntity();
-		pspConfEntity.acquirerId = "4585625";
-		pspConfEntity.pspConfiguration = pspInfo;
 
-		// node verify response OK
+		// acquirer PSP configuration
+		acquirerConfiguration = new AcquirerConfiguration();
+
+		PspConfiguration pspConfiguration = new PspConfiguration();
+		pspConfiguration.setPsp("AGID_01");
+		pspConfiguration.setBroker("97735020584");
+		pspConfiguration.setChannel("97735020584_07");
+		pspConfiguration.setPassword("PLACEHOLDER");
+
+		acquirerConfiguration.setPspConfigForVerifyAndActivate(pspConfiguration);
+		acquirerConfiguration.setPspConfigForGetFeeAndClosePayment(pspConfiguration);
+
+		// node activate response OK
 
 		//		<nfp:activatePaymentNoticeV2Response>
 		//			<outcome>OK</outcome>
@@ -97,7 +110,7 @@ class ActivatePaymentNoticeResourceTest {
 
 		CtTransferPSPV2 transfer1 = new CtTransferPSPV2();
 		transfer1.setIdTransfer(1);
-		transfer1.setTransferAmount(new BigDecimal(99.98));
+		transfer1.setTransferAmount(new BigDecimal("99.98"));
 		transfer1.setFiscalCodePA("77777777777");
 		transfer1.setIBAN("IT30N0103076271000001823603");
 		transfer1.setRemittanceInformation("TARI Comune EC_TE");
@@ -105,7 +118,7 @@ class ActivatePaymentNoticeResourceTest {
 
 		CtTransferPSPV2 transfer2 = new CtTransferPSPV2();
 		transfer2.setIdTransfer(1);
-		transfer2.setTransferAmount(new BigDecimal(1.01));
+		transfer2.setTransferAmount(new BigDecimal("1.01"));
 		transfer2.setFiscalCodePA("77777777777");
 		transfer2.setIBAN("IT30N0103076271000001823603");
 		transfer2.setRemittanceInformation("TARI Comune EC_TE");
@@ -126,9 +139,10 @@ class ActivatePaymentNoticeResourceTest {
 		nodeActivateResponseOk.setTransferList(transferList);
 		nodeActivateResponseOk.setCreditorReferenceId("02051234567890124");
 
-		// node verify response KO
 
-		//		<nfp:verifyPaymentNoticeRes>
+		// node activate response KO
+
+		//		<nfp:activatePaymentNoticeV2Response>
 		//			<outcome>KO</outcome>
 		//			<fault>
 		//				<faultCode>PPT_SINTASSI_EXTRAXSD</faultCode>
@@ -138,7 +152,7 @@ class ActivatePaymentNoticeResourceTest {
 		//					cvc-pattern-valid: il valore &quot;30205&quot; non è valido come facet rispetto al pattern &quot;[0-9]{18}&quot; per il tipo 'stNoticeNumber'.
 		//				</description>
 		//			</fault>
-		//		</nfp:verifyPaymentNoticeRes>
+		//		</nfp:activatePaymentNoticeV2Response>
 
 		CtFaultBean ctFaultBean = new CtFaultBean();
 		ctFaultBean.setFaultCode("PPT_SINTASSI_EXTRAXSD");
@@ -155,13 +169,32 @@ class ActivatePaymentNoticeResourceTest {
 
 	}
 
+	private static Stream<Arguments> provideNodeIntegrationErrorCases() {
+		return Stream.of(
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_500, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
+				Arguments.of(ExceptionType.TIMEOUT_EXCEPTION, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
+				Arguments.of(ExceptionType.UNPARSABLE_EXCEPTION, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES)
+		);
+	}
+
+	private static Stream<Arguments> provideMilIntegrationErrorCases() {
+		return Stream.of(
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_404, ErrorCode.UNKNOWN_ACQUIRER_ID),
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_500, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.TIMEOUT_EXCEPTION, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.UNPARSABLE_EXCEPTION, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES)
+		);
+	}
+
 
 	@Test
 	void testActivateByQrCode_200_nodeOk() {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
 				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
@@ -173,15 +206,9 @@ class ActivatePaymentNoticeResourceTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(QR_CODE, "PAGOPA|002|100000000000000000|20000000000|9999")
+				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
 				.body(activateRequest)
 				.when()
 				.patch("/{qrCode}")
@@ -209,8 +236,8 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByQrCode_200_nodeKo() {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
 				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
@@ -223,15 +250,9 @@ class ActivatePaymentNoticeResourceTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(QR_CODE, "PAGOPA|002|100000000000000000|20000000000|9999")
+				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
 				.body(activateRequest)
 				.when()
 				.patch("/{qrCode}")
@@ -248,28 +269,28 @@ class ActivatePaymentNoticeResourceTest {
 	     
 	}
 
-	@Test
-	void testActivateByQrCode_500_pspInfoNotFound() {
+
+	@ParameterizedTest
+	@MethodSource("provideNodeIntegrationErrorCases")
+	void testActivateByQrCode_500_nodeError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.empty()));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		ActivatePaymentNoticeRequest activateRequest = new ActivatePaymentNoticeRequest();
 		activateRequest.setAmount(10099L);
 		activateRequest.setIdempotencyKey("77777777777_abcDEF1238");
-		
+
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(QR_CODE, "PAGOPA|002|100000000000000000|20000000000|9999")
+				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
 				.body(activateRequest)
 				.when()
 				.patch("/{qrCode}")
@@ -278,7 +299,40 @@ class ActivatePaymentNoticeResourceTest {
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.UNKNOWN_ACQUIRER_ID));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));
+
+	}
+
+	@ParameterizedTest
+	@MethodSource("provideMilIntegrationErrorCases")
+	void testActivateByQrCode__500_milError(ExceptionType exceptionType, String errorCode) {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
+
+		ActivatePaymentNoticeRequest activateRequest = new ActivatePaymentNoticeRequest();
+		activateRequest.setAmount(10099L);
+		activateRequest.setIdempotencyKey("77777777777_abcDEF1238");
+		
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
+				.body(activateRequest)
+				.when()
+				.patch("/{qrCode}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
@@ -290,8 +344,8 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeOk() {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
 				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
@@ -303,19 +357,13 @@ class ActivatePaymentNoticeResourceTest {
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(PAX_CODE, "20000000000")
-				.pathParam(NOTICE_NUMBER, "100000000000000000")
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
 				.body(activateRequest)
 				.when()
-				.patch("/{"+ PAX_CODE + "}/{" + NOTICE_NUMBER + "}")
+				.patch("/{paTaxCode}/{noticeNumber}")
 				.then()
 				.extract()
 				.response();
@@ -340,8 +388,8 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeKo() {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
 				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
@@ -353,19 +401,13 @@ class ActivatePaymentNoticeResourceTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(PAX_CODE, "20000000000")
-				.pathParam(NOTICE_NUMBER, "100000000000000000")
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
 				.body(activateRequest)
 				.when()
-				.patch("/{"+ PAX_CODE + "}/{" + NOTICE_NUMBER + "}")
+				.patch("/{paTaxCode}/{noticeNumber}")
 				.then()
 				.extract()
 				.response();
@@ -378,13 +420,18 @@ class ActivatePaymentNoticeResourceTest {
 		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));
 
 	}
-	
-	@Test
-	void testActivateByTaxCodeAndNoticeNumber_500_pspInfoNotFound() {
+
+	@ParameterizedTest
+	@MethodSource("provideNodeIntegrationErrorCases")
+	void testActivateByTaxCodeAndNoticeNumber_500_nodeError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.empty()));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		ActivatePaymentNoticeRequest activateRequest = new ActivatePaymentNoticeRequest();
 		activateRequest.setAmount(10099L);
@@ -392,25 +439,52 @@ class ActivatePaymentNoticeResourceTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(PAX_CODE, "20000000000")
-				.pathParam(NOTICE_NUMBER, "100000000000000000")
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
 				.body(activateRequest)
 				.when()
-				.patch("/{"+ PAX_CODE + "}/{" + NOTICE_NUMBER + "}")
+				.patch("/{paTaxCode}/{noticeNumber}")
 				.then()
 				.extract()
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.UNKNOWN_ACQUIRER_ID));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));
+	}
+
+	@ParameterizedTest
+	@MethodSource("provideMilIntegrationErrorCases")
+	void testActivateByTaxCodeAndNoticeNumber_500_milError(ExceptionType exceptionType, String errorCode) {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
+
+		ActivatePaymentNoticeRequest activateRequest = new ActivatePaymentNoticeRequest();
+		activateRequest.setAmount(10099L);
+		activateRequest.setIdempotencyKey("77777777777_abcDEF1238");
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
+				.body(activateRequest)
+				.when()
+				.patch("/{paTaxCode}/{noticeNumber}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));

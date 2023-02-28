@@ -77,23 +77,6 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 		pspConfEntity.acquirerId = ACQUIRER_ID;
 		pspConfEntity.pspConfiguration = pspInfo;
 
-		// MongoDB init data
-
-//		ConnectionString mongoConnectionString = new ConnectionString("mongodb://127.0.0.1:" +
-//				devServicesContext.devServicesProperties().get("test.mongo.exposed-port"));
-//		CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
-//		CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
-//		MongoClientSettings clientSettings = MongoClientSettings.builder()
-//				.applyConnectionString(mongoConnectionString)
-//				.codecRegistry(codecRegistry)
-//				.build();
-//
-//		try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
-//			MongoDatabase database = mongoClient.getDatabase("mil");
-//			MongoCollection<PspConfEntity> pspConfigurationCollection = database.getCollection("pspconf", PspConfEntity.class);
-//			pspConfigurationCollection.countDocuments();
-//			pspConfigurationCollection.insertOne(pspConfEntity);
-//		}
 
 		// node verify response OK
 

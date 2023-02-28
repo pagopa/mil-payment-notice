@@ -22,7 +22,7 @@ public class PspConfiguration {
 	private String idChannel;
 
 	/**
-	 * Channel's password, , assigned by PagoPA
+	 * Channel's password, assigned by PagoPA
 	 */
 	private String pspPassword;
 

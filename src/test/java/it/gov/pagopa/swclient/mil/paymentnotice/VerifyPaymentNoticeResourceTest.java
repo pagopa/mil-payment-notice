@@ -1,27 +1,25 @@
 package it.gov.pagopa.swclient.mil.paymentnotice;
 
-import static io.restassured.RestAssured.given;
-
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import com.google.common.collect.Maps;
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import io.restassured.response.Response;
+import io.smallrye.mutiny.Uni;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtPaymentOptionDescription;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtPaymentOptionsDescriptionList;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.StAmountOptionPSP;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.VerifyPaymentNoticeRes;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.VerifyPaymentNoticeResource;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,57 +29,68 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
-import io.restassured.response.Response;
-import io.smallrye.mutiny.Uni;
-import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtPaymentOptionDescription;
-import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtPaymentOptionsDescriptionList;
-import it.gov.pagopa.pagopa_api.node.nodeforpsp.VerifyPaymentNoticeRes;
-import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfEntity;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfRepository;
-import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 @TestHTTPEndpoint(VerifyPaymentNoticeResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class VerifyPaymentNoticeResourceTest {
-	
-	final static String SESSION_ID			= "a6a666e6-97da-4848-b568-99fedccb642c";
-	final static String API_VERSION			= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
-	
-	final static String QR_CODE				= "qrCode";
-	final static String PA_TAX_CODE 		= "paTaxCode";
-	final static String NOTICE_NUMBER		= "noticeNumber";
 
 	@InjectMock
-	NodeForPspWrapper pnWrapper;
-	
+	NodeForPspWrapper nodeWrapper;
+
 	@InjectMock
-	PspConfRepository pspConfRepository;
+	@RestClient
+	MilRestService milRestService;
 
 	VerifyPaymentNoticeRes verifyPaymentNoticeResOk;
 
 	VerifyPaymentNoticeRes verifyPaymentNoticeResKo;
 
-	PspConfEntity pspConfEntity;
+	AcquirerConfiguration acquirerConfiguration;
+
+	Map<String, String> commonHeaders;
+
 
 	@BeforeAll
 	void createTestObjects() {
 
-		// PSP configuration
-		PspConfiguration pspInfo = new PspConfiguration();
-		pspInfo.setPspId("AGID_01");
-		pspInfo.setPspBroker("97735020584");
-		pspInfo.setPspPassword("pwd_AgID");
+		// common headers
+		commonHeaders = new HashMap<>();
+		commonHeaders.put("RequestId", UUID.randomUUID().toString());
+		commonHeaders.put("Version", "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay");
+		commonHeaders.put("AcquirerId", "4585625");
+		commonHeaders.put("Channel", "ATM");
+		commonHeaders.put("TerminalId", "0aB9wXyZ");
+		commonHeaders.put("SessionId", UUID.randomUUID().toString());
 
-		pspConfEntity = new PspConfEntity();
-		pspConfEntity.acquirerId = "4585625";
-		pspConfEntity.pspConfiguration = pspInfo;
+
+		// acquirer PSP configuration
+		acquirerConfiguration = new AcquirerConfiguration();
+
+		PspConfiguration pspConfiguration = new PspConfiguration();
+		pspConfiguration.setPsp("AGID_01");
+		pspConfiguration.setBroker("97735020584");
+		pspConfiguration.setChannel("97735020584_07");
+		pspConfiguration.setPassword("PLACEHOLDER");
+
+		acquirerConfiguration.setPspConfigForVerifyAndActivate(pspConfiguration);
+		acquirerConfiguration.setPspConfigForGetFeeAndClosePayment(pspConfiguration);
+
 
 		// node verify response OK
 
@@ -133,6 +142,7 @@ class VerifyPaymentNoticeResourceTest {
 		verifyPaymentNoticeResOk.setOfficeName("officeName");
 		verifyPaymentNoticeResOk.setCompanyName("companyName");
 
+
 		// node verify response KO
 
 		//		<nfp:verifyPaymentNoticeRes>
@@ -160,20 +170,32 @@ class VerifyPaymentNoticeResourceTest {
 
 	}
 
+	private static Stream<Arguments> provideNodeIntegrationErrorCases() {
+		return Stream.of(
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_500, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
+				Arguments.of(ExceptionType.TIMEOUT_EXCEPTION, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES),
+				Arguments.of(ExceptionType.UNPARSABLE_EXCEPTION, ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES)
+		);
+	}
+
+	private static Stream<Arguments> provideMilIntegrationErrorCases() {
+		return Stream.of(
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_404, ErrorCode.UNKNOWN_ACQUIRER_ID),
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_500, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.TIMEOUT_EXCEPTION, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.UNPARSABLE_EXCEPTION, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES)
+		);
+	}
 
 	@Test
 	void testVerifyByQrCode_400() {
 
 		Response response = given()
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(QR_CODE, "PAGOPA|100000000000000000|20000000000|9999")
+				.pathParam("qrCode", "PAGOPA|100000000000000000|20000000000|9999")
 				.when()
 				.get("/{qrCode}")
 				.then()
@@ -196,18 +218,12 @@ class VerifyPaymentNoticeResourceTest {
 	void testVerifyByTaxCodeAndNoticeNumber_400() {
 
 		Response response = given()
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(PA_TAX_CODE, "2000000")
-				.pathParam(NOTICE_NUMBER, "10000000000")
+				.pathParam("paTaxCode", "2000000")
+				.pathParam("noticeNumber", "10000000000")
 				.when()
-				.get("/{"+ PA_TAX_CODE + "}/{" + NOTICE_NUMBER + "}")
+				.get("/{paTaxCode}/{noticeNumber}")
 				.then()
 				.extract()
 				.response();
@@ -230,23 +246,17 @@ class VerifyPaymentNoticeResourceTest {
 	void testVerifyByQrCode_200_nodeOk() {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
-				.when(pnWrapper.verifyPaymentNotice(Mockito.any()))
+				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
 				.thenReturn(Uni.createFrom().item(verifyPaymentNoticeResOk));
 		
 		Response response = given()
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(QR_CODE, "PAGOPA|002|302051234567890125|77777777777|9999")
+				.pathParam("qrCode", "PAGOPA|002|302051234567890125|77777777777|9999")
 				.when()
 				.get("/{qrCode}")
 				.then()
@@ -256,9 +266,13 @@ class VerifyPaymentNoticeResourceTest {
 		Assertions.assertEquals(200, response.statusCode());
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
 	    Assertions.assertEquals(Outcome.OK.toString(), response.jsonPath().getString("outcome"));
-		Assertions.assertEquals(verifyPaymentNoticeResOk.getPaymentList().getPaymentOptionDescription().get(0).getAmount().multiply(new BigDecimal(100)).longValue(), response.jsonPath().getLong("amount"));
+		Assertions.assertEquals(
+				verifyPaymentNoticeResOk.getPaymentList().getPaymentOptionDescription().get(0).getAmount().multiply(new BigDecimal(100)).longValue(),
+				response.jsonPath().getLong("amount"));
 		Assertions.assertEquals("2021-07-31", response.jsonPath().getString("dueDate"));
-		Assertions.assertEquals(verifyPaymentNoticeResOk.getPaymentList().getPaymentOptionDescription().get(0).getPaymentNote(), response.jsonPath().getString("note"));
+		Assertions.assertEquals(
+				verifyPaymentNoticeResOk.getPaymentList().getPaymentOptionDescription().get(0).getPaymentNote(),
+				response.jsonPath().getString("note"));
 		Assertions.assertEquals(verifyPaymentNoticeResOk.getPaymentDescription(), response.jsonPath().getString("description"));
 		Assertions.assertEquals(verifyPaymentNoticeResOk.getCompanyName(), response.jsonPath().getString("company"));
 		Assertions.assertEquals(verifyPaymentNoticeResOk.getOfficeName(), response.jsonPath().getString("office"));
@@ -268,23 +282,17 @@ class VerifyPaymentNoticeResourceTest {
 	void testVerifyByQrCode_200_nodeKo() {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
-				.when(pnWrapper.verifyPaymentNotice(Mockito.any()))
+				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
 				.thenReturn(Uni.createFrom().item(verifyPaymentNoticeResKo));
 		
 		Response response = given()
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(QR_CODE, "PAGOPA|002|100000000000000000|20000000000|9999")
+				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
 				.when()
 				.get("/{qrCode}")
 				.then()
@@ -302,24 +310,53 @@ class VerifyPaymentNoticeResourceTest {
 		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
 
 	}
-	
-	@Test
-	void testVerifyByQrCode_500_pspInfoNotFound() {
+
+	@ParameterizedTest
+	@MethodSource("provideNodeIntegrationErrorCases")
+	void testVerifyByQrCode_500_nodeError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.empty()));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
+
+		Response response = given()
+				.headers(commonHeaders)
+				.and()
+				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
+				.when()
+				.get("/{qrCode}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+	}
+
+
+	@ParameterizedTest
+	@MethodSource("provideMilIntegrationErrorCases")
+	void testVerifyByQrCode_500_milError(ExceptionType exceptionType, String errorCode) {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 		
 		Response response = given()
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(QR_CODE, "PAGOPA|002|100000000000000000|20000000000|9999")
+				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
 				.when()
 				.get("/{qrCode}")
 				.then()
@@ -327,7 +364,7 @@ class VerifyPaymentNoticeResourceTest {
 				.response();
 
         Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.UNKNOWN_ACQUIRER_ID));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
@@ -338,30 +375,25 @@ class VerifyPaymentNoticeResourceTest {
 
 	}
 
+
 	@Test
 	void testVerifyByTaxCodeAndNoticeNumber_200_nodeOk() {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
-				.when(pnWrapper.verifyPaymentNotice(Mockito.any()))
+				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
 				.thenReturn(Uni.createFrom().item(verifyPaymentNoticeResOk));
 		
 		Response response = given()
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(PA_TAX_CODE, "20000000000")
-				.pathParam(NOTICE_NUMBER, "100000000000000000")
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
 				.when()
-				.get("/{"+ PA_TAX_CODE + "}/{" + NOTICE_NUMBER + "}")
+				.get("/{paTaxCode}/{noticeNumber}")
 				.then()
 				.extract()
 				.response();
@@ -383,26 +415,20 @@ class VerifyPaymentNoticeResourceTest {
 	void testVerifyByTaxCodeAndNoticeNumber_200_nodeKo() {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
-				.when(pnWrapper.verifyPaymentNotice(Mockito.any()))
+				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
 				.thenReturn(Uni.createFrom().item(verifyPaymentNoticeResKo));
 
 		Response response = given()
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(PA_TAX_CODE, "20000000000")
-				.pathParam(NOTICE_NUMBER, "100000000000000000")
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
 				.when()
-				.get("/{"+ PA_TAX_CODE + "}/{" + NOTICE_NUMBER + "}")
+				.get("/{paTaxCode}/{noticeNumber}")
 				.then()
 				.extract()
 				.response();
@@ -419,32 +445,63 @@ class VerifyPaymentNoticeResourceTest {
 
 	}
 
-	@Test
-	void testVerifyNoticePaTaxCodeAndNoticeNumber_pspInfoNotFound() {
+	@ParameterizedTest
+	@MethodSource("provideNodeIntegrationErrorCases")
+	void testVerifyByTaxCodeAndNoticeNumber_500_nodeError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.empty()));
-		
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
+
 		Response response = given()
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
-				.pathParam(PA_TAX_CODE, "20000000000")
-				.pathParam(NOTICE_NUMBER, "100000000000000000")
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
 				.when()
-				.get("/{"+ PA_TAX_CODE + "}/{" + NOTICE_NUMBER + "}")
+				.get("/{paTaxCode}/{noticeNumber}")
 				.then()
 				.extract()
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.UNKNOWN_ACQUIRER_ID));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+
+	}
+
+
+	@ParameterizedTest
+	@MethodSource("provideMilIntegrationErrorCases")
+	void testVerifyNoticePaTaxCodeAndNoticeNumber_500_milError(ExceptionType exceptionType, String errorCode) {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
+		
+		Response response = given()
+				.headers(commonHeaders)
+				.and()
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
+				.when()
+				.get("/{paTaxCode}/{noticeNumber}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));

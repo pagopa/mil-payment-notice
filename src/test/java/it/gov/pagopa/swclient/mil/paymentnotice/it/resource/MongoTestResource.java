@@ -55,22 +55,19 @@ public class MongoTestResource implements QuarkusTestResourceLifecycleManager, D
         try {
 			ExecResult result = mongoContainer.execInContainer("mongosh", "<", "/home/mongo/mongoInit.js");
 			logger.info("Init script result {}", result);
-
 		}
 		catch (Exception e) {
 			logger.error("Error while importing data into DB", e);
 		}
 
         // Pass the configuration to the application under test
-		Map<String, String> map = ImmutableMap.of(
+		return ImmutableMap.of(
 				"mongo-connection-string-1","mongodb://" + MONGO_NETWORK_ALIAS + ":" + 27017,
 				"mongo-connection-string-2",MONGO_NETWORK_ALIAS + ":" + 27017,
 				"mongo-connect-timeout", "30",
 				"mongo-read-timeout", "30",
 				"mongo-server-selection-timeout", "30"
 		);
-
-		return map;
 	}
 
 	// create a "fake" network using the same id as the one that will be used by Quarkus

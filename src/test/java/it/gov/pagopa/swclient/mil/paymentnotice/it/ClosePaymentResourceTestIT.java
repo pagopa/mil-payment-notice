@@ -6,7 +6,7 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import it.gov.pagopa.swclient.mil.paymentnotice.PaymentTestData;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfEntity;
@@ -86,6 +86,7 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 						"AcquirerId", PaymentTestData.ACQUIRER_ID_KNOWN,
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
+
 				.and()
 				.body(getClosePaymentRequest(Outcome.OK, PaymentTestData.PAY_TID_NODE_OK))
 				.when()
