@@ -43,7 +43,9 @@ public class BasePaymentResource {
 	/**
 	 * Retrieves the PSP configuration by acquirer id, and emits it as a Uni
 	 *
+	 * @param requestId the id of the request passed in request
 	 * @param acquirerId the id of the acquirer
+	 * @param api a {@link NodeApi} used to choose which of the two PspConfiguration return
 	 * @return the {@link Uni} emitting a {@link PspConfiguration}
 	 */
 	protected Uni<PspConfiguration> retrievePSPConfiguration(String requestId, String acquirerId, NodeApi api) {
@@ -66,9 +68,9 @@ public class BasePaymentResource {
 								.build());
 					}
 				})
-				.map(a -> switch (api) {
-					case ACTIVATE, VERIFY -> a.getPspConfigForVerifyAndActivate();
-					case CLOSE -> a.getPspConfigForGetFeeAndClosePayment();
+				.map(acquirerConfiguration -> switch (api) {
+					case ACTIVATE, VERIFY -> acquirerConfiguration.getPspConfigForVerifyAndActivate();
+					case CLOSE -> acquirerConfiguration.getPspConfigForGetFeeAndClosePayment();
 				});
 	}
 
