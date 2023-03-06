@@ -25,9 +25,10 @@ import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.gov.pagopa.swclient.mil.bean.CommonHeader;
 import it.gov.pagopa.swclient.mil.bean.Errors;
 import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.VerifyPaymentNoticeResponse;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeForPspLoggingUtil;
+import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCode;
 
@@ -54,7 +55,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 		// parse qr-code to retrieve the notice number and the PA tax code
 		QrCode parsedQrCode = QrCode.parse(qrCode);
 
-		return retrievePSPConfiguration(headers.getAcquirerId()).
+		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeVerifyPaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(), pspConf));
 
 	}
@@ -81,7 +82,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 		
 		Log.debugf("verifyByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber", headers, paTaxCode, noticeNumber);
 
-		return retrievePSPConfiguration(headers.getAcquirerId()).
+		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeVerifyPaymentNotice(paTaxCode, noticeNumber, pspConf));
 
 	}
@@ -103,10 +104,10 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 
 		VerifyPaymentNoticeReq verifyPaymentNoticeReq = new VerifyPaymentNoticeReq();
 
-		verifyPaymentNoticeReq.setIdPSP(pspConfiguration.getPspId());
-		verifyPaymentNoticeReq.setIdBrokerPSP(pspConfiguration.getPspBroker());
-		verifyPaymentNoticeReq.setIdChannel(pspConfiguration.getIdChannel());
-		verifyPaymentNoticeReq.setPassword(pspConfiguration.getPspPassword());
+		verifyPaymentNoticeReq.setIdPSP(pspConfiguration.getPsp());
+		verifyPaymentNoticeReq.setIdBrokerPSP(pspConfiguration.getBroker());
+		verifyPaymentNoticeReq.setIdChannel(pspConfiguration.getChannel());
+		verifyPaymentNoticeReq.setPassword(pspConfiguration.getPassword());
 
 		verifyPaymentNoticeReq.setQrCode(ctQrCode);
 

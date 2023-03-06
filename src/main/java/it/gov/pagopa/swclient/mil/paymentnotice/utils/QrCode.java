@@ -3,7 +3,6 @@ package it.gov.pagopa.swclient.mil.paymentnotice.utils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -62,7 +61,6 @@ public class QrCode {
      * @param qrCode the string representation of the QR code
      * @return the {@link QrCode} instance
      */
-    @Valid
     public static QrCode parse(String qrCode) {
         QrCode instance = new QrCode();
         String[] parts = StringUtils.split(qrCode, "|");

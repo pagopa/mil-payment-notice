@@ -4,14 +4,16 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.bean.Errors;
 import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfRepository;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeErrorMapping;
+import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,45 +22,56 @@ import java.util.stream.Stream;
 public class BasePaymentResource {
 
 	/**
-	 * The configuration object cotaining the mapping between
+	 * The configuration object containing the mapping between
 	 */
 	@Inject
 	NodeErrorMapping nodeErrorMapping;
 
+	/**
+	 * The async wrapper for the Node SOAP client
+	 */
 	@Inject
 	NodeForPspWrapper nodeWrapper;
-	
-    @Inject
-	PspConfRepository pspConfRepository;
+
+	/**
+	 * The reactive REST client for the MIL REST interfaces
+	 */
+	@RestClient
+	MilRestService milRestService;
 
 
 	/**
-	 * Retrieves the PSP configuration from the database by acquirer id, and emits it as a Uni
+	 * Retrieves the PSP configuration by acquirer id, and emits it as a Uni
 	 *
+	 * @param requestId the id of the request passed in request
 	 * @param acquirerId the id of the acquirer
+	 * @param api a {@link NodeApi} used to choose which of the two PspConfiguration return
 	 * @return the {@link Uni} emitting a {@link PspConfiguration}
 	 */
-	protected Uni<PspConfiguration> retrievePSPConfiguration(String acquirerId) {
-		Log.debugf("retrievePSPConfiguration - acquirerId: %s ", acquirerId);
+	protected Uni<PspConfiguration> retrievePSPConfiguration(String requestId, String acquirerId, NodeApi api) {
+		Log.debugf("retrievePSPConfiguration - requestId: %s acquirerId: %s ", requestId, acquirerId);
 
-		return pspConfRepository.findByIdOptional(acquirerId)
+		return milRestService.getPspConfiguration(requestId, acquirerId)
 				.onFailure().transform(t -> {
-					Log.errorf(t, "[%s] Error retrieving data from the db", ErrorCode.ERROR_RETRIEVING_DATA_FROM_MONGO);
-					return new InternalServerErrorException(Response
-							.status(Response.Status.INTERNAL_SERVER_ERROR)
-							.entity(new Errors(List.of(ErrorCode.ERROR_RETRIEVING_DATA_FROM_MONGO)))
-							.build());
+					if (t instanceof ClientWebApplicationException webEx && webEx.getResponse().getStatus() == 404) {
+						Log.errorf(t, "[%s] Missing psp configuration for acquirerId", ErrorCode.UNKNOWN_ACQUIRER_ID);
+						return new InternalServerErrorException(Response
+								.status(Response.Status.INTERNAL_SERVER_ERROR)
+								.entity(new Errors(List.of(ErrorCode.UNKNOWN_ACQUIRER_ID)))
+								.build());
+					}
+					else {
+						Log.errorf(t, "[%s] Error retrieving the psp configuration", ErrorCode.ERROR_CALLING_MIL_REST_SERVICES);
+						return new InternalServerErrorException(Response
+								.status(Response.Status.INTERNAL_SERVER_ERROR)
+								.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_MIL_REST_SERVICES)))
+								.build());
+					}
 				})
-				.onItem().transform(o -> o.orElseThrow(NotFoundException::new))
-				.onFailure().transform(t -> {
-					Log.errorf(t, "[%s] Error retrieving data from the db", ErrorCode.UNKNOWN_ACQUIRER_ID);
-					return new InternalServerErrorException(Response
-							.status(Response.Status.INTERNAL_SERVER_ERROR)
-							.entity(new Errors(List.of(ErrorCode.UNKNOWN_ACQUIRER_ID)))
-							.build());
-				})
-				.map(t -> t.pspConfiguration);
-
+				.map(acquirerConfiguration -> switch (api) {
+					case ACTIVATE, VERIFY -> acquirerConfiguration.getPspConfigForVerifyAndActivate();
+					case CLOSE -> acquirerConfiguration.getPspConfigForGetFeeAndClosePayment();
+				});
 	}
 
 
@@ -74,7 +87,7 @@ public class BasePaymentResource {
 		Integer outcomeErrorId = nodeErrorMapping.map().
 				get(Stream.of(faultCode, originalFaultCode)
 						.filter(s -> s != null && !s.isEmpty())
-						.collect(Collectors.joining(",")));
+						.collect(Collectors.joining("-")));
 		if (outcomeErrorId == null) {
 			Log.errorf("Could not find configured mapping for faultCode %s originalFaultCode %s, defaulting to UNEXPECTED_ERROR",
 					faultCode, originalFaultCode);

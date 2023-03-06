@@ -31,7 +31,9 @@ import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeReques
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.VerifyPaymentNoticeResponse;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AdditionalPaymentInformations;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
+import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -46,7 +48,6 @@ import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentResponse;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
@@ -103,7 +104,7 @@ public class PaymentResource extends BasePaymentResource {
 
 		Log.debugf("closePayment - Input parameters: %s, body: %s", headers, closePaymentRequest);
 		
-		return retrievePSPConfiguration(headers.getAcquirerId())
+		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.CLOSE)
 				.chain(pspConf -> {
 					if (Outcome.OK.name().equals(closePaymentRequest.getOutcome())) {
 						return paymentService.setIfNotExist(closePaymentRequest.getTransactionId(), new ReceivePaymentStatusRequest()).
@@ -302,7 +303,7 @@ public class PaymentResource extends BasePaymentResource {
 		else {
 			int nodeResponseStatus = webEx.getResponse().getStatus();
 			// for these three statuses we return outcome ko
-			if (nodeResponseStatus == 400 || nodeResponseStatus == 404 || nodeResponseStatus == 422) {
+			if (nodeResponseStatus == 400 || nodeResponseStatus == 404) {
 				Log.debugf("Node closePayment returned a %s status response, responding with outcome KO", nodeResponseStatus);
 			}
 			else {// for any other status we return outcome ok
@@ -328,9 +329,9 @@ public class PaymentResource extends BasePaymentResource {
 
 		nodeClosePaymentRequest.setPaymentTokens(closePaymentRequest.getPaymentTokens());
 		nodeClosePaymentRequest.setOutcome(closePaymentRequest.getOutcome());
-		nodeClosePaymentRequest.setIdPsp(pspConfiguration.getPspId());
-		nodeClosePaymentRequest.setIdBrokerPSP(pspConfiguration.getPspBroker());
-		nodeClosePaymentRequest.setIdChannel(pspConfiguration.getIdChannel());
+		nodeClosePaymentRequest.setIdPsp(pspConfiguration.getPsp());
+		nodeClosePaymentRequest.setIdBrokerPSP(pspConfiguration.getBroker());
+		nodeClosePaymentRequest.setIdChannel(pspConfiguration.getChannel());
 		nodeClosePaymentRequest.setPaymentMethod(closePaymentRequest.getPaymentMethod());
 		nodeClosePaymentRequest.setTransactionId(closePaymentRequest.getTransactionId());
 		// conversion from euro cents to euro

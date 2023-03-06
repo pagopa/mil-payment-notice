@@ -1,16 +1,23 @@
 package it.gov.pagopa.swclient.mil.paymentnotice;
 
-import static io.restassured.RestAssured.given;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeoutException;
-
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.smallrye.mutiny.Uni;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
+import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.api.Assertions;
@@ -18,59 +25,72 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
-import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import io.smallrye.mutiny.Uni;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
-import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfEntity;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfRepository;
-import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
+
+import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 @TestHTTPEndpoint(PaymentResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ClosePaymentResourceTest {
-	
-	final static String SESSION_ID			= "a6a666e6-97da-4848-b568-99fedccb642c";
-	final static String API_VERSION			= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
-	
+
 	@InjectMock
 	@RestClient
     NodeRestService nodeRestService;
 	
 	@InjectMock
-	PspConfRepository pspConfRepository;
+	@RestClient
+	MilRestService milRestService;
 
 	@InjectMock
 	PaymentService paymentService;
-
-	PspConfEntity pspConfEntity;
 
 	ClosePaymentRequest closePaymentRequestOK;
 
 	ClosePaymentRequest closePaymentRequestKO;
 
+	AcquirerConfiguration acquirerConfiguration;
+
+	Map<String, String> commonHeaders;
+
+
 	@BeforeAll
 	void createTestObjects() {
 
-		// PSP configuration
-		PspConfiguration pspInfo = new PspConfiguration();
-		pspInfo.setPspId("AGID_01");
-		pspInfo.setPspBroker("97735020584");
-		pspInfo.setPspPassword("pwd_AgID");
+		// common headers
+		commonHeaders = new HashMap<>();
+		commonHeaders.put("RequestId", UUID.randomUUID().toString());
+		commonHeaders.put("Version", "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay");
+		commonHeaders.put("AcquirerId", "4585625");
+		commonHeaders.put("Channel", "ATM");
+		commonHeaders.put("TerminalId", "0aB9wXyZ");
+		commonHeaders.put("SessionId", UUID.randomUUID().toString());
 
-		pspConfEntity = new PspConfEntity();
-		pspConfEntity.acquirerId = "4585625";
-		pspConfEntity.pspConfiguration = pspInfo;
+
+		// acquirer PSP configuration
+		acquirerConfiguration = new AcquirerConfiguration();
+
+		it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration pspConfiguration = new PspConfiguration();
+		pspConfiguration.setPsp("AGID_01");
+		pspConfiguration.setBroker("97735020584");
+		pspConfiguration.setChannel("97735020584_07");
+		pspConfiguration.setPassword("PLACEHOLDER");
+
+		acquirerConfiguration.setPspConfigForVerifyAndActivate(pspConfiguration);
+		acquirerConfiguration.setPspConfigForGetFeeAndClosePayment(pspConfiguration);
+
 
 		closePaymentRequestOK = new ClosePaymentRequest();
 		closePaymentRequestOK.setOutcome(Outcome.OK.toString());
@@ -92,14 +112,18 @@ class ClosePaymentResourceTest {
 		closePaymentRequestKO.setFee(BigInteger.valueOf(897));
 		closePaymentRequestKO.setTimestampOp("2022-11-12T08:53:55");
 
-
-		// node close response OK
-
-
-		// node close response KO
-
-
 	}
+
+	private static Stream<Arguments> provideMilIntegrationErrorCases() {
+		return Stream.of(
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_404, ErrorCode.UNKNOWN_ACQUIRER_ID),
+				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_500, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.TIMEOUT_EXCEPTION, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
+				Arguments.of(ExceptionType.UNPARSABLE_EXCEPTION, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES)
+		);
+	}
+
 
 	@Test
 	void testClosePayment_200_node200_OK() {
@@ -112,8 +136,8 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
 				.when(nodeRestService.closePayment(Mockito.any()))
@@ -122,13 +146,7 @@ class ClosePaymentResourceTest {
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.body(closePaymentRequestOK)
 				.when()
@@ -158,8 +176,8 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
 				.when(nodeRestService.closePayment(Mockito.any()))
@@ -168,13 +186,7 @@ class ClosePaymentResourceTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.body(closePaymentRequestOK)
 				.when()
@@ -194,7 +206,7 @@ class ClosePaymentResourceTest {
 
 
 	@ParameterizedTest
-	@ValueSource(ints = {400, 404, 422})
+	@ValueSource(ints = {400, 404})
 	void testClosePayment_200_nodeError_KO(int statusCode) {
 
 		Mockito
@@ -202,23 +214,17 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().voidItem());
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
 				.when(nodeRestService.closePayment(Mockito.any()))
-				.thenReturn(Uni.createFrom().failure(() -> new ClientWebApplicationException(statusCode)));
+				.thenReturn(Uni.createFrom().failure(new ClientWebApplicationException(statusCode)));
 
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.body(closePaymentRequestOK)
 				.when()
@@ -238,7 +244,7 @@ class ClosePaymentResourceTest {
 
 
 	@ParameterizedTest
-	@ValueSource(ints = {408, 500})
+	@ValueSource(ints = {408, 422, 500})
 	void testClosePayment_200_nodeError_OK(int status) {
 
 		Mockito
@@ -246,8 +252,8 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().voidItem());
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
 				.when(nodeRestService.closePayment(Mockito.any()))
@@ -256,13 +262,7 @@ class ClosePaymentResourceTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.body(closePaymentRequestOK)
 				.when()
@@ -290,8 +290,8 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().voidItem());
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
 				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
@@ -300,13 +300,7 @@ class ClosePaymentResourceTest {
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.body(closePaymentRequestOK)
 				.when()
@@ -334,8 +328,8 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-				.when(pspConfRepository.findByIdOptional(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(Optional.of(pspConfEntity)));
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
 				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
@@ -344,13 +338,7 @@ class ClosePaymentResourceTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.body(closePaymentRequestKO)
 				.when()
@@ -360,6 +348,34 @@ class ClosePaymentResourceTest {
 				.response();
 
 		Assertions.assertEquals(202, response.statusCode());
+
+	}
+
+	@ParameterizedTest
+	@MethodSource("provideMilIntegrationErrorCases")
+	void testClosePayment_500_milError(ExceptionType exceptionType, String errorCode) {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.getHeader("Location"));
+		Assertions.assertNull(response.getHeader("Retry-after"));
+		Assertions.assertNull(response.getHeader("Max-Retry"));
 
 	}
 	

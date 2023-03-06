@@ -1,19 +1,5 @@
 package it.gov.pagopa.swclient.mil.paymentnotice;
 
-import static io.restassured.RestAssured.given;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.InternalServerErrorException;
-
-import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.mockito.Mockito;
-
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -21,17 +7,30 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Payment;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
+import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.mockito.Mockito;
+
+import javax.ws.rs.InternalServerErrorException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 @TestHTTPEndpoint(PaymentResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SendPaymentResultTest {
-	
-	final static String SESSION_ID			= "a6a666e6-97da-4848-b568-99fedccb642c";
-	final static String API_VERSION			= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
+
 	final static String TRANSACTION_ID		= "517a4216840E461fB011036A0fd134E1";
 	
 	@InjectMock
@@ -39,8 +38,19 @@ class SendPaymentResultTest {
 
 	ReceivePaymentStatusRequest paymentStatus;
 
+	Map<String, String> commonHeaders;
+
 	@BeforeAll
 	void createTestObjects() {
+
+		// common headers
+		commonHeaders = new HashMap<>();
+		commonHeaders.put("RequestId", UUID.randomUUID().toString());
+		commonHeaders.put("Version", "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay");
+		commonHeaders.put("AcquirerId", "4585625");
+		commonHeaders.put("Channel", "ATM");
+		commonHeaders.put("TerminalId", "0aB9wXyZ");
+		commonHeaders.put("SessionId", UUID.randomUUID().toString());
 
 		Payment payment = new Payment();
 		payment.setCompany("ASL Roma");
@@ -70,13 +80,7 @@ class SendPaymentResultTest {
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.pathParam("transactionId", TRANSACTION_ID)
 				.when()
@@ -112,13 +116,7 @@ class SendPaymentResultTest {
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.pathParam("transactionId", TRANSACTION_ID)
 				.when()
@@ -141,13 +139,7 @@ class SendPaymentResultTest {
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
+				.headers(commonHeaders)
 				.and()
 				.pathParam("transactionId", TRANSACTION_ID)
 				.when()
@@ -177,13 +169,6 @@ class SendPaymentResultTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
 				.and()
 				.pathParam("transactionId", TRANSACTION_ID)
 				.body(paymentStatus)
@@ -211,13 +196,6 @@ class SendPaymentResultTest {
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
 				.and()
 				.pathParam("transactionId", TRANSACTION_ID)
 				.body(paymentStatus)
@@ -237,18 +215,11 @@ class SendPaymentResultTest {
 
 		Mockito
 				.when(paymentService.get(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().failure(() -> new RuntimeException()));
+				.thenReturn(Uni.createFrom().failure(new RuntimeException()));
 
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
 				.and()
 				.pathParam("transactionId", TRANSACTION_ID)
 				.when()
@@ -272,18 +243,11 @@ class SendPaymentResultTest {
 
 		Mockito
 				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
-				.thenReturn(Uni.createFrom().failure(() -> new RuntimeException()));
+				.thenReturn(Uni.createFrom().failure(new RuntimeException()));
 		
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", "4585625",
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ",
-						"SessionId", SESSION_ID)
 				.and()
 				.pathParam("transactionId", TRANSACTION_ID)
 				.when()

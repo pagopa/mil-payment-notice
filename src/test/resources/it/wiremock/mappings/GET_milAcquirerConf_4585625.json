@@ -1,0 +1,27 @@
+{
+    "priority": 1,
+    "request": {
+        "method": "GET",
+        "url": "/mil-acquirer-conf/confs/4585625/psp"
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "jsonBody": {
+            "pspConfigForVerifyAndActivate": {
+                "psp": "AGID_01",
+                "broker": "97735020584",
+                "channel": "97735020584_07",
+                "password": "PLACEHOLDER"
+            },
+            "pspConfigForGetFeeAndClosePayment": {
+                "psp": "AGID_01",
+                "broker": "97735020584",
+                "channel": "97735020584_07",
+                "password": "PLACEHOLDER"
+            }
+        }
+    }
+}

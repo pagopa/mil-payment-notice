@@ -1,7 +1,6 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.it;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import it.gov.pagopa.swclient.mil.paymentnotice.it.resource.MongoTestResource;
 import it.gov.pagopa.swclient.mil.paymentnotice.it.resource.RedisTestResource;
@@ -29,6 +28,8 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
         configOverrides.put("node.soap-client.read-timeout", "3000");
         configOverrides.put("node.soap-client.apim-subscription-key", "");
         configOverrides.put("node-rest-client-subscription-key", "abc");
+        configOverrides.put("mil-rest-client-subscription-key", "abc");
+        configOverrides.put("mil-acquirer-conf-version", "1.0.0");
 
         return configOverrides;
     }
@@ -36,7 +37,6 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
     @Override
     public List<TestResourceEntry> testResources() {
         return ImmutableList.of(
-               // new TestResourceEntry(EnvironmentTestResource.class),
                 new TestResourceEntry(WiremockTestResource.class),
                 new TestResourceEntry(RedisTestResource.class),
                 new TestResourceEntry(MongoTestResource.class)

@@ -19,6 +19,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCode;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -34,7 +36,6 @@ import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeResponse;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Transfer;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
 
@@ -71,7 +72,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 		// parse qr-code to retrieve the notice number and the PA tax code
 		QrCode parsedQrCode = QrCode.parse(qrCode);
 
-		return retrievePSPConfiguration(headers.getAcquirerId()).
+		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.ACTIVATE).
 				chain(pspConf -> callNodeActivatePaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(),
 						pspConf, activatePaymentNoticeRequest));
 
@@ -103,7 +104,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 		Log.debugf("activateByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber, body: %s",
 				headers, paTaxCode, noticeNumber, activatePaymentNoticeRequest);
 
-		return retrievePSPConfiguration(headers.getAcquirerId()).
+		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeActivatePaymentNotice(paTaxCode, noticeNumber, pspConf, activatePaymentNoticeRequest));
 	}
 
@@ -125,10 +126,10 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 		ctQrCode.setNoticeNumber(noticeNumber);
 
 		ActivatePaymentNoticeV2Request nodeActivateRequest = new ActivatePaymentNoticeV2Request();
-		nodeActivateRequest.setIdPSP(pspConfiguration.getPspId());
-		nodeActivateRequest.setIdBrokerPSP(pspConfiguration.getPspBroker());
-		nodeActivateRequest.setIdChannel(pspConfiguration.getIdChannel());
-		nodeActivateRequest.setPassword(pspConfiguration.getPspPassword());
+		nodeActivateRequest.setIdPSP(pspConfiguration.getPsp());
+		nodeActivateRequest.setIdBrokerPSP(pspConfiguration.getBroker());
+		nodeActivateRequest.setIdChannel(pspConfiguration.getChannel());
+		nodeActivateRequest.setPassword(pspConfiguration.getPassword());
 
 		nodeActivateRequest.setIdempotencyKey(activatePaymentNoticeRequest.getIdempotencyKey());
 

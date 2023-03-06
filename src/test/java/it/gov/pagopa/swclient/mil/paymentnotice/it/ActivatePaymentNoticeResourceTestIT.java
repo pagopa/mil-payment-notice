@@ -12,7 +12,7 @@ import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtTransferPSPV2;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
-import it.gov.pagopa.swclient.mil.paymentnotice.PaymentTestData;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Transfer;
@@ -97,7 +97,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 		CtTransferPSPV2 transfer1 = new CtTransferPSPV2();
 		transfer1.setIdTransfer(1);
-		transfer1.setTransferAmount(new BigDecimal(99.98));
+		transfer1.setTransferAmount(new BigDecimal("99.98"));
 		transfer1.setFiscalCodePA("77777777777");
 		transfer1.setIBAN("IT30N0103076271000001823603");
 		transfer1.setRemittanceInformation("TARI Comune EC_TE");
@@ -105,7 +105,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 		CtTransferPSPV2 transfer2 = new CtTransferPSPV2();
 		transfer2.setIdTransfer(1);
-		transfer2.setTransferAmount(new BigDecimal(1.01));
+		transfer2.setTransferAmount(new BigDecimal("1.01"));
 		transfer2.setFiscalCodePA("77777777777");
 		transfer2.setIBAN("IT30N0103076271000001823603");
 		transfer2.setRemittanceInformation("TARI Comune EC_TE");

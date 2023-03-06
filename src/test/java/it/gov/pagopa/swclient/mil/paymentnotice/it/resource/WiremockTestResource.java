@@ -51,7 +51,8 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
         // Pass the configuration to the application under test
         return ImmutableMap.of(
                 "node.rest-service.url", wiremockEndpoint,
-                "node.soap-service.url", wiremockEndpoint + "/nodo/node-for-psp/v1"
+                "node.soap-service.url", wiremockEndpoint + "/nodo/node-for-psp/v1",
+                "mil.rest-service.url", wiremockEndpoint
         );
 
     }

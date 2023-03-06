@@ -6,7 +6,7 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import it.gov.pagopa.swclient.mil.paymentnotice.PaymentTestData;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfEntity;
@@ -86,6 +86,7 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 						"AcquirerId", PaymentTestData.ACQUIRER_ID_KNOWN,
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
+
 				.and()
 				.body(getClosePaymentRequest(Outcome.OK, PaymentTestData.PAY_TID_NODE_OK))
 				.when()
@@ -136,8 +137,7 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 	@ParameterizedTest
 	@ValueSource(strings = {
 			PaymentTestData.PAY_TID_NODE_400,
-			PaymentTestData.PAY_TID_NODE_404,
-			PaymentTestData.PAY_TID_NODE_422})
+			PaymentTestData.PAY_TID_NODE_404})
 	void testClosePayment_200_nodeError_KO(String paymentTransactionId) {
 		
 		Response response = given()
@@ -170,6 +170,7 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 	@ValueSource(strings = {
 			PaymentTestData.PAY_TID_NODE_408,
 			PaymentTestData.PAY_TID_NODE_500,
+			PaymentTestData.PAY_TID_NODE_422,
 			PaymentTestData.PAY_TID_NODE_UNPARSABLE})
 	void testClosePayment_200_nodeError_OK(String paymentTransactionId) {
 
