@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyPair;
@@ -185,6 +186,7 @@ public class RedisTestResource implements QuarkusTestResourceLifecycleManager, D
             final JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider(bouncyCastleProvider);
 
             // save ca certificate to filesystem
+            Files.createDirectories(Paths.get("./target/redis-certs"));
             final File caCertificateFile = Paths.get("./target/redis-certs/ca.crt").toFile();
             x509CertificateToPem(converter.getCertificate(caCertificateHolder), caCertificateFile);
 
