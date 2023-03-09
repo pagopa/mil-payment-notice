@@ -20,6 +20,13 @@
 		<quarkus.platform.version>2.16.0.Final</quarkus.platform.version>
 		<skipITs>true</skipITs>
 		<common.version>1.1.5</common.version>
+		
+		<sonar.host.url>https://sonarcloud.io:443/</sonar.host.url>
+		<sonar.organization>pagopa</sonar.organization>
+		<sonar.projectKey>pagopa_mil-payment-notice</sonar.projectKey>
+		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
+		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
 		<!-- JaCoCo Properties -->
 	    <jacoco.version>0.8.6</jacoco.version>
@@ -315,6 +322,38 @@
 										<format>XML</format>
 									</formats>
 								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		
+		<!-- To execute SCA with SonarCloud:                                      -->
+		<!--   1. export SONAR_TOKEN=<sonar token provided by PagoPA DevOps team> -->
+		<!--   2. mvn verify -Pvalidate                                       -->
+		<profile>
+			<id>validate</id>
+			<activation>
+				<property>
+					<name>validate</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<!-- SCA with Sonar -->
+					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<version>${sonar-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>sca_with_sonar</id>
+								<!-- after test -->
+								<phase>test</phase>
+								<goals>
+									<goal>sonar</goal>
+								</goals>
 							</execution>
 						</executions>
 					</plugin>

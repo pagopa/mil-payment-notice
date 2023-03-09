@@ -47,5 +47,10 @@ jobs:
       - name: Build dependencies with Maven
         run: mvn clean validate -Pbootstrap
 
-      - name: Execute unit-testing
-        run: mvn clean test
+      #- name: Execute unit-testing
+      #  run: mvn clean test
+      
+      - name: Execute unit-test + Calculate test coverage + SCA with Sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn verify -Pvalidate --no-transfer-progress
