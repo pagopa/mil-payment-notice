@@ -63,6 +63,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -77,7 +82,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -150,7 +155,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -223,7 +228,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -296,7 +301,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -364,7 +369,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -437,7 +442,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -505,7 +510,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -578,7 +583,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -651,7 +656,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -729,7 +734,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -792,7 +797,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -865,7 +870,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -888,9 +893,7 @@
 									"script": {
 										"type": "text/javascript",
 										"exec": [
-											"pm.test(\"Status code is 400\", function () {",
-											"    pm.response.to.have.status(400);",
-											"});"
+											""
 										]
 									}
 								}
@@ -1072,7 +1075,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1154,7 +1157,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1236,7 +1239,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1318,7 +1321,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1395,7 +1398,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1477,7 +1480,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1554,7 +1557,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1636,7 +1639,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1718,7 +1721,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1805,7 +1808,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1877,7 +1880,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -1959,7 +1962,7 @@
 											"variable": [
 												{
 													"key": "qrCode",
-													"value": ""
+													"value": "{{qr_code}}"
 												}
 											]
 										}
@@ -2560,11 +2563,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -2638,11 +2641,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -2716,11 +2719,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -2794,11 +2797,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -2867,11 +2870,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -2945,11 +2948,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3018,11 +3021,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3096,11 +3099,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3174,11 +3177,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3242,11 +3245,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3320,11 +3323,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3560,11 +3563,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3647,11 +3650,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3734,11 +3737,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3821,11 +3824,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3903,11 +3906,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -3990,11 +3993,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -4072,11 +4075,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -4159,11 +4162,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -4246,11 +4249,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -4338,11 +4341,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -4415,11 +4418,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -4502,11 +4505,11 @@
 											"variable": [
 												{
 													"key": "pa_tax_code",
-													"value": ""
+													"value": "{{pa_tax_code}}"
 												},
 												{
 													"key": "notice_number",
-													"value": ""
+													"value": "{{notice_number}}"
 												}
 											]
 										}
@@ -8422,7 +8425,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -8495,7 +8498,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -8568,7 +8571,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -8641,7 +8644,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -8709,7 +8712,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -8782,7 +8785,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -8850,7 +8853,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -8923,7 +8926,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -8996,7 +8999,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -9074,7 +9077,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -9137,7 +9140,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -9210,7 +9213,7 @@
 											"variable": [
 												{
 													"key": "transactionId",
-													"value": ""
+													"value": "{{transaction_id_validation}}"
 												}
 											]
 										}
@@ -9539,6 +9542,11 @@
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
 										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
 									}
 								],
 								"body": {
@@ -9627,6 +9635,11 @@
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
 										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
 									}
 								],
 								"body": {
@@ -9692,6 +9705,11 @@
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
 										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
 									}
 								],
 								"url": {
@@ -9754,6 +9772,11 @@
 									{
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
 										"type": "text"
 									}
 								],
@@ -9827,6 +9850,11 @@
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
 										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
 									}
 								],
 								"url": {
@@ -9897,9 +9925,7 @@
 											"pm.test(\"office is officeName\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
 											"    pm.expect(jsonData.office).to.eql(\"officeName\");\r",
-											"});\r",
-											"\r",
-											""
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -10061,6 +10087,11 @@
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
 										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
 									}
 								],
 								"body": {
@@ -10154,6 +10185,11 @@
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
 										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
 									}
 								],
 								"body": {
@@ -10218,6 +10254,11 @@
 									{
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
 										"type": "text"
 									}
 								],
@@ -10354,6 +10395,11 @@
 										"key": "TerminalId",
 										"value": "{{terminal_id}}",
 										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
 									}
 								],
 								"url": {
@@ -10448,13 +10494,26 @@
 		},
 		{
 			"key": "qr_code",
-			"value": "PAGOPA|002|302051234567890125|77777777777|10000",
+			"value": "PAGOPA%7C002%7C302051234567890125%7C77777777777%7C10000",
 			"type": "string"
 		},
 		{
 			"key": "idempotency_key",
 			"value": "77777777777_abcDEF1238",
 			"type": "string"
+		},
+		{
+			"key": "transaction_id_validation",
+			"value": "ff814b6b976d4ae9810ceb73a39392de",
+			"type": "string"
+		},
+		{
+			"key": "transactionId",
+			"value": ""
+		},
+		{
+			"key": "timestampOp",
+			"value": ""
 		}
 	]
 }
