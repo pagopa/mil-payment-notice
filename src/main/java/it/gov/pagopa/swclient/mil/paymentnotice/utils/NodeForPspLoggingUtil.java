@@ -41,7 +41,7 @@ public class NodeForPspLoggingUtil {
     }
 
 
-    public String toString(CtPaymentOptionDescription ctPaymentOptionDescription) {
+    public static String toString(CtPaymentOptionDescription ctPaymentOptionDescription) {
         final StringBuilder sb = new StringBuilder("CtPaymentOptionDescription{");
         sb.append("amount=").append(ctPaymentOptionDescription.getAmount());
         sb.append(", options=").append(ctPaymentOptionDescription.getOptions().name());

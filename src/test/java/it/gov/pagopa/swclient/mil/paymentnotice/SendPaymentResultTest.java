@@ -129,6 +129,28 @@ class SendPaymentResultTest {
 
 	}
 	
+	@Test
+	void testGetPaymentStatus_404_outcomenotFound()  {
+		
+		Mockito
+				.when(paymentService.get(TRANSACTION_ID))
+				.thenReturn(Uni.createFrom().item(new ReceivePaymentStatusRequest()));
+		
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.pathParam("transactionId", TRANSACTION_ID)
+				.when()
+				.get("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(404, response.statusCode());
+
+	}
+	
 	
 	@Test
 	void testGetSendPaymentResult_500_RedisError() {

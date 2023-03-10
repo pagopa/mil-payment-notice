@@ -447,6 +447,42 @@ class VerifyPaymentNoticeResourceTest {
 
 	}
 
+	@Test
+	void testVerifyByTaxCodeAndNoticeNumber_200_nodeKoErrorNotExist() {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		
+		
+		Mockito
+				.when(nodeWrapper.verifyPaymentNotice(Mockito.any()))
+				.thenReturn(Uni.createFrom().item(generateKoNodeResponse("NOT_EXIST", "NOT_EXIST")));
+
+		Response response = given()
+				.headers(commonHeaders)
+				.and()
+				.pathParam("paTaxCode", "20000000000")
+				.pathParam("noticeNumber", "100000000000000000")
+				.when()
+				.get("/{paTaxCode}/{noticeNumber}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+//		Assertions.assertEquals(milOutcome, response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+
+	}
+	
 	@ParameterizedTest
 	@MethodSource("provideNodeIntegrationErrorCases")
 	void testVerifyByTaxCodeAndNoticeNumber_500_nodeError(ExceptionType exceptionType, String errorCode) {

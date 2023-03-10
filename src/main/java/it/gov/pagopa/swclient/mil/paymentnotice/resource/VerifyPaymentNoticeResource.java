@@ -152,6 +152,8 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 		// only the first element of the payment list is returned
 		if (response.getPaymentList().getPaymentOptionDescription() != null) {
 			CtPaymentOptionDescription paymentOptionDescription = response.getPaymentList().getPaymentOptionDescription().get(0);
+			Log.debugf("Node verifyPaymentNotice responded with , %s",
+					NodeForPspLoggingUtil.toString(paymentOptionDescription));
 			// conversion from euro to euro cents
 			verifyResponse.setAmount(paymentOptionDescription.getAmount().multiply(new BigDecimal(100)).toBigInteger());
 			verifyResponse.setDueDate(paymentOptionDescription.getDueDate().toString());
