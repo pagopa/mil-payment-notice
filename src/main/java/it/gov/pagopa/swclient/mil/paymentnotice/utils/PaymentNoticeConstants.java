@@ -6,6 +6,11 @@ package it.gov.pagopa.swclient.mil.paymentnotice.utils;
 public class PaymentNoticeConstants {
 
 	/**
+	 * The regex to be used to validate the base64url encoded QR code
+	 */
+	public static final String ENCODED_QRCODE_REGEX = "^[a-zA-Z0-9_-]{32,128}$";
+
+	/**
 	 * The regex to be used to validate the QR code
 	 */
 	public static final String QRCODE_REGEX 		= "^[ -~]{6}\\|[ -~]{3}\\|\\d{18}\\|\\d{11}\\|\\d{2,11}$";

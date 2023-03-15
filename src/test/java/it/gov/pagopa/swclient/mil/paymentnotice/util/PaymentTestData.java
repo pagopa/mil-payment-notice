@@ -1,6 +1,70 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.util;
 
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.PaymentMethod;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
+
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 public final class PaymentTestData {
+
+    public static Map<String, String> getMilHeaders(boolean isPos, boolean isKnownAcquirer) {
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("RequestId", UUID.randomUUID().toString());
+        headerMap.put("Version", "1.0.0");
+        headerMap.put("AcquirerId", isKnownAcquirer ? PaymentTestData.ACQUIRER_ID_KNOWN : PaymentTestData.ACQUIRER_ID_NOT_KNOWN);
+        headerMap.put("Channel", isPos ? "POS" : "ATM");
+        headerMap.put("TerminalId", "0aB9wXyZ");
+        if (isPos) headerMap.put("MerchantId", "28405fHfk73x88D");
+        headerMap.put("SessionId", UUID.randomUUID().toString());
+        return headerMap;
+    }
+
+    public static AcquirerConfiguration getAcquirerConfiguration() {
+        AcquirerConfiguration acquirerConfiguration = new AcquirerConfiguration();
+
+        PspConfiguration pspConfiguration = new PspConfiguration();
+        pspConfiguration.setPsp("AGID_01");
+        pspConfiguration.setBroker("97735020584");
+        pspConfiguration.setChannel("97735020584_07");
+        pspConfiguration.setPassword("PLACEHOLDER");
+
+        acquirerConfiguration.setPspConfigForVerifyAndActivate(pspConfiguration);
+        acquirerConfiguration.setPspConfigForGetFeeAndClosePayment(pspConfiguration);
+
+        return acquirerConfiguration;
+    }
+
+    public static ActivatePaymentNoticeRequest getActivatePaymentRequest() {
+        ActivatePaymentNoticeRequest activatePaymentNoticeRequest = new ActivatePaymentNoticeRequest();
+        activatePaymentNoticeRequest.setIdempotencyKey("77777777777_abcDEF1238");
+        activatePaymentNoticeRequest.setAmount(10000L);
+        return activatePaymentNoticeRequest;
+    }
+
+    public static ClosePaymentRequest getClosePaymentRequest(boolean isOk) {
+        ClosePaymentRequest closePaymentRequest = new ClosePaymentRequest();
+        closePaymentRequest.setOutcome(isOk ? Outcome.OK.name() : Outcome.KO.name());
+        closePaymentRequest.setPaymentTokens(List.of("648fhg36s95jfg7DS"));
+        closePaymentRequest.setPaymentMethod(PaymentMethod.PAGOBANCOMAT.name());
+        closePaymentRequest.setTransactionId("517a4216840E461fB011036A0fd134E1");
+        closePaymentRequest.setTotalAmount(BigInteger.valueOf(234234));
+        closePaymentRequest.setFee(BigInteger.valueOf(897));
+        closePaymentRequest.setTimestampOp("2022-11-12T08:53:55");
+        return closePaymentRequest;
+    }
+
+    /**
+     * Example taken from <a href="https://docs.pagopa.it/avviso-pagamento/struttura/specifiche-tecniche/dati-per-il-pagamento/codice-qr">QR Code specification</a>
+     */
+    public static final String QR_CODE = "PAGOPA|002|000000000000000000|00000000000|9999";
 
     // ACQUIRER ID
     public static final String ACQUIRER_ID_KNOWN = "4585625";
@@ -20,4 +84,5 @@ public final class PaymentTestData {
 
     private PaymentTestData() {
     }
+
 }

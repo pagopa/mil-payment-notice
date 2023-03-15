@@ -11,25 +11,25 @@ import it.gov.pagopa.swclient.mil.paymentnotice.bean.Payment;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import javax.ws.rs.InternalServerErrorException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 @TestHTTPEndpoint(PaymentResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SendPaymentResultTest {
+class ManagePaymentResultTest {
 
 	final static String TRANSACTION_ID		= "517a4216840E461fB011036A0fd134E1";
 	
@@ -44,13 +44,7 @@ class SendPaymentResultTest {
 	void createTestObjects() {
 
 		// common headers
-		commonHeaders = new HashMap<>();
-		commonHeaders.put("RequestId", UUID.randomUUID().toString());
-		commonHeaders.put("Version", "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay");
-		commonHeaders.put("AcquirerId", "4585625");
-		commonHeaders.put("Channel", "ATM");
-		commonHeaders.put("TerminalId", "0aB9wXyZ");
-		commonHeaders.put("SessionId", UUID.randomUUID().toString());
+		commonHeaders = PaymentTestData.getMilHeaders(true, true);
 
 		Payment payment = new Payment();
 		payment.setCompany("ASL Roma");
@@ -60,13 +54,11 @@ class SendPaymentResultTest {
 		payment.setFiscalCode("15376371009");
 		payment.setOffice("Ufficio di Roma");
 		payment.setPaymentToken("648fhg36s95jfg7DS");
-		List<Payment> paymentList = new ArrayList<>();
-		paymentList.add(payment);
 
 		paymentStatus = new ReceivePaymentStatusRequest();
 		paymentStatus.setOutcome(Outcome.OK.toString());
 		paymentStatus.setPaymentDate("2022-11-12T08:53:55");
-		paymentStatus.setPayments(paymentList);
+		paymentStatus.setPayments(List.of(payment));
 
 	}
 
@@ -105,8 +97,65 @@ class SendPaymentResultTest {
 			Assertions.assertEquals(paymentStatus.getPayments().get(i).getOffice(), payment.getOffice());
 			Assertions.assertEquals(paymentStatus.getPayments().get(i).getPaymentToken(), payment.getPaymentToken());
 		}
+
+		// TODO add check of clients
 	}
-	
+
+	@ParameterizedTest
+	@MethodSource("it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideHeaderValidationErrorCases")
+	void testGetPaymentStatus_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode)  {
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(invalidHeaders)
+				.and()
+				.pathParam("transactionId", TRANSACTION_ID)
+				.when()
+				.get("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+
+	}
+
+	@Test
+	void testGetPaymentStatus_400_invalidPathParam()  {
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.pathParam("transactionId", "abc_")
+				.when()
+				.get("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+
+	}
+
 	@Test
 	void testGetPaymentStatus_404_transactionNotFound()  {
 		
@@ -130,7 +179,7 @@ class SendPaymentResultTest {
 	}
 	
 	@Test
-	void testGetPaymentStatus_404_outcomenotFound()  {
+	void testGetPaymentStatus_404_outcomeNotFound()  {
 		
 		Mockito
 				.when(paymentService.get(TRANSACTION_ID))
@@ -153,7 +202,7 @@ class SendPaymentResultTest {
 	
 	
 	@Test
-	void testGetSendPaymentResult_500_RedisError() {
+	void testGetPaymentResult_500_RedisErrorGet() {
 		
 		Mockito
 				.when(paymentService.get(TRANSACTION_ID))
@@ -251,13 +300,14 @@ class SendPaymentResultTest {
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_RETRIEVING_DATA_FROM_REDIS));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 
 	}
 	
 	@Test
-	void testReceivePaymentStatus_500_RedisError() {
+	void testReceivePaymentStatus_500_RedisErrorSet() {
 
 		Mockito
 				.when(paymentService.get(Mockito.any(String.class)))
@@ -279,6 +329,7 @@ class SendPaymentResultTest {
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_STORING_DATA_INTO_REDIS));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 

@@ -3,6 +3,7 @@ package it.gov.pagopa.swclient.mil.paymentnotice.resource;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.BeanParam;
@@ -30,30 +31,35 @@ import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeForPspLoggingUtil;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
-import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCode;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.QrCode;
+import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
 
 @Path("/paymentNotices")
 public class VerifyPaymentNoticeResource extends BasePaymentResource {
+
+	@Inject
+	QrCodeParser qrCodeParser;
 
 	/**
 	 * Retrieve the data of a payment notice by its qr-code.
 	 * The qr code contains, encoded, the tax code of the company and the payment notice number
 	 *
 	 * @param headers the object containing all the common headers used by the mil services
-	 * @param qrCode the qr-code
+	 * @param b64UrlQrCode the base64url-encoded qr-code
 	 * @return a {@link VerifyPaymentNoticeResponse} containing the data of the payment notice retrieved from the node
 	 */
 	@GET
 	@Path("/{qrCode}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> verifyByQrCode(@Valid @BeanParam CommonHeader headers,
-			@Pattern(regexp = PaymentNoticeConstants.QRCODE_REGEX, message = "[" + ErrorCode.QRCODE_MUST_MATCH_REGEXP + "] qrCode must match \"{regexp}\"")
-			@PathParam(value = "qrCode") String qrCode) {
-		
-		Log.debugf("verifyPaymentNoticeByQrCode - Input parameters: %s, qrCode: %s", headers, qrCode);
+			@Pattern(regexp = PaymentNoticeConstants.ENCODED_QRCODE_REGEX, message = "[" + ErrorCode.ENCODED_QRCODE_MUST_MATCH_REGEXP + "] qrCode must match \"{regexp}\"")
+			@PathParam(value = "qrCode") String b64UrlQrCode) {
+
+		Log.debugf("verifyPaymentNoticeByQrCode - Input parameters: %s, b64UrlQrCode: %s", headers, b64UrlQrCode);
 
 		// parse qr-code to retrieve the notice number and the PA tax code
-		QrCode parsedQrCode = QrCode.parse(qrCode);
+		QrCode parsedQrCode = qrCodeParser.b64UrlParse(b64UrlQrCode);
+		Log.debugf("decoded qrCode: %s", parsedQrCode);
 
 		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeVerifyPaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(), pspConf));
@@ -80,7 +86,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 			@Pattern(regexp = PaymentNoticeConstants.NOTICE_NUMBER_REGEX, message = "[" + ErrorCode.NOTICE_NUMBER_MUST_MATCH_REGEXP + "] noticeNumber must match \"{regexp}\"")
 			@PathParam(value = "noticeNumber") String noticeNumber) {
 		
-		Log.debugf("verifyByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber", headers, paTaxCode, noticeNumber);
+		Log.debugf("verifyByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber: %s", headers, paTaxCode, noticeNumber);
 
 		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeVerifyPaymentNotice(paTaxCode, noticeNumber, pspConf));
@@ -124,7 +130,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 					if (StOutcome.OK.name().equals(nodeResponse.getOutcome().name())) {
 						Log.debugf("Node verifyPaymentNotice responded with outcome OK, %s",
 								NodeForPspLoggingUtil.toString(nodeResponse));
-						verifyPaymentNoticeResponse = buildResponseOk(nodeResponse);
+						verifyPaymentNoticeResponse = buildResponseOk(nodeResponse, noticeNumber);
 					}
 					else {
 						Log.debugf("Node verifyPaymentNotice responded with outcome KO, %s",
@@ -143,7 +149,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 	 * @param response the {@link VerifyPaymentNoticeRes} from the node
 	 * @return the OK {@link VerifyPaymentNoticeResponse} to be returned by the API
 	 */
-	private VerifyPaymentNoticeResponse buildResponseOk(VerifyPaymentNoticeRes response) {
+	private VerifyPaymentNoticeResponse buildResponseOk(VerifyPaymentNoticeRes response, String noticeNumber) {
 		VerifyPaymentNoticeResponse verifyResponse = new VerifyPaymentNoticeResponse();
 		verifyResponse.setOutcome(response.getOutcome().value());
 		verifyResponse.setDescription(response.getPaymentDescription());
@@ -159,6 +165,8 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 			verifyResponse.setDueDate(paymentOptionDescription.getDueDate().toString());
 			verifyResponse.setNote(paymentOptionDescription.getPaymentNote());
 		}
+		verifyResponse.setPaTaxCode(response.getFiscalCodePA());
+		verifyResponse.setNoticeNumber(noticeNumber);
 		return verifyResponse;
 	}
 

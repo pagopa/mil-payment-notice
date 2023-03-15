@@ -97,7 +97,7 @@ public class PspConfiguration {
 		sb.append("psp='").append(psp).append('\'');
 		sb.append(", broker='").append(broker).append('\'');
 		sb.append(", channel='").append(channel).append('\'');
-		sb.append(", password='").append(password).append('\'');
+		sb.append(", password='").append(password != null ? "***" : null).append('\'');
 		sb.append('}');
 		return sb.toString();
 	}

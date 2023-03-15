@@ -21,9 +21,7 @@ import java.text.DecimalFormatSymbols;
 public class StAmountFormatter {
 
     // private constructor to avoid instantiation
-    private StAmountFormatter() {
-
-    }
+    private StAmountFormatter() {}
 
     /**
      * Serialize a BigDecimal forcing always 2 decimal digits

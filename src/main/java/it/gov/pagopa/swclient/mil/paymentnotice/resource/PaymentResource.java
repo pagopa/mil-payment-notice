@@ -12,6 +12,7 @@ import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -100,7 +101,12 @@ public class PaymentResource extends BasePaymentResource {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<Response> closePayment(@Valid @BeanParam CommonHeader headers, @Valid ClosePaymentRequest closePaymentRequest) {
+	public Uni<Response> closePayment(
+			@Valid @BeanParam CommonHeader headers,
+
+			@Valid
+			@NotNull(message = "[" + ErrorCode.CLOSE_REQUEST_MUST_NOT_BE_EMPTY + "] request must not be empty")
+			ClosePaymentRequest closePaymentRequest) {
 
 		Log.debugf("closePayment - Input parameters: %s, body: %s", headers, closePaymentRequest);
 		

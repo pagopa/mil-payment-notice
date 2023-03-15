@@ -16,8 +16,6 @@ import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Transfer;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfEntity;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.ActivatePaymentNoticeResource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -30,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import static io.restassured.RestAssured.given;
 
@@ -40,10 +40,6 @@ import static io.restassured.RestAssured.given;
 class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextAware {
 
 	static final Logger logger = LoggerFactory.getLogger(VerifyPaymentNoticeResourceTestIT.class);
-
-	final static String API_VERSION	= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
-
-	PspConfEntity pspConfEntity;
 
 	ActivatePaymentNoticeV2Response nodeActivateResponseOk;
 
@@ -61,16 +57,6 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 	void createTestObjects() {
 
 		logger.info("devServicesContext " + devServicesContext);
-
-		// PSP configuration
-		PspConfiguration pspInfo = new PspConfiguration();
-		pspInfo.setPspId("AGID_01");
-		pspInfo.setPspBroker("97735020584");
-		pspInfo.setPspPassword("pwd_AgID");
-
-		pspConfEntity = new PspConfEntity();
-		pspConfEntity.acquirerId = PaymentTestData.ACQUIRER_ID_KNOWN;
-		pspConfEntity.pspConfiguration = pspInfo;
 
 
 		// node activate response OK
@@ -155,6 +141,12 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 	}
 
+	String generateB64UrlEncodedQrCode(String paTaxCode) {
+		String qrCode = "PAGOPA|002|302051234567890125|" + paTaxCode + "|9999";
+		byte[] bytes = Base64.getUrlEncoder().withoutPadding().encode(qrCode.getBytes(StandardCharsets.UTF_8));
+		logger.debug(new String(bytes, StandardCharsets.UTF_8));
+		return new String(bytes, StandardCharsets.UTF_8);
+	}
 
 	@Test
 	void testActivateByQrCode_200_nodeOk() {
@@ -165,14 +157,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", PaymentTestData.ACQUIRER_ID_KNOWN,
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ")
+				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
-				.pathParam("qrCode", "PAGOPA|002|100000000000000000|77777777777|9999")
+				.pathParam("qrCode", generateB64UrlEncodedQrCode("77777777777"))
 				.body(activateRequest)
 				.when()
 				.patch("/{qrCode}")
@@ -206,14 +193,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", PaymentTestData.ACQUIRER_ID_KNOWN,
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ")
+				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
-				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
+				.pathParam("qrCode", generateB64UrlEncodedQrCode("20000000000"))
 				.body(activateRequest)
 				.when()
 				.patch("/{qrCode}")
@@ -240,14 +222,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", PaymentTestData.ACQUIRER_ID_KNOWN,
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ")
+				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
-				.pathParam("qrCode", "PAGOPA|002|100000000000000000|" + paTaxCode + "|9999")
+				.pathParam("qrCode", generateB64UrlEncodedQrCode(paTaxCode))
 				.body(activateRequest)
 				.when()
 				.patch("/{qrCode}")
@@ -256,6 +233,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
@@ -273,14 +251,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", PaymentTestData.ACQUIRER_ID_NOT_KNOWN,
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ")
+				.headers(PaymentTestData.getMilHeaders(true, false))
 				.and()
-				.pathParam("qrCode", "PAGOPA|002|100000000000000000|20000000000|9999")
+				.pathParam("qrCode", generateB64UrlEncodedQrCode("77777777777"))
 				.body(activateRequest)
 				.when()
 				.patch("/{qrCode}")
@@ -289,6 +262,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.UNKNOWN_ACQUIRER_ID));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
@@ -306,12 +280,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", PaymentTestData.ACQUIRER_ID_KNOWN,
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ")
+				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
 				.pathParam("paTaxCode", "77777777777")
 				.pathParam("noticeNumber", "100000000000000000")
@@ -347,12 +316,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", PaymentTestData.ACQUIRER_ID_KNOWN,
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ")
+				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
 				.pathParam("paTaxCode", "20000000000")
 				.pathParam("noticeNumber", "100000000000000000")
@@ -364,6 +328,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 				.response();
 
 		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
 		Assertions.assertEquals("WRONG_NOTICE_DATA", response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
@@ -382,12 +347,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", PaymentTestData.ACQUIRER_ID_KNOWN,
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ")
+				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
 				.pathParam("paTaxCode", paTaxCode)
 				.pathParam("noticeNumber", "100000000000000000")
@@ -399,6 +359,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
@@ -417,12 +378,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(
-						"RequestId", "d0d654e6-97da-4848-b568-99fedccb642b",
-						"Version", API_VERSION,
-						"AcquirerId", PaymentTestData.ACQUIRER_ID_NOT_KNOWN,
-						"Channel", "ATM",
-						"TerminalId", "0aB9wXyZ")
+				.headers(PaymentTestData.getMilHeaders(true, false))
 				.and()
 				.pathParam("paTaxCode", "20000000000")
 				.pathParam("noticeNumber", "100000000000000000")
@@ -434,6 +390,7 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.UNKNOWN_ACQUIRER_ID));
 		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));

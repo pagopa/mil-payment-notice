@@ -1,7 +1,4 @@
-package it.gov.pagopa.swclient.mil.paymentnotice.utils;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+package it.gov.pagopa.swclient.mil.paymentnotice.bean;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -12,6 +9,7 @@ import javax.validation.constraints.Size;
  * @see <a href="https://docs.pagopa.it/avviso-pagamento/struttura/specifiche-tecniche/dati-per-il-pagamento/codice-qr">QR Code specification</a>
  */
 public class QrCode {
+
 
     /**
      * Identifier code (static value "PAGOPA")
@@ -52,25 +50,6 @@ public class QrCode {
     @Size(min = 2, max = 11)
     @Pattern(regexp = "^\\d{2,11}$")
     private String amount;
-
-    private QrCode() {
-    }
-
-    /**
-     * Creates a QrCode instance from its string representation
-     * @param qrCode the string representation of the QR code
-     * @return the {@link QrCode} instance
-     */
-    public static QrCode parse(String qrCode) {
-        QrCode instance = new QrCode();
-        String[] parts = StringUtils.split(qrCode, "|");
-        instance.setIdCode(ArrayUtils.get(parts, 0, null));
-        instance.setVersion(ArrayUtils.get(parts, 1, null));
-        instance.setNoticeNumber(ArrayUtils.get(parts, 2, null));
-        instance.setPaTaxCode(ArrayUtils.get(parts, 3, null));
-        instance.setAmount(ArrayUtils.get(parts, 4, null));
-        return instance;
-    }
 
 
     /**
@@ -165,4 +144,5 @@ public class QrCode {
         sb.append('}');
         return sb.toString();
     }
+
 }

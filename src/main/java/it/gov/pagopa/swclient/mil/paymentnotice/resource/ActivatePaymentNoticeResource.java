@@ -6,7 +6,9 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -21,7 +23,8 @@ import javax.ws.rs.core.Response.Status;
 
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
-import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCode;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.QrCode;
+import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -42,6 +45,9 @@ import it.gov.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
 @Path("/paymentNotices")
 public class ActivatePaymentNoticeResource extends BasePaymentResource {
 
+	@Inject
+	QrCodeParser qrCodeParser;
+
 	/**
 	 * The expiration time of the payment token passed to the node
 	 */
@@ -54,23 +60,30 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 	 * The qr code contains, encoded, the tax code of the company and the payment notice number
 	 *
 	 * @param headers the object containing all the common headers used by the mil services
-	 * @param qrCode the qr-code
-	 * @param activatePaymentNoticeRequest an {@link ActivatePaymentNoticeRequest}
+	 * @param b64UrlQrCode the base64url encoded qr-code
+	 * @param activatePaymentNoticeRequest an {@link ActivatePaymentNoticeRequest} containing the amount and the idempotency key
 	 * @return a {@link ActivatePaymentNoticeResponse} containing the result of the activation of the payment notice
 	 */
 	@PATCH
 	@Path("/{qrCode}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<Response> activateByQrCode(@Valid @BeanParam CommonHeader headers,
-			@Pattern(regexp = PaymentNoticeConstants.QRCODE_REGEX, message = "[" + ErrorCode.QRCODE_MUST_MATCH_REGEXP + "] qrCode must match \"{regexp}\"")
-			@PathParam(value = "qrCode") String qrCode,
-			@Valid ActivatePaymentNoticeRequest activatePaymentNoticeRequest) {
+	public Uni<Response> activateByQrCode(
+			@Valid @BeanParam CommonHeader headers,
 
-		Log.debugf("activateByQrCode - Input parameters: %s, qrCode: %s, request: %s", headers, qrCode, activatePaymentNoticeRequest);
+			@Pattern(regexp = PaymentNoticeConstants.ENCODED_QRCODE_REGEX,
+					message = "[" + ErrorCode.ENCODED_QRCODE_MUST_MATCH_REGEXP + "] qrCode must match \"{regexp}\"")
+			@PathParam(value = "qrCode") String b64UrlQrCode,
+
+			@Valid
+			@NotNull(message = "[" + ErrorCode.ACTIVATE_REQUEST_MUST_NOT_BE_EMPTY + "] request must not be empty")
+			ActivatePaymentNoticeRequest activatePaymentNoticeRequest) {
+
+		Log.debugf("activateByQrCode - Input parameters: %s, b64UrlQrCode: %s, request: %s", headers, b64UrlQrCode, activatePaymentNoticeRequest);
 
 		// parse qr-code to retrieve the notice number and the PA tax code
-		QrCode parsedQrCode = QrCode.parse(qrCode);
+		QrCode parsedQrCode = qrCodeParser.b64UrlParse(b64UrlQrCode);
+		Log.debugf("decoded qrCode: %s", parsedQrCode);
 
 		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.ACTIVATE).
 				chain(pspConf -> callNodeActivatePaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(),
@@ -85,21 +98,27 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 	 * @param headers the object containing all the common headers used by the mil services
 	 * @param paTaxCode the tax code of the pa that created the payment notice
 	 * @param noticeNumber the number of the payment notice
+	 * @param activatePaymentNoticeRequest an {@link ActivatePaymentNoticeRequest} containing the amount and the idempotency key
 	 * @return a {@link ActivatePaymentNoticeResponse} containing the result of the activation of the payment notice
 	 */
 	@PATCH
 	@Path("/{paTaxCode}/{noticeNumber}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<Response> activateByTaxCodeAndNoticeNumber(@Valid @BeanParam CommonHeader headers,
+	public Uni<Response> activateByTaxCodeAndNoticeNumber(
+			@Valid @BeanParam CommonHeader headers,
 			
-			@Pattern(regexp = PaymentNoticeConstants.PA_TAX_CODE_REGEX, message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
+			@Pattern(regexp = PaymentNoticeConstants.PA_TAX_CODE_REGEX,
+					message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
 			@PathParam(value = "paTaxCode") String paTaxCode,
 			
-			@Pattern(regexp = PaymentNoticeConstants.NOTICE_NUMBER_REGEX, message = "[" + ErrorCode.NOTICE_NUMBER_MUST_MATCH_REGEXP + "] noticeNumber must match \"{regexp}\"")
+			@Pattern(regexp = PaymentNoticeConstants.NOTICE_NUMBER_REGEX,
+					message = "[" + ErrorCode.NOTICE_NUMBER_MUST_MATCH_REGEXP + "] noticeNumber must match \"{regexp}\"")
 			@PathParam(value = "noticeNumber") String noticeNumber,
-			
-			@Valid ActivatePaymentNoticeRequest activatePaymentNoticeRequest) {
+
+			@Valid
+			@NotNull(message = "[" + ErrorCode.ACTIVATE_REQUEST_MUST_NOT_BE_EMPTY + "] request must not be empty")
+			ActivatePaymentNoticeRequest activatePaymentNoticeRequest) {
 
 		Log.debugf("activateByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber, body: %s",
 				headers, paTaxCode, noticeNumber, activatePaymentNoticeRequest);
