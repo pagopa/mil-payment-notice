@@ -328,7 +328,6 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
 				.response();
 
 		Assertions.assertEquals(200, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
 		Assertions.assertEquals("WRONG_NOTICE_DATA", response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));

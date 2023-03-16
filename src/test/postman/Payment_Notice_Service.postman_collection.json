@@ -9385,6 +9385,17 @@
 											"    pm.expect(jsonData.office).to.eql(\"officeName\");\r",
 											"});\r",
 											"\r",
+											"pm.test(\"paTaxCode is 77777777777\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.paTaxCode).to.eql(\"77777777777\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"noticeNumber is 302051234567890125\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.noticeNumber).to.eql(\"302051234567890125\");\r",
+											"});\r",
+											"\r",
+											"\r",
 											""
 										],
 										"type": "text/javascript"
@@ -10494,7 +10505,7 @@
 		},
 		{
 			"key": "qr_code",
-			"value": "PAGOPA%7C002%7C302051234567890125%7C77777777777%7C10000",
+			"value": "UEFHT1BBfDAwMnwzMDIwNTEyMzQ1Njc4OTAxMjV8Nzc3Nzc3Nzc3Nzd8MTAwMDA",
 			"type": "string"
 		},
 		{
@@ -10514,6 +10525,19 @@
 		{
 			"key": "timestampOp",
 			"value": ""
+		},
+		{
+			"key": "paymentToken",
+			"value": ""
+		},
+		{
+			"key": "totalAmount",
+			"value": ""
+		},
+		{
+			"key": "fee",
+			"value": "100",
+			"type": "string"
 		}
 	]
 }
