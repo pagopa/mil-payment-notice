@@ -1,0 +1,37 @@
+name: Release a new version
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    environment: dev-cd
+    
+    permissions:
+      id-token: write
+
+    steps:
+      #
+      # Login to Azure.
+      #
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      #
+      # Update Container App
+      #
+      - name: Update Container App
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --image ghcr.io/${{ github.repository }}:latest
+      
+      # TODO: Run Integration Test
+      # TODO: Run Performance Test
