@@ -9,6 +9,8 @@ import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
  */
 public class NodeForPspLoggingUtil {
 
+    private NodeForPspLoggingUtil() {}
+
     public static String toString(VerifyPaymentNoticeRes verifyPaymentNoticeRes) {
         final StringBuilder sb = new StringBuilder("VerifyPaymentNoticeRes{");
         sb.append("paymentList=").append(verifyPaymentNoticeRes.getPaymentList());
@@ -41,7 +43,7 @@ public class NodeForPspLoggingUtil {
     }
 
 
-    public String toString(CtPaymentOptionDescription ctPaymentOptionDescription) {
+    public static String toString(CtPaymentOptionDescription ctPaymentOptionDescription) {
         final StringBuilder sb = new StringBuilder("CtPaymentOptionDescription{");
         sb.append("amount=").append(ctPaymentOptionDescription.getAmount());
         sb.append(", options=").append(ctPaymentOptionDescription.getOptions().name());

@@ -8,15 +8,17 @@ import io.restassured.response.Response;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.PaymentMethod;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
-import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 import it.gov.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
@@ -25,19 +27,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 
@@ -49,7 +51,7 @@ class ClosePaymentResourceTest {
 	@InjectMock
 	@RestClient
     NodeRestService nodeRestService;
-	
+
 	@InjectMock
 	@RestClient
 	MilRestService milRestService;
@@ -70,58 +72,15 @@ class ClosePaymentResourceTest {
 	void createTestObjects() {
 
 		// common headers
-		commonHeaders = new HashMap<>();
-		commonHeaders.put("RequestId", UUID.randomUUID().toString());
-		commonHeaders.put("Version", "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay");
-		commonHeaders.put("AcquirerId", "4585625");
-		commonHeaders.put("Channel", "ATM");
-		commonHeaders.put("TerminalId", "0aB9wXyZ");
-		commonHeaders.put("SessionId", UUID.randomUUID().toString());
-
+		commonHeaders = PaymentTestData.getMilHeaders(true, true);
 
 		// acquirer PSP configuration
-		acquirerConfiguration = new AcquirerConfiguration();
+		acquirerConfiguration = PaymentTestData.getAcquirerConfiguration();
 
-		it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration pspConfiguration = new PspConfiguration();
-		pspConfiguration.setPsp("AGID_01");
-		pspConfiguration.setBroker("97735020584");
-		pspConfiguration.setChannel("97735020584_07");
-		pspConfiguration.setPassword("PLACEHOLDER");
+		closePaymentRequestOK = PaymentTestData.getClosePaymentRequest(true);
 
-		acquirerConfiguration.setPspConfigForVerifyAndActivate(pspConfiguration);
-		acquirerConfiguration.setPspConfigForGetFeeAndClosePayment(pspConfiguration);
+		closePaymentRequestKO = PaymentTestData.getClosePaymentRequest(false);
 
-
-		closePaymentRequestOK = new ClosePaymentRequest();
-		closePaymentRequestOK.setOutcome(Outcome.OK.toString());
-		List<String> tokens = new ArrayList<>();
-		tokens.add("648fhg36s95jfg7DS");
-		closePaymentRequestOK.setPaymentTokens(tokens);
-		closePaymentRequestOK.setPaymentMethod("PAGOBANCOMAT");
-		closePaymentRequestOK.setTransactionId("517a4216840E461fB011036A0fd134E1");
-		closePaymentRequestOK.setTotalAmount(BigInteger.valueOf(234234));
-		closePaymentRequestOK.setFee(BigInteger.valueOf(897));
-		closePaymentRequestOK.setTimestampOp("2022-11-12T08:53:55");
-
-		closePaymentRequestKO = new ClosePaymentRequest();
-		closePaymentRequestKO.setOutcome(Outcome.KO.toString());
-		closePaymentRequestKO.setPaymentTokens(tokens);
-		closePaymentRequestKO.setPaymentMethod("PAGOBANCOMAT");
-		closePaymentRequestKO.setTransactionId("517a4216840E461fB011036A0fd134E1");
-		closePaymentRequestKO.setTotalAmount(BigInteger.valueOf(234234));
-		closePaymentRequestKO.setFee(BigInteger.valueOf(897));
-		closePaymentRequestKO.setTimestampOp("2022-11-12T08:53:55");
-
-	}
-
-	private static Stream<Arguments> provideMilIntegrationErrorCases() {
-		return Stream.of(
-				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_400, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
-				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_404, ErrorCode.UNKNOWN_ACQUIRER_ID),
-				Arguments.of(ExceptionType.CLIENT_WEB_APPLICATION_EXCEPTION_500, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
-				Arguments.of(ExceptionType.TIMEOUT_EXCEPTION, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES),
-				Arguments.of(ExceptionType.UNPARSABLE_EXCEPTION, ErrorCode.ERROR_CALLING_MIL_REST_SERVICES)
-		);
 	}
 
 
@@ -162,6 +121,8 @@ class ClosePaymentResourceTest {
 				response.getHeader("Location").endsWith("/" + closePaymentRequestOK.getTransactionId()));
 	    Assertions.assertNotNull(response.getHeader("Retry-after"));
 	    Assertions.assertNotNull(response.getHeader("Max-Retry"));
+
+		// TODO add check of clients
 
 	}
 
@@ -281,6 +242,121 @@ class ClosePaymentResourceTest {
 
 	}
 
+	@ParameterizedTest
+	@MethodSource("it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideHeaderValidationErrorCases")
+	void testClosePayment_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode) {
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(invalidHeaders)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+	}
+
+	@ParameterizedTest
+	@MethodSource("it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideCloseRequestValidationErrorCases")
+	void testClosePayment_400_invalidRequest(ClosePaymentRequest closePaymentRequest, String errorCode) {
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.body(closePaymentRequest)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+	}
+
+	@Test
+	void testClosePayment_400_emptyRequest() {
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.CLOSE_REQUEST_MUST_NOT_BE_EMPTY));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+	}
+
+	@Test
+	void testClosePayment_500_otherCases() {
+
+		Mockito
+				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
+				.thenReturn(Uni.createFrom().voidItem());
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(nodeRestService.closePayment(Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(Exception::new));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_CALLING_NODE_REST_SERVICES));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.getHeader("Location"));
+		Assertions.assertNull(response.getHeader("Retry-after"));
+		Assertions.assertNull(response.getHeader("Max-Retry"));
+
+	}
+	
 
 	@Test
 	void testClosePayment_200_nodeTimeout() {
@@ -320,39 +396,8 @@ class ClosePaymentResourceTest {
 	     
 	}
 
-
-	@Test
-	void testClosePaymentKO_200_nodeOK() {
-
-		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
-		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
-
-		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
-
-		Mockito
-				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
-				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
-
-
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(commonHeaders)
-				.and()
-				.body(closePaymentRequestKO)
-				.when()
-				.post("/")
-				.then()
-				.extract()
-				.response();
-
-		Assertions.assertEquals(202, response.statusCode());
-
-	}
-
 	@ParameterizedTest
-	@MethodSource("provideMilIntegrationErrorCases")
+	@MethodSource("it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideMilIntegrationErrorCases")
 	void testClosePayment_500_milError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
@@ -378,5 +423,117 @@ class ClosePaymentResourceTest {
 		Assertions.assertNull(response.getHeader("Max-Retry"));
 
 	}
+
+	@Test
+	void testClosePayment_500_redisKo() {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(paymentService.setIfNotExist(Mockito.any(String.class), Mockito.any(ReceivePaymentStatusRequest.class)))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.REDIS_TIMEOUT_EXCEPTION)));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_STORING_DATA_INTO_REDIS));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.getHeader("Location"));
+		Assertions.assertNull(response.getHeader("Retry-after"));
+		Assertions.assertNull(response.getHeader("Max-Retry"));
+
+	}
+
+	@Test
+	void testClosePaymentKO_200_nodeOK() {
+
+		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
+		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
+		
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
+				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.body(closePaymentRequestKO)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(202, response.statusCode());
+
+		ArgumentCaptor<NodeClosePaymentRequest> captor = ArgumentCaptor.forClass(NodeClosePaymentRequest.class);
+		Mockito.verify(nodeRestService).closePayment(captor.capture());
+		Assertions.assertEquals("648fhg36s95jfg7DS",captor.getValue().getPaymentTokens().get(0));
+		Assertions.assertEquals(Outcome.KO.toString(), captor.getValue().getOutcome());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForGetFeeAndClosePayment().getPsp(), captor.getValue().getIdPsp());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForGetFeeAndClosePayment().getBroker(), captor.getValue().getIdBrokerPSP());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForGetFeeAndClosePayment().getChannel(), captor.getValue().getIdChannel());
+		Assertions.assertEquals(PaymentMethod.PAGOBANCOMAT.name(), captor.getValue().getPaymentMethod());
+		Assertions.assertEquals("517a4216840E461fB011036A0fd134E1", captor.getValue().getTransactionId());
+		Assertions.assertEquals(BigDecimal.valueOf(234234).divide(new BigDecimal(100), RoundingMode.HALF_DOWN), captor.getValue().getTotalAmount());
+		Assertions.assertEquals(BigDecimal.valueOf(897).divide(new BigDecimal(100), RoundingMode.HALF_DOWN), captor.getValue().getFee());
+		
+		ZonedDateTime timestampOperation = LocalDateTime.parse(closePaymentRequestKO.getTimestampOp()).atZone(ZoneId.of("UTC"));
+		
+		Assertions.assertEquals(timestampOperation.format(DateTimeFormatter.ISO_INSTANT), captor.getValue().getTimestampOperation());
+		Assertions.assertNotNull(captor.getValue().getAdditionalPaymentInformations());
+	}
+
+
+//	@Test
+//	void testClosePaymentKO_200_nodeKO() {
+//
+//		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
+//		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
+//		
+//		Mockito
+//				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+//				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+//
+//		Mockito
+//				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
+//				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
+//
+//
+//		Response response = given()
+//				.contentType(ContentType.JSON)
+//				.headers(commonHeaders)
+//				.and()
+//				.body(closePaymentRequestKO)
+//				.when()
+//				.post("/")
+//				.then()
+//				.extract()
+//				.response();
+//
+//		Assertions.assertEquals(202, response.statusCode());
+//
+//	}
+	
+
 	
 }

@@ -5,7 +5,7 @@ public final class ErrorCode {
 	public static final String MODULE_ID = "008";
 
 	// validation errors
-	public static final String QRCODE_MUST_MATCH_REGEXP 									= MODULE_ID + "000001";
+	public static final String ENCODED_QRCODE_MUST_MATCH_REGEXP 							= MODULE_ID + "000001";
 	public static final String PA_TAX_CODE_MUST_MATCH_REGEXP 								= MODULE_ID + "000002";
 	public static final String NOTICE_NUMBER_MUST_MATCH_REGEXP 								= MODULE_ID + "000003";
 	public static final String ERROR_IDEMPOTENCY_KEY_MUST_NOT_BE_NULL 						= MODULE_ID + "000004";
@@ -58,10 +58,13 @@ public final class ErrorCode {
 
 
 	// integration error node - rest client
-	public static final String ERROR_CALLING_NODE_REST_SERVICES								 = MODULE_ID + "000029";
+	public static final String ERROR_CALLING_NODE_REST_SERVICES								= MODULE_ID + "000029";
+	public static final String ERROR_CALLING_MIL_REST_SERVICES								= MODULE_ID + "00002A";
 
-	public static final String ERROR_CALLING_MIL_REST_SERVICES								 = MODULE_ID + "00002A";
+	public static final String QRCODE_FORMAT_IS_NOT_VALID									= MODULE_ID + "00002B";
 
+	public static final String ACTIVATE_REQUEST_MUST_NOT_BE_EMPTY 							= MODULE_ID + "00002C";
+	public static final String CLOSE_REQUEST_MUST_NOT_BE_EMPTY 								= MODULE_ID + "00002D";
 
 	private ErrorCode() {
 	}

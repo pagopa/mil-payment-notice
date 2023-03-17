@@ -51,3 +51,5 @@ src/main/terraform/identity/.terraform/
 
 /.apt_generated/
 /.apt_generated_tests/
+
+src/test/postman/reports/*

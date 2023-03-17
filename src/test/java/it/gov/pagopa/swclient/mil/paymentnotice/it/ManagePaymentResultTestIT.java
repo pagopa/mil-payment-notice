@@ -38,9 +38,9 @@ import static io.restassured.RestAssured.given;
 @TestProfile(IntegrationTestProfile.class)
 @TestHTTPEndpoint(PaymentResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SendPaymentResultTestIT implements DevServicesContext.ContextAware {
+class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 
-	static final Logger logger = LoggerFactory.getLogger(SendPaymentResultTestIT.class);
+	static final Logger logger = LoggerFactory.getLogger(ManagePaymentResultTestIT.class);
 
 	final static String API_VERSION			= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
 
