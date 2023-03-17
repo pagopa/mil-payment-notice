@@ -1,4 +1,4 @@
-name: Build and deploy latest version in DEV
+name: Build and deploy manually in DEV
 
 on:
   workflow_dispatch:
@@ -26,7 +26,6 @@ jobs:
       # Setup the JDK.
       #
       - name: Setup the JDK
-        if: steps.semantic.outputs.new_release_published == 'true'
         uses: actions/setup-java@v3
         with:
           java-version: '17'
@@ -37,14 +36,13 @@ jobs:
       # Build dependencies + Execute unit-test + Calculate test coverage + SCA with Sonar + Build native image + Docker build + Docker login + Docker push
       #
       - name: Build dependencies + Execute unit-test + Calculate test coverage + SCA with Sonar + Build native image + Docker build + Docker login + Docker push
-        if: steps.semantic.outputs.new_release_published == 'true'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn clean validate -Pbootstrap --no-transfer-progress
-          mvn verify -Pvalidate --no-transfer-progress
           mvn clean package -Pnative -Dmaven.test.skip=true --no-transfer-progress
-          docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:latest .
+          export PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${PROJECT_VERSION} .
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push -a ghcr.io/${{ github.repository }}
     
@@ -66,7 +64,7 @@ jobs:
         with:
           inlineScript: |
             az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --image ghcr.io/${{ github.repository }}:latest
+            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --image ghcr.io/${{ github.repository }}:${PROJECT_VERSION}
       
       # TODO: Run Integration Test
       # TODO: Run Performance Test
