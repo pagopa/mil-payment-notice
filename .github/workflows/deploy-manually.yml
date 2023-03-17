@@ -1,10 +1,10 @@
-name: Deploy latest version in DEV
+name: Build and deploy latest version in DEV
 
 on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
     
     environment: dev-cd
