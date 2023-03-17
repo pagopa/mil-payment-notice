@@ -1,4 +1,4 @@
-name: Release a new version
+name: Deploy latest version in DEV
 
 on:
   workflow_dispatch:
