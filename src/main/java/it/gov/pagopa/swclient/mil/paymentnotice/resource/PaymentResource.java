@@ -1,13 +1,13 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.resource;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
@@ -54,6 +54,9 @@ import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 @Path("/payments")
 public class PaymentResource extends BasePaymentResource {
+
+	@ConfigProperty(name = "node.paymentmethod.map")
+	Map<String, String> nodePaymentMethodMap;
 
 	/**
 	 * The reactive REDIS client
@@ -239,7 +242,7 @@ public class PaymentResource extends BasePaymentResource {
 		NodeClosePaymentRequest nodeClosePaymentRequest =
 				createNodeClosePaymentRequest(closePaymentRequest, pspConfiguration);
 
-		Log.debugf("Calling the node closePayment service for OK outcome");
+		Log.debugf("Calling the node closePayment service for OK outcome, request: %s", nodeClosePaymentRequest);
 		return nodeRestService.closePayment(nodeClosePaymentRequest)
 			.onItemOrFailure()
 			.transform((closePayRes, error) -> {
@@ -262,7 +265,7 @@ public class PaymentResource extends BasePaymentResource {
 					}
 			    }
 				else {
-					Log.debugf("Node closePayment service responded %s", closePayRes);
+					Log.debugf("Node closePayment service returned a 200 status, response: %s", closePayRes);
 					if (Outcome.OK.name().equals(closePayRes.getOutcome())) {
 						outcomeOk = true;
 					}
@@ -274,7 +277,7 @@ public class PaymentResource extends BasePaymentResource {
 				if (outcomeOk) {
 					closePaymentResponse.setOutcome(Outcome.OK);
 					responseBuilder
-							.location(URI.create("/payment/" + closePaymentRequest.getTransactionId()))
+							.location(URI.create("/payments/" + closePaymentRequest.getTransactionId()))
 							.header("Retry-After", closePaymentRetryAfter)
 							.header("Max-Retry", closePaymentMaxRetry);
 				}
@@ -303,17 +306,18 @@ public class PaymentResource extends BasePaymentResource {
 		// un unparsable response is wrapped in a ClientWebApplicationException exception
 		// with 404 status, so we need to distinguish it from the real 404 case
 		if (ExceptionUtils.indexOfThrowable(webEx, JsonParseException.class) != -1) {
-			Log.debug("Node closePayment returned an unparsable response, responding with outcome OK");
+			Log.debug("Node closePayment returned an unparsable response");
 			outcomeOk = true;
 		}
 		else {
 			int nodeResponseStatus = webEx.getResponse().getStatus();
+			String nodeResponse = webEx.getResponse().readEntity(String.class);
 			// for these three statuses we return outcome ko
 			if (nodeResponseStatus == 400 || nodeResponseStatus == 404) {
-				Log.debugf("Node closePayment returned a %s status response, responding with outcome KO", nodeResponseStatus);
+				Log.debugf("Node closePayment returned a %s status, response: %s", nodeResponseStatus, nodeResponse);
 			}
-			else {// for any other status we return outcome ok
-				Log.debugf("Node closePayment returned a %s status response, responding with outcome OK", nodeResponseStatus);
+			else { // for any other status we return outcome ok
+				Log.debugf("Node closePayment returned a %s status, response: %s", nodeResponseStatus, nodeResponse);
 				outcomeOk = true;
 			}
 		}
@@ -338,11 +342,13 @@ public class PaymentResource extends BasePaymentResource {
 		nodeClosePaymentRequest.setIdPsp(pspConfiguration.getPsp());
 		nodeClosePaymentRequest.setIdBrokerPSP(pspConfiguration.getBroker());
 		nodeClosePaymentRequest.setIdChannel(pspConfiguration.getChannel());
-		nodeClosePaymentRequest.setPaymentMethod(closePaymentRequest.getPaymentMethod());
+		// remapping payment method based on property file
+		nodeClosePaymentRequest.setPaymentMethod(nodePaymentMethodMap.getOrDefault(closePaymentRequest.getPaymentMethod(),
+				closePaymentRequest.getPaymentMethod()));
 		nodeClosePaymentRequest.setTransactionId(closePaymentRequest.getTransactionId());
 		// conversion from euro cents to euro
-		nodeClosePaymentRequest.setTotalAmount(new BigDecimal(closePaymentRequest.getTotalAmount()).divide(new BigDecimal(100), RoundingMode.HALF_DOWN));
-		nodeClosePaymentRequest.setFee(new BigDecimal(closePaymentRequest.getFee()).divide(new BigDecimal(100), RoundingMode.HALF_DOWN));
+		nodeClosePaymentRequest.setTotalAmount(new BigDecimal(closePaymentRequest.getTotalAmount(), 2));
+		nodeClosePaymentRequest.setFee(new BigDecimal(closePaymentRequest.getFee(), 2));
 		// transform the date from LocalDateTime to ZonedDateTime as requested by the closePayment on the node
 		ZonedDateTime timestampOperation = LocalDateTime.parse(closePaymentRequest.getTimestampOp()).atZone(ZoneId.of("UTC"));
 		nodeClosePaymentRequest.setTimestampOperation(timestampOperation.format(DateTimeFormatter.ISO_INSTANT));
