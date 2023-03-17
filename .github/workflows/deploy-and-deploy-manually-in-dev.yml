@@ -43,7 +43,7 @@ jobs:
           mvn clean package -Pnative -Dmaven.test.skip=true --no-transfer-progress
           export PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:${PROJECT_VERSION} .
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.GIT_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push -a ghcr.io/${{ github.repository }}
     
       #
