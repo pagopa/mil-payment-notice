@@ -6,9 +6,11 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.smallrye.mutiny.Uni;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.ActivatePaymentNoticeV2Request;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.ActivatePaymentNoticeV2Response;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtTransferListPSPV2;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtTransferPSPV2;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.VerifyPaymentNoticeReq;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
@@ -198,7 +201,25 @@ class ActivatePaymentNoticeResourceTest {
 				response.jsonPath().getList("transfers", Transfer.class).get(1).getPaTaxCode());
 		Assertions.assertEquals(StringUtils.EMPTY, response.jsonPath().getList("transfers", Transfer.class).get(1).getCategory());
 
-		// TODO add check of clients
+		//check of milRestService clients
+		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
+		
+		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
+		Assertions.assertEquals(validMilHeaders.get("RequestId"),captorRequestId.getValue());
+		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
+		
+		//check of pnWrapper clients
+		ArgumentCaptor<ActivatePaymentNoticeV2Request> captorActivatePaymentNoticeV2Request  = ArgumentCaptor.forClass(ActivatePaymentNoticeV2Request.class);
+		Mockito.verify(pnWrapper).activatePaymentNoticeV2Async(captorActivatePaymentNoticeV2Request.capture());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getBroker(),captorActivatePaymentNoticeV2Request.getValue().getIdBrokerPSP());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getChannel(),captorActivatePaymentNoticeV2Request.getValue().getIdChannel());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPassword(),captorActivatePaymentNoticeV2Request.getValue().getPassword());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPsp(),captorActivatePaymentNoticeV2Request.getValue().getIdPSP());
+		Assertions.assertEquals(validActivateRequest.getIdempotencyKey(),captorActivatePaymentNoticeV2Request.getValue().getIdempotencyKey());
+		
+		Assertions.assertEquals("00000000000",captorActivatePaymentNoticeV2Request.getValue().getQrCode().getFiscalCode());
+		Assertions.assertEquals("000000000000000000",captorActivatePaymentNoticeV2Request.getValue().getQrCode().getNoticeNumber());
 	}
 
 	@ParameterizedTest
@@ -446,7 +467,25 @@ class ActivatePaymentNoticeResourceTest {
 				response.jsonPath().getList("transfers", Transfer.class).get(1).getPaTaxCode());
 		Assertions.assertEquals(StringUtils.EMPTY, response.jsonPath().getList("transfers", Transfer.class).get(1).getCategory());
 
-		// TODO add check of clients
+		//check of milRestService clients
+		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
+		
+		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
+		Assertions.assertEquals(validMilHeaders.get("RequestId"),captorRequestId.getValue());
+		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
+		
+		//check of pnWrapper clients
+		ArgumentCaptor<ActivatePaymentNoticeV2Request> captorActivatePaymentNoticeV2Request  = ArgumentCaptor.forClass(ActivatePaymentNoticeV2Request.class);
+		Mockito.verify(pnWrapper).activatePaymentNoticeV2Async(captorActivatePaymentNoticeV2Request.capture());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getBroker(),captorActivatePaymentNoticeV2Request.getValue().getIdBrokerPSP());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getChannel(),captorActivatePaymentNoticeV2Request.getValue().getIdChannel());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPassword(),captorActivatePaymentNoticeV2Request.getValue().getPassword());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPsp(),captorActivatePaymentNoticeV2Request.getValue().getIdPSP());
+		Assertions.assertEquals(validActivateRequest.getIdempotencyKey(),captorActivatePaymentNoticeV2Request.getValue().getIdempotencyKey());
+		
+		Assertions.assertEquals("20000000000",captorActivatePaymentNoticeV2Request.getValue().getQrCode().getFiscalCode());
+		Assertions.assertEquals("100000000000000000",captorActivatePaymentNoticeV2Request.getValue().getQrCode().getNoticeNumber());
 
 	}
 

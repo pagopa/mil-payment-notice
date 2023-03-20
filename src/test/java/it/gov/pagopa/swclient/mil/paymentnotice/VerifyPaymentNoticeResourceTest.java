@@ -1,41 +1,7 @@
 package it.gov.pagopa.swclient.mil.paymentnotice;
 
-import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
-import io.restassured.response.Response;
-import io.smallrye.mutiny.Uni;
-import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtPaymentOptionDescription;
-import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtPaymentOptionsDescriptionList;
-import it.gov.pagopa.pagopa_api.node.nodeforpsp.StAmountOptionPSP;
-import it.gov.pagopa.pagopa_api.node.nodeforpsp.VerifyPaymentNoticeRes;
-import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
-import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.client.MilRestService;
-import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
-import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
-import it.gov.pagopa.swclient.mil.paymentnotice.resource.VerifyPaymentNoticeResource;
-import it.gov.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
-import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
-import it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.QrCode;
-import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvFileSource;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
+import static io.restassured.RestAssured.given;
 
-import javax.inject.Inject;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -45,7 +11,45 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
-import static io.restassured.RestAssured.given;
+import javax.inject.Inject;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import io.restassured.response.Response;
+import io.smallrye.mutiny.Uni;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtPaymentOptionDescription;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtPaymentOptionsDescriptionList;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.StAmountOptionPSP;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.VerifyPaymentNoticeReq;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.VerifyPaymentNoticeRes;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.QrCode;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
+import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.resource.VerifyPaymentNoticeResource;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils;
+import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
 
 @QuarkusTest
 @TestHTTPEndpoint(VerifyPaymentNoticeResource.class)
@@ -203,8 +207,24 @@ class VerifyPaymentNoticeResourceTest {
 		Assertions.assertEquals(verifyPaymentNoticeResOk.getFiscalCodePA(), response.jsonPath().getString("paTaxCode"));
 		Assertions.assertEquals(qrCode.getNoticeNumber(), response.jsonPath().getString("noticeNumber"));
 
-		// TODO add check of clients
-
+		//check of milRestService clients
+		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
+		
+		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
+		Assertions.assertEquals(validMilHeaders.get("RequestId"),captorRequestId.getValue());
+		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
+		
+		//check of nodeWrapper clients
+		ArgumentCaptor<VerifyPaymentNoticeReq> captorVerifyPaymentNoticeReq  = ArgumentCaptor.forClass(VerifyPaymentNoticeReq.class);
+		Mockito.verify(nodeWrapper).verifyPaymentNotice(captorVerifyPaymentNoticeReq.capture());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getBroker(),captorVerifyPaymentNoticeReq.getValue().getIdBrokerPSP());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getChannel(),captorVerifyPaymentNoticeReq.getValue().getIdChannel());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPassword(),captorVerifyPaymentNoticeReq.getValue().getPassword());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPsp(),captorVerifyPaymentNoticeReq.getValue().getIdPSP());
+		
+		Assertions.assertEquals("00000000000",captorVerifyPaymentNoticeReq.getValue().getQrCode().getFiscalCode());
+		Assertions.assertEquals("000000000000000000",captorVerifyPaymentNoticeReq.getValue().getQrCode().getNoticeNumber());
 	}
 
 	@ParameterizedTest
@@ -392,7 +412,24 @@ class VerifyPaymentNoticeResourceTest {
 		Assertions.assertEquals(verifyPaymentNoticeResOk.getCompanyName(), response.jsonPath().getString("company"));
 		Assertions.assertEquals(verifyPaymentNoticeResOk.getOfficeName(), response.jsonPath().getString("office"));
 
-		// TODO add check of clients
+		//check of milRestService clients
+		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
+		
+		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
+		Assertions.assertEquals(validMilHeaders.get("RequestId"),captorRequestId.getValue());
+		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
+		
+		//check of nodeWrapper clients
+		ArgumentCaptor<VerifyPaymentNoticeReq> captorVerifyPaymentNoticeReq  = ArgumentCaptor.forClass(VerifyPaymentNoticeReq.class);
+		Mockito.verify(nodeWrapper).verifyPaymentNotice(captorVerifyPaymentNoticeReq.capture());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getBroker(),captorVerifyPaymentNoticeReq.getValue().getIdBrokerPSP());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getChannel(),captorVerifyPaymentNoticeReq.getValue().getIdChannel());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPassword(),captorVerifyPaymentNoticeReq.getValue().getPassword());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPsp(),captorVerifyPaymentNoticeReq.getValue().getIdPSP());
+		
+		Assertions.assertEquals("20000000000",captorVerifyPaymentNoticeReq.getValue().getQrCode().getFiscalCode());
+		Assertions.assertEquals("100000000000000000",captorVerifyPaymentNoticeReq.getValue().getQrCode().getNoticeNumber());
 
 	}
 
