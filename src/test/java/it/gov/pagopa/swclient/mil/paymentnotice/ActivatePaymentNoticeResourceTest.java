@@ -10,7 +10,6 @@ import it.gov.pagopa.pagopa_api.node.nodeforpsp.ActivatePaymentNoticeV2Request;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.ActivatePaymentNoticeV2Response;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtTransferListPSPV2;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.CtTransferPSPV2;
-import it.gov.pagopa.pagopa_api.node.nodeforpsp.VerifyPaymentNoticeReq;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;

@@ -133,14 +133,14 @@ class ClosePaymentResourceTest {
 		//check of nodeRestService clients
 		ArgumentCaptor<NodeClosePaymentRequest> captorNodeClosePaymentRequest = ArgumentCaptor.forClass(NodeClosePaymentRequest.class);
 		Mockito.verify(nodeRestService).closePayment(captorNodeClosePaymentRequest.capture());
-		
-		Assertions.assertEquals(new BigDecimal(closePaymentRequestOK.getFee(), 2),captorNodeClosePaymentRequest.getValue().getFee());
+
 		Assertions.assertEquals(closePaymentRequestOK.getOutcome(),captorNodeClosePaymentRequest.getValue().getOutcome());
 		Assertions.assertEquals("CP",captorNodeClosePaymentRequest.getValue().getPaymentMethod());
 		ZonedDateTime timestampOperation = LocalDateTime.parse(closePaymentRequestOK.getTimestampOp()).atZone(ZoneId.of("UTC"));
 		Assertions.assertEquals(timestampOperation.format(DateTimeFormatter.ISO_INSTANT),captorNodeClosePaymentRequest.getValue().getTimestampOperation());
 		Assertions.assertEquals(closePaymentRequestOK.getTransactionId(),captorNodeClosePaymentRequest.getValue().getTransactionId());
 		Assertions.assertEquals(new BigDecimal(closePaymentRequestOK.getTotalAmount(),2),captorNodeClosePaymentRequest.getValue().getTotalAmount());
+		Assertions.assertEquals(new BigDecimal(closePaymentRequestOK.getFee(),2),captorNodeClosePaymentRequest.getValue().getFee());
 		//for test list of one element
 		Assertions.assertEquals(closePaymentRequestOK.getPaymentTokens().get(0),captorNodeClosePaymentRequest.getValue().getPaymentTokens().get(0));
 		
@@ -537,11 +537,8 @@ class ClosePaymentResourceTest {
 
 
 	@Test
-	void testClosePaymentOK_200_nodeKO() {
+	void testClosePaymentOK_200_nodeUnparsable() {
 
-		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
-		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
-		
 		Mockito
 			.when(paymentService.setIfNotExist(Mockito.any(String.class), Mockito.any(ReceivePaymentStatusRequest.class)))
 			.thenReturn(Uni.createFrom().item(Boolean.TRUE));
@@ -553,12 +550,10 @@ class ClosePaymentResourceTest {
 		JsonParser jsonParser = null;
 		try {
 			jsonParser = new JsonFactory().createParser("{}");
-		} catch (JsonParseException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		Mockito
 				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
 				.thenReturn(Uni.createFrom().failure(new ClientWebApplicationException(new JsonParseException(jsonParser,""))));
@@ -576,6 +571,13 @@ class ClosePaymentResourceTest {
 				.response();
 
 		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+		Assertions.assertEquals(Outcome.OK.name(), response.jsonPath().getString("outcome"));
+		Assertions.assertNotNull(response.getHeader("Location"));
+		Assertions.assertTrue(response.getHeader("Location") != null &&
+				response.getHeader("Location").endsWith("/" + closePaymentRequestOK.getTransactionId()));
+		Assertions.assertNotNull(response.getHeader("Retry-after"));
+		Assertions.assertNotNull(response.getHeader("Max-Retry"));
 
 	}
 	
