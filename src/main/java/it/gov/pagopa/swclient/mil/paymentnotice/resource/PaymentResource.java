@@ -208,6 +208,7 @@ public class PaymentResource extends BasePaymentResource {
 				})
 				.onItem().ifNull().failWith(() -> {
 					// if no transaction is found on redis return PAYMENT_NOT_FOUND as outcome
+					Log.errorf("REDIS transactionId not found");
 					ReceivePaymentStatusResponse receiveResponse = new ReceivePaymentStatusResponse();
 					receiveResponse.setOutcome("PAYMENT_NOT_FOUND");
 					return new NotFoundException(Response.status(Status.NOT_FOUND).entity(receiveResponse).build());
