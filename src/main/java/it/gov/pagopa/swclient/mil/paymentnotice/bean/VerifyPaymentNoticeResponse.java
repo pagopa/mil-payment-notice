@@ -48,12 +48,12 @@ public class VerifyPaymentNoticeResponse {
 	@JsonInclude(Include.NON_NULL)
 	private String office;
 
-	@NotNull
 	@Pattern(regexp = "^\\d{11}$")
+	@JsonInclude(Include.NON_NULL)
 	private String paTaxCode;
 
-	@NotNull
 	@Pattern(regexp = "^\\d{18}$")
+	@JsonInclude(Include.NON_NULL)
 	private String noticeNumber;
 
 
