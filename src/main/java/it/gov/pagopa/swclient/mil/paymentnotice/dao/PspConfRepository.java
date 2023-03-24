@@ -7,7 +7,8 @@ import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepository;
 /**
  *  MongoDB repository to access PSP configuration data, reactive flavor
  */
-@ApplicationScoped
-public class PspConfRepository implements ReactivePanacheMongoRepository<PspConfEntity> {
 
+@ApplicationScoped
+public class PspConfRepository implements ReactivePanacheMongoRepository<PspConfEntity> { //NOSONAR
+	
 }

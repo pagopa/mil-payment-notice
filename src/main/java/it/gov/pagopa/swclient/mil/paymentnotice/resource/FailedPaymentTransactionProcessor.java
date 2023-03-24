@@ -1,5 +1,11 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.resource;
 
+import java.time.Duration;
+
+import javax.enterprise.context.ApplicationScoped;
+
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import io.quarkus.logging.Log;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
@@ -8,10 +14,6 @@ import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
-import javax.enterprise.context.ApplicationScoped;
-import java.time.Duration;
 
 @ApplicationScoped
 public class FailedPaymentTransactionProcessor {
@@ -28,7 +30,7 @@ public class FailedPaymentTransactionProcessor {
      * @param nodeClosePaymentRequest the object received in request of the closePayment
      */
     @ConsumeEvent("failedPaymentTransaction")
-    void consume(NodeClosePaymentRequest nodeClosePaymentRequest) {
+    public void consume(NodeClosePaymentRequest nodeClosePaymentRequest) {
         Log.debugf("Asynchronously process %s", nodeClosePaymentRequest);
 
         callNodeClosePayment(nodeClosePaymentRequest)
@@ -50,11 +52,13 @@ public class FailedPaymentTransactionProcessor {
     private Uni<NodeClosePaymentResponse> callNodeClosePayment(NodeClosePaymentRequest nodeClosePaymentRequest) {
         return nodeRestService.closePayment(nodeClosePaymentRequest)
                 .onItem().transform(Unchecked.function(r -> {
-                    if (r.getOutcome().equals("KO")) throw new InvalidResponseException();
+                    if (r.getOutcome().equals("KO")) {
+                    	throw new InvalidResponseException();
+                    }
                     else return r;
                 }));
     }
 
-    private static class InvalidResponseException extends Exception {
+    private class InvalidResponseException extends Exception {
     }
 }

@@ -1,5 +1,21 @@
 package it.gov.pagopa.swclient.mil.paymentnotice;
 
+import static io.restassured.RestAssured.given;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.InternalServerErrorException;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -12,19 +28,6 @@ import it.gov.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest
 import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
-
-import javax.ws.rs.InternalServerErrorException;
-import java.util.List;
-import java.util.Map;
-
-import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 @TestHTTPEndpoint(PaymentResource.class)
@@ -98,7 +101,10 @@ class ManagePaymentResultTest {
 			Assertions.assertEquals(paymentStatus.getPayments().get(i).getPaymentToken(), payment.getPaymentToken());
 		}
 
-		// TODO add check of clients
+		//check of milRestService clients
+		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+		Mockito.verify(paymentService).get(captor.capture());
+		Assertions.assertEquals(TRANSACTION_ID,captor.getValue());
 	}
 
 	@ParameterizedTest
