@@ -30,6 +30,7 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
         configOverrides.put("node-rest-client-subscription-key", "abc");
         configOverrides.put("mil-rest-client-subscription-key", "abc");
         configOverrides.put("mil-acquirer-conf-version", "1.0.0");
+        configOverrides.put("paymentnotice.closepayment.location.base-url", "https://mil-d-apim.azure-api.net/mil-payment-notice");
 
         return configOverrides;
     }
