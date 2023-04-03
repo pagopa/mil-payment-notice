@@ -9655,7 +9655,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"totalAmount\": {{totalAmount}},\r\n    \"fee\": {{fee}},\r\n    \"timestampOp\": \"{{timestampOp}}\"\r\n}",
+									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"paymentMethod\": \"{{paymentMethod}}\",\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"totalAmount\": {{totalAmount}},\r\n    \"fee\": {{fee}},\r\n    \"timestampOp\": \"{{timestampOp}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10205,7 +10205,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"totalAmount\": {{totalAmount}},\r\n    \"fee\": {{fee}},\r\n    \"timestampOp\": \"{{timestampOp}}\"\r\n}",
+									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"paymentMethod\": \"{{paymentMethod}}\",\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"totalAmount\": {{totalAmount}},\r\n    \"fee\": {{fee}},\r\n    \"timestampOp\": \"{{timestampOp}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10285,7 +10285,7 @@
 									"variable": [
 										{
 											"key": "transactionId",
-											"value": "bcb0e6ab48aa426c8e92625424a1321d"
+											"value": "{{transactionId}}"
 										}
 									]
 								}
@@ -10537,6 +10537,11 @@
 		{
 			"key": "fee",
 			"value": "100",
+			"type": "string"
+		},
+		{
+			"key": "paymentMethod",
+			"value": "PAYMENT_CARD",
 			"type": "string"
 		}
 	]

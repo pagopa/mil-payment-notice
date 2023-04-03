@@ -58,6 +58,7 @@ public class PaymentResource extends BasePaymentResource {
 	@ConfigProperty(name = "node.paymentmethod.map")
 	Map<String, String> nodePaymentMethodMap;
 
+
 	/**
 	 * The reactive REDIS client
 	 */
@@ -89,6 +90,11 @@ public class PaymentResource extends BasePaymentResource {
 	@ConfigProperty(name="paymentnotice.closepayment.retry-after", defaultValue = "30")
 	int closePaymentRetryAfter;
 
+	/**
+	 * The base URL for the location header returned by the closePayment (i.e. the API management base URL)
+	 */
+	@ConfigProperty(name="paymentnotice.closepayment.location.base-url")
+	String closePaymentLocationBaseURL;
 
 	/**
 	 * Closes a set of payment notices previously activated calling the
@@ -278,7 +284,7 @@ public class PaymentResource extends BasePaymentResource {
 				if (outcomeOk) {
 					closePaymentResponse.setOutcome(Outcome.OK);
 					responseBuilder
-							.location(URI.create("/payments/" + closePaymentRequest.getTransactionId()))
+							.location(URI.create(closePaymentLocationBaseURL + "/payments/" + closePaymentRequest.getTransactionId()))
 							.header("Retry-After", closePaymentRetryAfter)
 							.header("Max-Retry", closePaymentMaxRetry);
 				}
