@@ -100,8 +100,8 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Assertions.assertEquals(Outcome.OK.name(), response.jsonPath().getString("outcome"));
 		Assertions.assertTrue(response.getHeader("Location") != null &&
 				response.getHeader("Location").endsWith("/" + PaymentTestData.PAY_TID_NODE_OK));
-	    Assertions.assertNotNull(response.getHeader("Retry-after"));
-	    Assertions.assertNotNull(response.getHeader("Max-Retry"));
+	    Assertions.assertNotNull(response.getHeader("Retry-After"));
+	    Assertions.assertNotNull(response.getHeader("Max-Retries"));
 
 	}
 
@@ -128,8 +128,8 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
 		Assertions.assertEquals(Outcome.KO.name(), response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.getHeader("Location"));
-		Assertions.assertNull(response.getHeader("Retry-after"));
-		Assertions.assertNull(response.getHeader("Max-Retry"));
+		Assertions.assertNull(response.getHeader("Retry-After"));
+		Assertions.assertNull(response.getHeader("Max-Retries"));
 
 	}
 
@@ -160,8 +160,8 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
 		Assertions.assertEquals(Outcome.KO.name(), response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.getHeader("Location"));
-		Assertions.assertNull(response.getHeader("Retry-after"));
-		Assertions.assertNull(response.getHeader("Max-Retry"));
+		Assertions.assertNull(response.getHeader("Retry-After"));
+		Assertions.assertNull(response.getHeader("Max-Retries"));
 
 	}
 
@@ -195,8 +195,8 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Assertions.assertEquals(Outcome.OK.name(), response.jsonPath().getString("outcome"));
 		Assertions.assertTrue(response.getHeader("Location") != null &&
 				response.getHeader("Location").endsWith("/" + paymentTransactionId));
-		Assertions.assertNotNull(response.getHeader("Retry-after"));
-		Assertions.assertNotNull(response.getHeader("Max-Retry"));
+		Assertions.assertNotNull(response.getHeader("Retry-After"));
+		Assertions.assertNotNull(response.getHeader("Max-Retries"));
 
 	}
 
@@ -226,8 +226,8 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Assertions.assertNotNull(response.getHeader("Location"));
 		Assertions.assertTrue(response.getHeader("Location") != null &&
 				response.getHeader("Location").endsWith("/" + PaymentTestData.PAY_TID_NODE_TIMEOUT));
-		Assertions.assertNotNull(response.getHeader("Retry-after"));
-		Assertions.assertNotNull(response.getHeader("Max-Retry"));
+		Assertions.assertNotNull(response.getHeader("Retry-After"));
+		Assertions.assertNotNull(response.getHeader("Max-Retries"));
 	     
 	}
 

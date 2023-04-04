@@ -79,7 +79,7 @@ public class PaymentResource extends BasePaymentResource {
 	EventBus bus;
 
 	/**
-	 * The value of the Max-Retry header to be sent in response to the closePayment API
+	 * The value of the Max-Retries header to be sent in response to the closePayment API
 	 */
 	@ConfigProperty(name="paymentnotice.closepayment.max-retry", defaultValue = "3")
 	int closePaymentMaxRetry;
@@ -286,7 +286,7 @@ public class PaymentResource extends BasePaymentResource {
 					responseBuilder
 							.location(URI.create(closePaymentLocationBaseURL + "/payments/" + closePaymentRequest.getTransactionId()))
 							.header("Retry-After", closePaymentRetryAfter)
-							.header("Max-Retry", closePaymentMaxRetry);
+							.header("Max-Retries", closePaymentMaxRetry);
 				}
 				else {
 					closePaymentResponse.setOutcome(Outcome.KO);
