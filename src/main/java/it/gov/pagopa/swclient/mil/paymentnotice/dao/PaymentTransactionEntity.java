@@ -7,7 +7,7 @@ import org.bson.codecs.pojo.annotations.BsonId;
 
 
 /**
- * Entity bean mapping the configuration of a PSP when connecting to the node
+ * Entity bean mapping the payment transaction saved in the DB
  */
 @MongoEntity(database = "mil", collection = "paymentTransactions")
 public class PaymentTransactionEntity {
@@ -20,7 +20,7 @@ public class PaymentTransactionEntity {
 	public String transactionId;
 
 	/**
-	 * The payment transaction
+	 * The payment transaction data
 	 */
 	public PaymentTransaction paymentTransaction;
 

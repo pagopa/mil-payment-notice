@@ -3,7 +3,7 @@ package it.gov.pagopa.swclient.mil.paymentnotice.dao;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
- * Entity bean the data of a payment notice as returned by the activatePayment API of the node
+ * Entity bean containing the data of a payment notice as returned by the activatePayment API of the node
  */
 @RegisterForReflection
 public class Notice {
@@ -14,42 +14,42 @@ public class Notice {
     private String paymentToken;
 
     /**
-     *
+     * The tax code of the public administration
      */
     private String paTaxCode;
 
     /**
-     *
+     * The identifier of the payment notice
      */
     private String noticeNumber;
 
     /**
-     *
+     * The amount of the payment notice
      */
     private Long amount;
 
     /**
-     *
+     * The description of the payment notice
      */
     private String description;
 
     /**
-     *
+     * The company that issued the payment notice
      */
     private String company;
 
     /**
-     *
+     * The office of the company that issued the payment notice
      */
     private String office;
 
     /**
-     *
+     * The creditor identifier, as returned by the callback of the node after a successful payment
      */
     private String creditorReferenceId;
 
     /**
-     *
+     * The debtor name, as returned by the callback of the node after a successful payment
      */
     private String debtor;
 

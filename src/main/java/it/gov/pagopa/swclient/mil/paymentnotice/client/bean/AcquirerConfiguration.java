@@ -1,7 +1,7 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.client.bean;
 
 /**
- *
+ * Class containing the acquirer configurations needed to integrate with the node services
  */
 public class AcquirerConfiguration {
 

@@ -5,83 +5,83 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.List;
 
 /**
- *
+ * Entity bean containing the data of a payment transaction
  */
 @RegisterForReflection
 public class PaymentTransaction {
 
 	/**
-	 *
+	 * The identifier of the payment transaction
 	 */
 	private String transactionId;
 
 	/**
-	 *
+	 * The identifier of the acquirer, passed by the client
 	 */
 	private String acquirerId;
 
 	/**
-	 *
+	 * The channel used for the payment, passed by the client
 	 */
 	private String channel;
 
 	/**
-	 *
+	 * The identifier of the merchant, passed by the client
 	 */
 	private String merchantId;
 
 	/**
-	 *
+	 * The identifier of the terminal, passed by the client
 	 */
 	private String terminalId;
 
 	/**
-	 *
+	 * The timestamp of the transaction creation on the DB
 	 */
 	private String insertTimestamp;
 
 	/**
-     *
+     * The list of notices paid in this transaction
 	 */
 	private List<Notice> notices;
 
 	/**
-	 *
+	 * The total amount of the payment notices, calculated by the MIL
 	 */
 	private long totalAmount;
 
 	/**
-	 *
+	 * The total fee for the payment transaction, retrieved by GEC and passed by the client
 	 */
 	private Long fee;
 
 	/**
-	 *
+	 * The status of this payment transaction. Can be one of {@link PaymentTransactionStatus}
 	 */
 	private String status;
 
 	/**
-	 *
+	 * The payment method used for this transaction, passed by the client
 	 */
 	private String paymentMethod;
 
 	/**
-	 *
+	 * Timestamp of the e-money transaction ,  passed by the client
 	 */
 	private String paymentTimestamp;
 
 	/**
-	 *
+	 * Timestamp of the call to the close API
 	 */
 	private String closeTimestamp;
 
 	/**
-	 *
+	 *  Timestamp of the transaction payment, passed by the node in the callback
 	 */
 	private String paymentDate;
 
 	/**
-	 *
+	 * Timestamp of the call to the callback by the node
 	 */
 	private String callbackTimestamp;
 

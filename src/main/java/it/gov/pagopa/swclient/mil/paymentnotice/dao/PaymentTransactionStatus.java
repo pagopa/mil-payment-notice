@@ -1,7 +1,7 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.dao;
 
 /**
- *
+ * Possible status of a payment transaction
  */
 public enum PaymentTransactionStatus {
 
