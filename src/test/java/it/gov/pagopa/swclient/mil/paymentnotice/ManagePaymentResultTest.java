@@ -265,7 +265,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
-	void testGetPaymentStatus_404_transactionInvalid()  {
+	void testGetPaymentStatus_404_transactionMismatch()  {
 
 		Mockito
 				.when(paymentTransactionRepository.findById(Mockito.anyString()))
