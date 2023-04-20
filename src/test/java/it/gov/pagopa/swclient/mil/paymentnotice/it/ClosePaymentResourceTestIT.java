@@ -408,7 +408,7 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 			Assertions.assertEquals(transactionId, paymentTransaction.getTransactionId());
 			Assertions.assertEquals(transactionStatus.name(), paymentTransaction.getStatus());
 			Assertions.assertEquals(paymentMethod, paymentTransaction.getPaymentMethod());
-			Assertions.assertNotNull(paymentTimestamp);
+			Assertions.assertEquals(paymentTimestamp, paymentTransaction.getPaymentTimestamp());
 			Assertions.assertNotNull(paymentTransaction.getCloseTimestamp());
 			Assertions.assertNull(paymentTransaction.getPaymentDate());
 			Assertions.assertNull(paymentTransaction.getCallbackTimestamp());

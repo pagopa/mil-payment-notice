@@ -126,9 +126,36 @@ class ManagePaymentResultTest {
 
 
 		Assertions.assertEquals(200, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("$").size());
-		Assertions.assertEquals(transactionId, response.jsonPath().getList("$",
+		Assertions.assertEquals(1, response.jsonPath().getList("transactions").size());
+		Assertions.assertEquals(transactionId, response.jsonPath().getList("transactions",
 				PaymentTransaction.class).get(0).getTransactionId());
+
+	}
+
+	@Test
+	void testGetPayments_200_empty() {
+
+		ReactivePanacheQuery<PaymentTransactionEntity> reactivePanacheQuery = Mockito.mock(ReactivePanacheQuery.class);
+		Mockito.when(reactivePanacheQuery.page(Mockito.any())).thenReturn(reactivePanacheQuery);
+		Mockito.when(reactivePanacheQuery.withBatchSize(Mockito.anyInt())).thenReturn(reactivePanacheQuery);
+		Mockito.when(reactivePanacheQuery.list()).thenReturn(Uni.createFrom().item(List.of()));
+
+		Mockito
+				.when(paymentTransactionRepository.find(Mockito.anyString(), Mockito.any(Sort.class), Mockito.any(Object[].class)))
+				.thenReturn(reactivePanacheQuery);
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.when()
+				.get("/")
+				.then()
+				.extract()
+				.response();
+
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertEquals(0, response.jsonPath().getList("transactions").size());
 
 	}
 

@@ -107,13 +107,17 @@ public final class PaymentTestData {
                                                                  Map<String, String> headers,
                                                                  int tokens) {
 
+        if (status == PaymentTransactionStatus.ABORTED) throw new IllegalArgumentException();
+
+        String timestamp = LocalDateTime.ofInstant(Instant.now().truncatedTo(ChronoUnit.SECONDS), ZoneOffset.UTC).toString();
+
         var paymentTransaction = new PaymentTransaction();
         paymentTransaction.setTransactionId(transactionId);
         paymentTransaction.setAcquirerId(headers.get("AcquirerId"));
         paymentTransaction.setChannel(headers.get("Channel"));
         paymentTransaction.setMerchantId(headers.get("MerchantId"));
         paymentTransaction.setTerminalId(headers.get("TerminalId"));
-        paymentTransaction.setInsertTimestamp(LocalDateTime.ofInstant(Instant.now().truncatedTo(ChronoUnit.SECONDS), ZoneOffset.UTC).toString());
+        paymentTransaction.setInsertTimestamp(timestamp);
 
         List<Notice> notices = new ArrayList<>();
         for (int i = 0; i < tokens; i++) {
@@ -125,6 +129,26 @@ public final class PaymentTestData {
 
         paymentTransaction.setFee(100L);
         paymentTransaction.setStatus(status.name());
+
+        switch (status) {
+            case PRE_CLOSE -> {}
+            case PENDING,ERROR_ON_PAYMENT, ERROR_ON_CLOSE -> {
+                paymentTransaction.setPaymentMethod("PAGOBANCOMAT");
+                paymentTransaction.setPaymentTimestamp(timestamp);
+                paymentTransaction.setCloseTimestamp(timestamp);
+            }
+            case CLOSED, ERROR_ON_RESULT -> {
+                paymentTransaction.setPaymentMethod("PAGOBANCOMAT");
+                paymentTransaction.setPaymentTimestamp(timestamp);
+                paymentTransaction.setCloseTimestamp(timestamp);
+                paymentTransaction.setPaymentDate(timestamp);
+                paymentTransaction.setCallbackTimestamp(timestamp);
+                notices.forEach(n -> {
+                    n.setDebtor("Mario Rossi");
+                    n.setCreditorReferenceId("abcde");
+                });
+            }
+        }
 
         var paymentTransactionEntity = new PaymentTransactionEntity();
         paymentTransactionEntity.transactionId = transactionId;

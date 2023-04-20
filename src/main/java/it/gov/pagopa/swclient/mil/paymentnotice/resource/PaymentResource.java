@@ -39,6 +39,7 @@ import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.core.eventbus.EventBus;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.GetPaymentsResponse;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.PaymentMethod;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
@@ -362,7 +363,7 @@ public class PaymentResource extends BasePaymentResource {
      * Retrieves the list of the last transactions done by the terminal
      *
      * @param headers the object containing all the common headers used by the mil services
-     * @return a list of {@link PaymentTransaction} instances containing the detail of the payment transaction and its status
+     * @return a list of {@link PaymentTransaction} instances containing the detail of the transactions and their status
      */
     @GET
     @Path("/")
@@ -374,10 +375,12 @@ public class PaymentResource extends BasePaymentResource {
         return retrievePaymentTransactions(headers)
                 .map(txEntityList -> {
                     var transactionList = txEntityList.stream().map(txEntity -> txEntity.paymentTransaction).toList();
-                    Log.debugf("closePayment - Response: %s", transactionList);
+                    GetPaymentsResponse getPaymentsResponse = new GetPaymentsResponse();
+                    getPaymentsResponse.setTransactions(transactionList);
+                    Log.debugf("getPayments - Response: %s", getPaymentsResponse);
                     return Response
                             .status(Status.OK)
-                            .entity(transactionList)
+                            .entity(getPaymentsResponse)
                             .build();
                 });
     }
