@@ -16,7 +16,7 @@ import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequ
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
 
 @ApplicationScoped
-public class FailedPaymentTransactionProcessor {
+public class AsyncClosePaymentProcessor {
 
     /**
      * The reactive REST client for the node interfaces
@@ -29,8 +29,8 @@ public class FailedPaymentTransactionProcessor {
      *
      * @param nodeClosePaymentRequest the object received in request of the closePayment
      */
-    @ConsumeEvent("failedPaymentTransaction")
-    public void consume(NodeClosePaymentRequest nodeClosePaymentRequest) {
+    @ConsumeEvent("processClosePayment")
+    public void processClosePayment(NodeClosePaymentRequest nodeClosePaymentRequest) {
         Log.debugf("Asynchronously process %s", nodeClosePaymentRequest);
 
         callNodeClosePayment(nodeClosePaymentRequest)
@@ -44,7 +44,7 @@ public class FailedPaymentTransactionProcessor {
 
     /**
      * Calls the closePayment API on the node and return its response as an {@link Uni}.
-     * If the outcome is "KO" it is considered an error and response with a failure.
+     * If the outcome is "KO" it is considered an error and respond with a failure.
      *
      * @param nodeClosePaymentRequest the request to be sent to the node
      * @return an {@link Uni} emitting the response from the node, or a failure otherwise

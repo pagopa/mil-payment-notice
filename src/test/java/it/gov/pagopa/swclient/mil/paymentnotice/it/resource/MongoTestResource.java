@@ -36,7 +36,7 @@ public class MongoTestResource implements QuarkusTestResourceLifecycleManager, D
 
 		logger.info("Starting Mongo container...");
 
-        mongoContainer = new GenericContainer<>(DockerImageName.parse("mongo:latest"))
+        mongoContainer = new GenericContainer<>(DockerImageName.parse("mongo:4.2"))
 				.withExposedPorts(27017)
                 .withNetwork(getNetwork())
                 .withNetworkAliases(MONGO_NETWORK_ALIAS)

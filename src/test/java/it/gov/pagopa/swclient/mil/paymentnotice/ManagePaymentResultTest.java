@@ -2,11 +2,27 @@ package it.gov.pagopa.swclient.mil.paymentnotice;
 
 import static io.restassured.RestAssured.given;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.InternalServerErrorException;
-
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheQuery;
+import io.quarkus.panache.common.Sort;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.Payment;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionRepository;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
+import it.gov.pagopa.swclient.mil.paymentnotice.util.TestUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,9 +39,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.Payment;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
-import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentService;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 
@@ -34,14 +48,21 @@ import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ManagePaymentResultTest {
 
-	final static String TRANSACTION_ID		= "517a4216840E461fB011036A0fd134E1";
-	
-	@InjectMock
-	PaymentService paymentService;
 
-	ReceivePaymentStatusRequest paymentStatus;
+	@InjectMock
+	PaymentTransactionRepository paymentTransactionRepository;
 
 	Map<String, String> commonHeaders;
+
+	PaymentTransactionEntity paymentTransactionEntity;
+
+	ReceivePaymentStatusRequest paymentStatusOK;
+
+	ReceivePaymentStatusRequest paymentStatusKO;
+
+	String transactionId;
+
+	String paymentDate;
 
 	@BeforeAll
 	void createTestObjects() {
@@ -49,62 +70,134 @@ class ManagePaymentResultTest {
 		// common headers
 		commonHeaders = PaymentTestData.getMilHeaders(true, true);
 
-		Payment payment = new Payment();
-		payment.setCompany("ASL Roma");
-		payment.setCreditorReferenceId("4839d50603fssfW5X");
-		payment.setDebtor("Mario Rossi");
-		payment.setDescription("Health ticket for chest x-ray");
-		payment.setFiscalCode("15376371009");
-		payment.setOffice("Ufficio di Roma");
-		payment.setPaymentToken("648fhg36s95jfg7DS");
+		transactionId = RandomStringUtils.random(32, true, true);
 
-		paymentStatus = new ReceivePaymentStatusRequest();
-		paymentStatus.setOutcome(Outcome.OK.toString());
-		paymentStatus.setPaymentDate("2022-11-12T08:53:55");
-		paymentStatus.setPayments(List.of(payment));
+		paymentDate = LocalDateTime.ofInstant(Instant.now().truncatedTo(ChronoUnit.SECONDS), ZoneOffset.UTC).toString();
+
+		paymentTransactionEntity = PaymentTestData.getPaymentTransaction(transactionId,
+				PaymentTransactionStatus.PENDING, commonHeaders, 3);
+
+
+		List<Payment> paymentList = new ArrayList<>();
+		for (Notice notice : paymentTransactionEntity.paymentTransaction.getNotices()){
+			Payment payment = new Payment();
+			payment.setCompany(notice.getCompany());
+			payment.setCreditorReferenceId("4839d50603fssfW5X");
+			payment.setDebtor("Mario Rossi");
+			payment.setDescription(notice.getDescription());
+			payment.setFiscalCode(notice.getPaTaxCode());
+			payment.setOffice(notice.getOffice());
+			payment.setPaymentToken(notice.getPaymentToken());
+			paymentList.add(payment);
+		}
+
+		paymentStatusOK = new ReceivePaymentStatusRequest();
+		paymentStatusOK.setOutcome(Outcome.OK.name());
+		paymentStatusOK.setPaymentDate(paymentDate);
+		paymentStatusOK.setPayments(paymentList);
+
+		paymentStatusKO = new ReceivePaymentStatusRequest();
+		paymentStatusKO.setOutcome(Outcome.KO.name());
+		paymentStatusKO.setPaymentDate(paymentDate);
+		paymentStatusKO.setPayments(paymentList);
 
 	}
 
+	@Test
+	void testGetPayments_200() {
+
+		ReactivePanacheQuery<PaymentTransactionEntity> reactivePanacheQuery = Mockito.mock(ReactivePanacheQuery.class);
+		Mockito.when(reactivePanacheQuery.page(Mockito.any())).thenReturn(reactivePanacheQuery);
+		Mockito.when(reactivePanacheQuery.withBatchSize(Mockito.anyInt())).thenReturn(reactivePanacheQuery);
+		Mockito.when(reactivePanacheQuery.list()).thenReturn(Uni.createFrom().item(List.of(paymentTransactionEntity)));
+
+		Mockito
+				.when(paymentTransactionRepository.find(Mockito.anyString(), Mockito.any(Sort.class), Mockito.any(Object[].class)))
+				.thenReturn(reactivePanacheQuery);
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.when()
+				.get("/")
+				.then()
+				.extract()
+				.response();
+
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("$").size());
+		Assertions.assertEquals(transactionId, response.jsonPath().getList("$",
+				PaymentTransaction.class).get(0).getTransactionId());
+
+	}
+
+	@Test
+	void testGetPayments_500_db_errorRead() {
+
+		ReactivePanacheQuery<PaymentTransactionEntity> reactivePanacheQuery = Mockito.mock(ReactivePanacheQuery.class);
+		Mockito.when(reactivePanacheQuery.page(Mockito.any())).thenReturn(reactivePanacheQuery);
+		Mockito.when(reactivePanacheQuery.withBatchSize(Mockito.anyInt())).thenReturn(reactivePanacheQuery);
+		Mockito.when(reactivePanacheQuery.list())
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.DB_TIMEOUT_EXCEPTION)));
+
+		Mockito
+				.when(paymentTransactionRepository.find(Mockito.anyString(), Mockito.any(Sort.class), Mockito.any(Object[].class)))
+				.thenReturn(reactivePanacheQuery);
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.when()
+				.get("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_RETRIEVING_DATA_FROM_DB));
+
+	}
 
 	@Test
 	void testGetPaymentStatus_200() {
 
 		Mockito
-				.when(paymentService.get(TRANSACTION_ID))
-				.thenReturn(Uni.createFrom().item(paymentStatus));
-		
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(commonHeaders)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
+				.pathParam("transactionId", transactionId)
 				.when()
 				.get("/{transactionId}")
 				.then()
 				.extract()
 				.response();
 
+		var paymentTransaction = paymentTransactionEntity.paymentTransaction;
+
 		Assertions.assertEquals(200, response.statusCode());
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
-		Assertions.assertEquals(Outcome.OK.name(), response.jsonPath().getString("outcome"));
-		Assertions.assertEquals(paymentStatus.getPaymentDate(), response.jsonPath().getString("paymentDate"));
-		Assertions.assertNotNull(response.jsonPath().getJsonObject("payments"));
-		Assertions.assertEquals(1, response.jsonPath().getList("payments").size());
-		for (int i = 0; i < response.jsonPath().getList("payments").size(); i++) {
-			Payment payment = response.jsonPath().getList("payments", Payment.class).get(i);
-			Assertions.assertEquals(paymentStatus.getPayments().get(i).getCompany(), payment.getCompany());
-			Assertions.assertEquals(paymentStatus.getPayments().get(i).getCreditorReferenceId(), payment.getCreditorReferenceId());
-			Assertions.assertEquals(paymentStatus.getPayments().get(i).getDebtor(), payment.getDebtor());
-			Assertions.assertEquals(paymentStatus.getPayments().get(i).getDescription(), payment.getDescription());
-			Assertions.assertEquals(paymentStatus.getPayments().get(i).getFiscalCode(), payment.getFiscalCode());
-			Assertions.assertEquals(paymentStatus.getPayments().get(i).getOffice(), payment.getOffice());
-			Assertions.assertEquals(paymentStatus.getPayments().get(i).getPaymentToken(), payment.getPaymentToken());
-		}
+		Assertions.assertEquals(transactionId, response.jsonPath().getString("transactionId"));
+		Assertions.assertEquals(commonHeaders.get("AcquirerId"), response.jsonPath().getString("acquirerId"));
+		Assertions.assertEquals(commonHeaders.get("Channel"), response.jsonPath().getString("channel"));
+		Assertions.assertEquals(commonHeaders.get("MerchantId"), response.jsonPath().getString("merchantId"));
+		Assertions.assertEquals(commonHeaders.get("TerminalId"), response.jsonPath().getString("terminalId"));
+		Assertions.assertNotNull(response.jsonPath().getString("insertTimestamp"));
+		Assertions.assertEquals(paymentTransaction.getTotalAmount(), response.jsonPath().getLong("totalAmount"));
+		Assertions.assertEquals(paymentTransaction.getFee().longValue(), response.jsonPath().getLong("fee"));
+		Assertions.assertEquals(paymentTransaction.getStatus(), response.jsonPath().getString("status"));
 
-		//check of milRestService clients
-		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-		Mockito.verify(paymentService).get(captor.capture());
-		Assertions.assertEquals(TRANSACTION_ID,captor.getValue());
+
+		// check DB integration - read
+		ArgumentCaptor<String> captorTransactionId = ArgumentCaptor.forClass(String.class);
+
+		Mockito.verify(paymentTransactionRepository).findById(captorTransactionId.capture());
+		Assertions.assertEquals(transactionId, captorTransactionId.getValue());
 	}
 
 	@ParameterizedTest
@@ -115,7 +208,7 @@ class ManagePaymentResultTest {
 				.contentType(ContentType.JSON)
 				.headers(invalidHeaders)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
+				.pathParam("transactionId", transactionId)
 				.when()
 				.get("/{transactionId}")
 				.then()
@@ -125,13 +218,6 @@ class ManagePaymentResultTest {
 		Assertions.assertEquals(400, response.statusCode());
 		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
-		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
 
 	}
 
@@ -152,28 +238,21 @@ class ManagePaymentResultTest {
 		Assertions.assertEquals(400, response.statusCode());
 		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP));
-		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
 
 	}
 
 	@Test
 	void testGetPaymentStatus_404_transactionNotFound()  {
-		
+
 		Mockito
-				.when(paymentService.get(TRANSACTION_ID))
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
 				.thenReturn(Uni.createFrom().nullItem());
-		
+
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(commonHeaders)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
+				.pathParam("transactionId", transactionId)
 				.when()
 				.get("/{transactionId}")
 				.then()
@@ -181,21 +260,25 @@ class ManagePaymentResultTest {
 				.response();
 
 		Assertions.assertEquals(404, response.statusCode());
+		Assertions.assertEquals(StringUtils.EMPTY, response.body().asString());
 
 	}
-	
+
 	@Test
-	void testGetPaymentStatus_404_outcomeNotFound()  {
-		
+	void testGetPaymentStatus_404_transactionInvalid()  {
+
 		Mockito
-				.when(paymentService.get(TRANSACTION_ID))
-				.thenReturn(Uni.createFrom().item(new ReceivePaymentStatusRequest()));
-		
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+
+		Map<String, String> invalidClientHeaderMap = new HashMap<>(commonHeaders);
+		invalidClientHeaderMap.put("MerchantId", "abdce");
+
 		Response response = given()
 				.contentType(ContentType.JSON)
-				.headers(commonHeaders)
+				.headers(invalidClientHeaderMap)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
+				.pathParam("transactionId", transactionId)
 				.when()
 				.get("/{transactionId}")
 				.then()
@@ -203,22 +286,23 @@ class ManagePaymentResultTest {
 				.response();
 
 		Assertions.assertEquals(404, response.statusCode());
+		Assertions.assertEquals(StringUtils.EMPTY, response.body().asString());
 
 	}
-	
-	
+
+
 	@Test
-	void testGetPaymentResult_500_RedisErrorGet() {
-		
+	void testGetPaymentResult_500_db_errorRead() {
+
 		Mockito
-				.when(paymentService.get(TRANSACTION_ID))
-				.thenReturn(Uni.createFrom().failure(new InternalServerErrorException()));
-		
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.DB_TIMEOUT_EXCEPTION)));
+
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(commonHeaders)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
+				.pathParam("transactionId", transactionId)
 				.when()
 				.get("/{transactionId}")
 				.then()
@@ -226,29 +310,27 @@ class ManagePaymentResultTest {
 				.response();
 
 		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_RETRIEVING_DATA_FROM_REDIS));
-		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("paymentDate"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("payments"));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_RETRIEVING_DATA_FROM_DB));
+
 	}
-	
 
 	@Test
-	void testReceivePaymentStatus_200() {
+	void testReceivePaymentStatusOK_200() {
 
 		Mockito
-				.when(paymentService.get(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(new ReceivePaymentStatusRequest()));
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(paymentService.set(Mockito.any(String.class), Mockito.any(ReceivePaymentStatusRequest.class)))
-				.thenReturn(Uni.createFrom().voidItem());
+				.when(paymentTransactionRepository.update(Mockito.any(PaymentTransactionEntity.class)))
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+
 
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
-				.body(paymentStatus)
+				.pathParam("transactionId", transactionId)
+				.body(paymentStatusOK)
 				.when()
 				.post("/{transactionId}")
 				.then()
@@ -258,24 +340,84 @@ class ManagePaymentResultTest {
 		Assertions.assertEquals(200, response.statusCode());
 		Assertions.assertEquals(Outcome.OK.toString(), response.jsonPath().getString("outcome"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+
+		// check DB integration - read
+		ArgumentCaptor<String> captorTransactionId = ArgumentCaptor.forClass(String.class);
+
+		Mockito.verify(paymentTransactionRepository).findById(captorTransactionId.capture());
+		Assertions.assertEquals(transactionId, captorTransactionId.getValue());
+
+		// check DB integration - write
+		ArgumentCaptor<PaymentTransactionEntity> captorTransactionEntity = ArgumentCaptor.forClass(PaymentTransactionEntity.class);
+
+		Mockito.verify(paymentTransactionRepository).update(captorTransactionEntity.capture());
+		Assertions.assertEquals(PaymentTransactionStatus.CLOSED.name(), captorTransactionEntity.getValue().paymentTransaction.getStatus());
+		Assertions.assertEquals(paymentDate, captorTransactionEntity.getValue().paymentTransaction.getPaymentDate());
+		Assertions.assertNotNull(captorTransactionEntity.getValue().paymentTransaction.getCallbackTimestamp());
+		for (Notice notice : captorTransactionEntity.getValue().paymentTransaction.getNotices()) {
+			Assertions.assertEquals("4839d50603fssfW5X", notice.getCreditorReferenceId());
+			Assertions.assertEquals("Mario Rossi", notice.getDebtor());
+		}
+	}
+
+	@Test
+	void testReceivePaymentStatusKO_200() {
+
+		Mockito
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+
+		Mockito
+				.when(paymentTransactionRepository.update(Mockito.any(PaymentTransactionEntity.class)))
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.and()
+				.pathParam("transactionId", transactionId)
+				.body(paymentStatusKO)
+				.when()
+				.post("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertEquals(Outcome.OK.toString(), response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+
+		// check DB integration - read
+		ArgumentCaptor<String> captorTransactionId = ArgumentCaptor.forClass(String.class);
+
+		Mockito.verify(paymentTransactionRepository).findById(captorTransactionId.capture());
+		Assertions.assertEquals(transactionId, captorTransactionId.getValue());
+
+		// check DB integration - write
+		ArgumentCaptor<PaymentTransactionEntity> captorTransactionEntity = ArgumentCaptor.forClass(PaymentTransactionEntity.class);
+
+		Mockito.verify(paymentTransactionRepository).update(captorTransactionEntity.capture());
+		Assertions.assertEquals(PaymentTransactionStatus.ERROR_ON_RESULT.name(), captorTransactionEntity.getValue().paymentTransaction.getStatus());
+		Assertions.assertEquals(paymentDate, captorTransactionEntity.getValue().paymentTransaction.getPaymentDate());
+		Assertions.assertNotNull(captorTransactionEntity.getValue().paymentTransaction.getCallbackTimestamp());
+		for (Notice notice : captorTransactionEntity.getValue().paymentTransaction.getNotices()) {
+			Assertions.assertEquals("4839d50603fssfW5X", notice.getCreditorReferenceId());
+			Assertions.assertEquals("Mario Rossi", notice.getDebtor());
+		}
 	}
 
 	@Test
 	void testReceivePaymentStatus_404() {
 
 		Mockito
-				.when(paymentService.get(Mockito.any(String.class)))
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
 				.thenReturn(Uni.createFrom().nullItem());
-
-		Mockito
-				.when(paymentService.set(Mockito.any(String.class), Mockito.any(ReceivePaymentStatusRequest.class)))
-				.thenReturn(Uni.createFrom().voidItem());
 
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
-				.body(paymentStatus)
+				.pathParam("transactionId", transactionId)
+				.body(paymentStatusOK)
 				.when()
 				.post("/{transactionId}")
 				.then()
@@ -288,17 +430,19 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
-	void testReceivePaymentStatus_500_RedisErrorGet() {
+	void testReceivePaymentResult_500_db_errorRead() {
 
 		Mockito
-				.when(paymentService.get(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().failure(new RuntimeException()));
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.DB_TIMEOUT_EXCEPTION)));
 
 
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
+				.body(paymentStatusOK)
+				.and()
+				.pathParam("transactionId", transactionId)
 				.when()
 				.post("/{transactionId}")
 				.then()
@@ -307,38 +451,56 @@ class ManagePaymentResultTest {
 
 		Assertions.assertEquals(500, response.statusCode());
 		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_RETRIEVING_DATA_FROM_REDIS));
-		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_RETRIEVING_DATA_FROM_DB));
 
 	}
-	
+
 	@Test
-	void testReceivePaymentStatus_500_RedisErrorSet() {
+	void testReceivePaymentResult_500_db_errorWrite() {
 
 		Mockito
-				.when(paymentService.get(Mockito.any(String.class)))
-				.thenReturn(Uni.createFrom().item(new ReceivePaymentStatusRequest()));
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(paymentService.set(Mockito.any(String.class), Mockito.any()))
-				.thenReturn(Uni.createFrom().failure(new RuntimeException()));
-		
-		
+				.when(paymentTransactionRepository.update(Mockito.any(PaymentTransactionEntity.class)))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.DB_TIMEOUT_EXCEPTION)))
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.and()
-				.pathParam("transactionId", TRANSACTION_ID)
+				.body(paymentStatusOK)
+				.and()
+				.pathParam("transactionId", transactionId)
 				.when()
 				.post("/{transactionId}")
 				.then()
 				.extract()
 				.response();
 
-		Assertions.assertEquals(500, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_STORING_DATA_INTO_REDIS));
-		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertEquals(Outcome.OK.toString(), response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+
+		// check DB integration - read
+		ArgumentCaptor<String> captorTransactionId = ArgumentCaptor.forClass(String.class);
+
+		Mockito.verify(paymentTransactionRepository).findById(captorTransactionId.capture());
+		Assertions.assertEquals(transactionId, captorTransactionId.getValue());
+
+		// check DB integration - write
+		ArgumentCaptor<PaymentTransactionEntity> captorTransactionEntity = ArgumentCaptor.forClass(PaymentTransactionEntity.class);
+
+		Mockito.verify(paymentTransactionRepository, Mockito.times(2)).update(captorTransactionEntity.capture());
+		Assertions.assertEquals(PaymentTransactionStatus.CLOSED.name(), captorTransactionEntity.getValue().paymentTransaction.getStatus());
+		Assertions.assertEquals(paymentDate, captorTransactionEntity.getValue().paymentTransaction.getPaymentDate());
+		Assertions.assertNotNull(captorTransactionEntity.getValue().paymentTransaction.getCallbackTimestamp());
+		for (Notice notice : captorTransactionEntity.getValue().paymentTransaction.getNotices()) {
+			Assertions.assertEquals("4839d50603fssfW5X", notice.getCreditorReferenceId());
+			Assertions.assertEquals("Mario Rossi", notice.getDebtor());
+		}
 
 	}
-	
+
 }

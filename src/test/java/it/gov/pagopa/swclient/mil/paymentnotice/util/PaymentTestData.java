@@ -2,12 +2,22 @@ package it.gov.pagopa.swclient.mil.paymentnotice.util;
 
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
-import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.PaymentMethod;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
+import it.gov.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
-import java.math.BigInteger;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,22 +59,89 @@ public final class PaymentTestData {
         return activatePaymentNoticeRequest;
     }
 
+    public static PreCloseRequest getPreCloseRequest(boolean isPreClose, int tokens) {
+        PreCloseRequest preCloseRequest = new PreCloseRequest();
+        if (isPreClose) {
+            preCloseRequest.setOutcome(PaymentTransactionOutcome.PRE_CLOSE.name());
+            preCloseRequest.setTransactionId(RandomStringUtils.random(32, true, true));
+            preCloseRequest.setTotalAmount(AMOUNT*tokens);
+            preCloseRequest.setFee(100L);
+        }
+        else {
+            preCloseRequest.setOutcome(PaymentTransactionOutcome.ABORT.name());
+        }
+
+        // payment tokens are always present in preclose
+        List<String> paymentTokens = new ArrayList<>(tokens);
+        for (int i = 0; i < tokens; i++) {
+            paymentTokens.add(RandomStringUtils.random(32, true, true));
+        }
+        preCloseRequest.setPaymentTokens(paymentTokens);
+
+        return preCloseRequest;
+    }
+
     public static ClosePaymentRequest getClosePaymentRequest(boolean isOk) {
         ClosePaymentRequest closePaymentRequest = new ClosePaymentRequest();
-        closePaymentRequest.setOutcome(isOk ? Outcome.OK.name() : Outcome.KO.name());
-        closePaymentRequest.setPaymentTokens(List.of("648fhg36s95jfg7DS"));
+        closePaymentRequest.setOutcome(isOk ? PaymentTransactionOutcome.CLOSE.name() :
+                PaymentTransactionOutcome.ERROR_ON_PAYMENT.name());
         closePaymentRequest.setPaymentMethod(PaymentMethod.PAGOBANCOMAT.name());
-        closePaymentRequest.setTransactionId("517a4216840E461fB011036A0fd134E1");
-        closePaymentRequest.setTotalAmount(BigInteger.valueOf(234234));
-        closePaymentRequest.setFee(BigInteger.valueOf(897));
-        closePaymentRequest.setTimestampOp("2022-11-12T08:53:55");
+        closePaymentRequest.setPaymentTimestamp("2022-11-12T08:53:55");
         return closePaymentRequest;
     }
+
+    public static Notice getNotice(String paymentToken) {
+        Notice notice = new Notice();
+        notice.setPaymentToken(paymentToken);
+        notice.setPaTaxCode(PA_TAX_CODE);
+        notice.setNoticeNumber(NOTICE_NUMBER);
+        notice.setAmount(AMOUNT);
+        notice.setDescription("Test payment notice");
+        notice.setCompany("Test company");
+        notice.setOffice("Test office");
+        return notice;
+    }
+
+    public static PaymentTransactionEntity getPaymentTransaction(String transactionId,
+                                                                 PaymentTransactionStatus status,
+                                                                 Map<String, String> headers,
+                                                                 int tokens) {
+
+        var paymentTransaction = new PaymentTransaction();
+        paymentTransaction.setTransactionId(transactionId);
+        paymentTransaction.setAcquirerId(headers.get("AcquirerId"));
+        paymentTransaction.setChannel(headers.get("Channel"));
+        paymentTransaction.setMerchantId(headers.get("MerchantId"));
+        paymentTransaction.setTerminalId(headers.get("TerminalId"));
+        paymentTransaction.setInsertTimestamp(LocalDateTime.ofInstant(Instant.now().truncatedTo(ChronoUnit.SECONDS), ZoneOffset.UTC).toString());
+
+        List<Notice> notices = new ArrayList<>();
+        for (int i = 0; i < tokens; i++) {
+            notices.add(getNotice(RandomStringUtils.random(32, true, true)));
+        }
+
+        paymentTransaction.setNotices(notices);
+        paymentTransaction.setTotalAmount(notices.stream().map(Notice::getAmount).reduce(Long::sum).orElse(0L));
+
+        paymentTransaction.setFee(100L);
+        paymentTransaction.setStatus(status.name());
+
+        var paymentTransactionEntity = new PaymentTransactionEntity();
+        paymentTransactionEntity.transactionId = transactionId;
+        paymentTransactionEntity.paymentTransaction = paymentTransaction;
+
+        return paymentTransactionEntity;
+
+    }
+
+    public static final String PA_TAX_CODE = "77777777777";
+    public static final String NOTICE_NUMBER = "000000000000000000";
+    public static final long AMOUNT = 9999;
 
     /**
      * Example taken from <a href="https://docs.pagopa.it/avviso-pagamento/struttura/specifiche-tecniche/dati-per-il-pagamento/codice-qr">QR Code specification</a>
      */
-    public static final String QR_CODE = "PAGOPA|002|000000000000000000|00000000000|9999";
+    public static final String QR_CODE = "PAGOPA|002|"+NOTICE_NUMBER+"|"+PA_TAX_CODE+"|"+AMOUNT;
 
     // ACQUIRER ID
     public static final String ACQUIRER_ID_KNOWN = "4585625";
@@ -84,5 +161,6 @@ public final class PaymentTestData {
 
     private PaymentTestData() {
     }
+
 
 }

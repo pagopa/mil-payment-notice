@@ -18,6 +18,8 @@ import it.gov.pagopa.swclient.mil.paymentnotice.bean.Transfer;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.ActivatePaymentNoticeResource;
 import it.gov.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
 import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
@@ -52,6 +54,9 @@ class ActivatePaymentNoticeResourceTest {
 	@InjectMock
 	@RestClient
 	MilRestService milRestService;
+
+	@InjectMock
+	PaymentNoticeService paymentNoticeService;
 
 	ActivatePaymentNoticeV2Response nodeActivateResponseOk;
 
@@ -101,18 +106,20 @@ class ActivatePaymentNoticeResourceTest {
 		//			<creditorReferenceId>02051234567890124</creditorReferenceId>
 		//		</nfp:activatePaymentNoticeV2Response>
 
+		long amountTransfer2 = 101;
+
 		CtTransferPSPV2 transfer1 = new CtTransferPSPV2();
 		transfer1.setIdTransfer(1);
-		transfer1.setTransferAmount(new BigDecimal("99.98"));
-		transfer1.setFiscalCodePA("77777777777");
+		transfer1.setTransferAmount(BigDecimal.valueOf(PaymentTestData.AMOUNT - amountTransfer2, 2));
+		transfer1.setFiscalCodePA(PaymentTestData.PA_TAX_CODE);
 		transfer1.setIBAN("IT30N0103076271000001823603");
 		transfer1.setRemittanceInformation("TARI Comune EC_TE");
-		// TODO: missing category in wsdl
+		// missing category in wsdl
 
 		CtTransferPSPV2 transfer2 = new CtTransferPSPV2();
-		transfer2.setIdTransfer(1);
-		transfer2.setTransferAmount(new BigDecimal("1.01"));
-		transfer2.setFiscalCodePA("77777777777");
+		transfer2.setIdTransfer(2);
+		transfer2.setTransferAmount(BigDecimal.valueOf(amountTransfer2, 2));
+		transfer2.setFiscalCodePA(PaymentTestData.PA_TAX_CODE);
 		transfer2.setIBAN("IT30N0103076271000001823603");
 		transfer2.setRemittanceInformation("TARI Comune EC_TE");
 		// TODO: missing category in wsdl
@@ -123,9 +130,9 @@ class ActivatePaymentNoticeResourceTest {
 
 		nodeActivateResponseOk = new ActivatePaymentNoticeV2Response();
 		nodeActivateResponseOk.setOutcome(StOutcome.OK);
-		nodeActivateResponseOk.setTotalAmount(new BigDecimal("100.99"));
+		nodeActivateResponseOk.setTotalAmount(BigDecimal.valueOf(PaymentTestData.AMOUNT,2));
 		nodeActivateResponseOk.setPaymentDescription("TARI 2021");
-		nodeActivateResponseOk.setFiscalCodePA("77777777777");
+		nodeActivateResponseOk.setFiscalCodePA(PaymentTestData.PA_TAX_CODE);
 		nodeActivateResponseOk.setCompanyName("company PA");
 		nodeActivateResponseOk.setOfficeName("officeName");
 		nodeActivateResponseOk.setPaymentToken("3a254e00347d4f29a3607a35d780faac");
@@ -173,6 +180,10 @@ class ActivatePaymentNoticeResourceTest {
 				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
 				.thenReturn(Uni.createFrom().item(nodeActivateResponseOk));
 
+		Mockito
+				.when(paymentNoticeService.set(Mockito.any(), Mockito.any()))
+				.thenReturn(Uni.createFrom().voidItem());
+
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
@@ -200,26 +211,9 @@ class ActivatePaymentNoticeResourceTest {
 				response.jsonPath().getList("transfers", Transfer.class).get(1).getPaTaxCode());
 		Assertions.assertEquals(StringUtils.EMPTY, response.jsonPath().getList("transfers", Transfer.class).get(1).getCategory());
 
-		//check of milRestService clients
-		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
-		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
-		
-		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
-		Assertions.assertEquals(validMilHeaders.get("RequestId"),captorRequestId.getValue());
-		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
-		
-		//check of pnWrapper clients
-		ArgumentCaptor<ActivatePaymentNoticeV2Request> captorActivatePaymentNoticeV2Request  = ArgumentCaptor.forClass(ActivatePaymentNoticeV2Request.class);
-		Mockito.verify(pnWrapper).activatePaymentNoticeV2Async(captorActivatePaymentNoticeV2Request.capture());
-		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getBroker(),captorActivatePaymentNoticeV2Request.getValue().getIdBrokerPSP());
-		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getChannel(),captorActivatePaymentNoticeV2Request.getValue().getIdChannel());
-		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPassword(),captorActivatePaymentNoticeV2Request.getValue().getPassword());
-		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPsp(),captorActivatePaymentNoticeV2Request.getValue().getIdPSP());
-		Assertions.assertEquals(validActivateRequest.getIdempotencyKey(),captorActivatePaymentNoticeV2Request.getValue().getIdempotencyKey());
-		
-		Assertions.assertEquals("00000000000",captorActivatePaymentNoticeV2Request.getValue().getQrCode().getFiscalCode());
-		Assertions.assertEquals("000000000000000000",captorActivatePaymentNoticeV2Request.getValue().getQrCode().getNoticeNumber());
+		validateIntegrations();
 	}
+
 
 	@ParameterizedTest
 	@CsvFileSource(resources = "/node_error_mapping.csv", numLinesToSkip = 1)
@@ -427,6 +421,43 @@ class ActivatePaymentNoticeResourceTest {
 		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));
 	     
 	}
+
+	@Test
+	void testActivateByQrCode_500_redisError() {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
+				.thenReturn(Uni.createFrom().item(nodeActivateResponseOk));
+
+		Mockito
+				.when(paymentNoticeService.set(Mockito.any(), Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.REDIS_TIMEOUT_EXCEPTION)));
+				
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(validMilHeaders)
+				.and()
+				.pathParam("qrCode", encodedQrCode)
+				.body(validActivateRequest)
+				.when()
+				.patch("/{qrCode}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_STORING_DATA_INTO_REDIS));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));
+
+	}
 	
 	@Test
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeOk() {
@@ -443,8 +474,8 @@ class ActivatePaymentNoticeResourceTest {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
-				.pathParam("paTaxCode", "20000000000")
-				.pathParam("noticeNumber", "100000000000000000")
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
 				.body(validActivateRequest)
 				.when()
 				.patch("/{paTaxCode}/{noticeNumber}")
@@ -466,25 +497,7 @@ class ActivatePaymentNoticeResourceTest {
 				response.jsonPath().getList("transfers", Transfer.class).get(1).getPaTaxCode());
 		Assertions.assertEquals(StringUtils.EMPTY, response.jsonPath().getList("transfers", Transfer.class).get(1).getCategory());
 
-		//check of milRestService clients
-		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
-		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
-		
-		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
-		Assertions.assertEquals(validMilHeaders.get("RequestId"),captorRequestId.getValue());
-		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
-		
-		//check of pnWrapper clients
-		ArgumentCaptor<ActivatePaymentNoticeV2Request> captorActivatePaymentNoticeV2Request  = ArgumentCaptor.forClass(ActivatePaymentNoticeV2Request.class);
-		Mockito.verify(pnWrapper).activatePaymentNoticeV2Async(captorActivatePaymentNoticeV2Request.capture());
-		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getBroker(),captorActivatePaymentNoticeV2Request.getValue().getIdBrokerPSP());
-		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getChannel(),captorActivatePaymentNoticeV2Request.getValue().getIdChannel());
-		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPassword(),captorActivatePaymentNoticeV2Request.getValue().getPassword());
-		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPsp(),captorActivatePaymentNoticeV2Request.getValue().getIdPSP());
-		Assertions.assertEquals(validActivateRequest.getIdempotencyKey(),captorActivatePaymentNoticeV2Request.getValue().getIdempotencyKey());
-		
-		Assertions.assertEquals("20000000000",captorActivatePaymentNoticeV2Request.getValue().getQrCode().getFiscalCode());
-		Assertions.assertEquals("100000000000000000",captorActivatePaymentNoticeV2Request.getValue().getQrCode().getNoticeNumber());
+		validateIntegrations();
 
 	}
 
@@ -504,8 +517,8 @@ class ActivatePaymentNoticeResourceTest {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
-				.pathParam("paTaxCode", "20000000000")
-				.pathParam("noticeNumber", "100000000000000000")
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
 				.body(validActivateRequest)
 				.when()
 				.patch("/{paTaxCode}/{noticeNumber}")
@@ -560,8 +573,8 @@ class ActivatePaymentNoticeResourceTest {
 				.contentType(ContentType.JSON)
 				.headers(invalidHeaders)
 				.and()
-				.pathParam("paTaxCode", "20000000000")
-				.pathParam("noticeNumber", "100000000000000000")
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
 				.body(validActivateRequest)
 				.when()
 				.patch("/{paTaxCode}/{noticeNumber}")
@@ -589,8 +602,8 @@ class ActivatePaymentNoticeResourceTest {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
-				.pathParam("paTaxCode", "20000000000")
-				.pathParam("noticeNumber", "100000000000000000")
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
 				.body(activateRequest)
 				.when()
 				.patch("/{paTaxCode}/{noticeNumber}")
@@ -617,8 +630,8 @@ class ActivatePaymentNoticeResourceTest {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
-				.pathParam("paTaxCode", "20000000000")
-				.pathParam("noticeNumber", "100000000000000000")
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
 				.when()
 				.patch("/{paTaxCode}/{noticeNumber}")
 				.then()
@@ -653,8 +666,8 @@ class ActivatePaymentNoticeResourceTest {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
-				.pathParam("paTaxCode", "20000000000")
-				.pathParam("noticeNumber", "100000000000000000")
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
 				.body(validActivateRequest)
 				.when()
 				.patch("/{paTaxCode}/{noticeNumber}")
@@ -683,8 +696,8 @@ class ActivatePaymentNoticeResourceTest {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
-				.pathParam("paTaxCode", "20000000000")
-				.pathParam("noticeNumber", "100000000000000000")
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
 				.body(validActivateRequest)
 				.when()
 				.patch("/{paTaxCode}/{noticeNumber}")
@@ -700,5 +713,80 @@ class ActivatePaymentNoticeResourceTest {
 		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
 		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));
 	     
+	}
+
+	@Test
+	void testActivateByTaxCodeAndNoticeNumber_500_redisError() {
+
+		Mockito
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
+
+		Mockito
+				.when(pnWrapper.activatePaymentNoticeV2Async(Mockito.any()))
+				.thenReturn(Uni.createFrom().item(nodeActivateResponseOk));
+
+		Mockito
+				.when(paymentNoticeService.set(Mockito.any(), Mockito.any()))
+				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.REDIS_TIMEOUT_EXCEPTION)));
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(validMilHeaders)
+				.and()
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
+				.body(validActivateRequest)
+				.when()
+				.patch("/{paTaxCode}/{noticeNumber}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_STORING_DATA_INTO_REDIS));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("paTaxCode"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("transfers"));
+
+	}
+
+	private void validateIntegrations() {
+
+		// check milRestService client integration
+		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
+
+		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
+		Assertions.assertEquals(validMilHeaders.get("RequestId"),captorRequestId.getValue());
+		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
+
+		// check pnWrapper integration
+		ArgumentCaptor<ActivatePaymentNoticeV2Request> captorActivatePaymentNoticeV2Request  = ArgumentCaptor.forClass(ActivatePaymentNoticeV2Request.class);
+		Mockito.verify(pnWrapper).activatePaymentNoticeV2Async(captorActivatePaymentNoticeV2Request.capture());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getBroker(), captorActivatePaymentNoticeV2Request.getValue().getIdBrokerPSP());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getChannel(), captorActivatePaymentNoticeV2Request.getValue().getIdChannel());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPassword(), captorActivatePaymentNoticeV2Request.getValue().getPassword());
+		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPsp(), captorActivatePaymentNoticeV2Request.getValue().getIdPSP());
+		Assertions.assertEquals(validActivateRequest.getIdempotencyKey(), captorActivatePaymentNoticeV2Request.getValue().getIdempotencyKey());
+
+		Assertions.assertEquals(PaymentTestData.PA_TAX_CODE, captorActivatePaymentNoticeV2Request.getValue().getQrCode().getFiscalCode());
+		Assertions.assertEquals(PaymentTestData.NOTICE_NUMBER, captorActivatePaymentNoticeV2Request.getValue().getQrCode().getNoticeNumber());
+
+		// check paymentNoticeService integration
+		ArgumentCaptor<String> captorPaymentToken = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<Notice> captorNotice = ArgumentCaptor.forClass(Notice.class);
+		Mockito.verify(paymentNoticeService).set(captorPaymentToken.capture(), captorNotice.capture());
+		Assertions.assertEquals(nodeActivateResponseOk.getPaymentToken(), captorPaymentToken.getValue());
+		Assertions.assertEquals(nodeActivateResponseOk.getPaymentToken(), captorNotice.getValue().getPaymentToken());
+		Assertions.assertEquals(nodeActivateResponseOk.getFiscalCodePA(), captorNotice.getValue().getPaTaxCode());
+		Assertions.assertEquals(PaymentTestData.NOTICE_NUMBER, captorNotice.getValue().getNoticeNumber());
+		Assertions.assertEquals(nodeActivateResponseOk.getTotalAmount().scaleByPowerOfTen(2).longValue(), captorNotice.getValue().getAmount());
+		Assertions.assertEquals(nodeActivateResponseOk.getPaymentDescription(), captorNotice.getValue().getDescription());
+		Assertions.assertEquals(nodeActivateResponseOk.getCompanyName(), captorNotice.getValue().getCompany());
+		Assertions.assertEquals(nodeActivateResponseOk.getOfficeName(), captorNotice.getValue().getOffice());
+
 	}
 }

@@ -28,8 +28,8 @@ public final class ErrorCode {
 	public static final String ERROR_FEE_MUST_NOT_BE_NULL 									= MODULE_ID + "000015";
 	public static final String ERROR_FEE_MUST_BE_GREATER_THAN 								= MODULE_ID + "000016";
 	public static final String ERROR_FEE_MUST_BE_LESS_THAN 									= MODULE_ID + "000017";
-	public static final String ERROR_TIMESTAMP_OP_MUST_NOT_BE_NULL							= MODULE_ID + "000018";
-	public static final String ERROR_TIMESTAMP_OP_MUST_MATCH_REGEXP 						= MODULE_ID + "000019";
+	public static final String ERROR_PAYMENT_TIMESTAMP_MUST_NOT_BE_NULL						= MODULE_ID + "000018";
+	public static final String ERROR_PAYMENT_TIMESTAMP_MUST_MATCH_REGEXP 					= MODULE_ID + "000019";
 	public static final String ERROR_PAYMENT_DATE_MUST_NOT_BE_NULL 							= MODULE_ID + "00001A";
 	public static final String ERROR_PAYMENT_DATE_MUST_MATCH_REGEXP 						= MODULE_ID + "00001B";
 	public static final String ERROR_PAYMENTS_MUST_NOT_BE_NULL 								= MODULE_ID + "00001C";
@@ -44,7 +44,7 @@ public final class ErrorCode {
 
 	// integration errors - mongodb
 	public static final String UNKNOWN_ACQUIRER_ID			 								= MODULE_ID + "000024";
-	public static final String ERROR_RETRIEVING_DATA_FROM_MONGO 							= MODULE_ID + "000025";
+	public static final String ERROR_RETRIEVING_DATA_FROM_DB	 							= MODULE_ID + "000025";
 
 
 	// integration errors - redis
@@ -65,6 +65,18 @@ public final class ErrorCode {
 
 	public static final String ACTIVATE_REQUEST_MUST_NOT_BE_EMPTY 							= MODULE_ID + "00002C";
 	public static final String CLOSE_REQUEST_MUST_NOT_BE_EMPTY 								= MODULE_ID + "00002D";
+
+	public static final String PRE_CLOSE_REQUEST_MUST_NOT_BE_EMPTY 							= MODULE_ID + "00002E";
+
+	public static final String ERROR_STORING_DATA_IN_DB 									= MODULE_ID + "00002F";
+
+	public static final String ERROR_UPDATING_DATA_IN_DB 									= MODULE_ID + "000030";
+
+	public static final String PAYMENT_TRANSACTION_ALREADY_EXISTS 							= MODULE_ID + "000031";
+
+	public static final String CACHED_NOTICE_NOT_FOUND			 							= MODULE_ID + "000032";
+
+	public static final String ERROR_TOTAL_AMOUNT_MUST_MATCH_TOTAL_CACHED_VALUE				= MODULE_ID + "000033";
 
 	private ErrorCode() {
 	}

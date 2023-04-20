@@ -9,8 +9,6 @@ import io.restassured.response.Response;
 import it.gov.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfEntity;
-import it.gov.pagopa.swclient.mil.paymentnotice.dao.PspConfiguration;
 import it.gov.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,10 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 import static io.restassured.RestAssured.given;
 
@@ -32,8 +26,6 @@ import static io.restassured.RestAssured.given;
 class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 
 	final static String API_VERSION			= "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
-
-	PspConfEntity pspConfEntity;
 
 	DevServicesContext devServicesContext;
 
@@ -46,31 +38,14 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 	@BeforeAll
 	void createTestObjects() {
 
-		// PSP configuration
-		PspConfiguration pspInfo = new PspConfiguration();
-		pspInfo.setPspId("AGID_01");
-		pspInfo.setPspBroker("97735020584");
-		pspInfo.setPspPassword("pwd_AgID");
-
-		pspConfEntity = new PspConfEntity();
-		pspConfEntity.acquirerId = PaymentTestData.ACQUIRER_ID_KNOWN;
-		pspConfEntity.pspConfiguration = pspInfo;
-
 	}
 
-	ClosePaymentRequest getClosePaymentRequest(Outcome outcome, String transactionId) {
-
-		List<String> tokens = new ArrayList<>();
-		tokens.add("648fhg36s95jfg7DS");
+	ClosePaymentRequest getClosePaymentRequest(Outcome outcome) {
 
 		ClosePaymentRequest closePaymentRequest = new ClosePaymentRequest();
 		closePaymentRequest.setOutcome(outcome.name());
-		closePaymentRequest.setPaymentTokens(tokens);
 		closePaymentRequest.setPaymentMethod("PAGOBANCOMAT");
-		closePaymentRequest.setTransactionId(transactionId);
-		closePaymentRequest.setTotalAmount(BigInteger.valueOf(234234));
-		closePaymentRequest.setFee(BigInteger.valueOf(897));
-		closePaymentRequest.setTimestampOp("2022-11-12T08:53:55");
+		closePaymentRequest.setPaymentTimestamp("2022-11-12T08:53:55");
 
 		return closePaymentRequest;
 	}
@@ -88,9 +63,11 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 						"TerminalId", "0aB9wXyZ")
 
 				.and()
-				.body(getClosePaymentRequest(Outcome.OK, PaymentTestData.PAY_TID_NODE_OK))
+				.pathParam("transactionId", PaymentTestData.PAY_TID_NODE_OK)
+				.and()
+				.body(getClosePaymentRequest(Outcome.OK))
 				.when()
-				.post("/")
+				.patch("/{transactionId}")
 				.then()
 				.extract()
 				.response();
@@ -117,9 +94,11 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
 				.and()
-				.body(getClosePaymentRequest(Outcome.OK, PaymentTestData.PAY_TID_NODE_KO))
+				.pathParam("transactionId", PaymentTestData.PAY_TID_NODE_KO)
+				.and()
+				.body(getClosePaymentRequest(Outcome.OK))
 				.when()
-				.post("/")
+				.patch("/{transactionId}")
 				.then()
 				.extract()
 				.response();
@@ -149,9 +128,11 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
 				.and()
-				.body(getClosePaymentRequest(Outcome.OK, paymentTransactionId))
+				.pathParam("transactionId", paymentTransactionId)
+				.and()
+				.body(getClosePaymentRequest(Outcome.OK))
 				.when()
-				.post("/")
+				.patch("/{transactionId}")
 				.then()
 				.extract()
 				.response();
@@ -183,9 +164,11 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
 				.and()
-				.body(getClosePaymentRequest(Outcome.OK, paymentTransactionId))
+				.pathParam("transactionId", paymentTransactionId)
+				.and()
+				.body(getClosePaymentRequest(Outcome.OK))
 				.when()
-				.post("/")
+				.patch("/{transactionId}")
 				.then()
 				.extract()
 				.response();
@@ -213,9 +196,11 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
 				.and()
-				.body(getClosePaymentRequest(Outcome.OK, PaymentTestData.PAY_TID_NODE_TIMEOUT))
+				.pathParam("transactionId", PaymentTestData.PAY_TID_NODE_TIMEOUT)
+				.and()
+				.body(getClosePaymentRequest(Outcome.OK))
 				.when()
-				.post("/")
+				.patch("/{transactionId}")
 				.then()
 				.extract()
 				.response();
@@ -244,9 +229,11 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 						"Channel", "ATM",
 						"TerminalId", "0aB9wXyZ")
 				.and()
-				.body(getClosePaymentRequest(Outcome.KO, PaymentTestData.PAY_TID_NODE_KO))
+				.pathParam("transactionId", PaymentTestData.PAY_TID_NODE_TIMEOUT)
+				.and()
+				.body(getClosePaymentRequest(Outcome.KO))
 				.when()
-				.post("/")
+				.patch("/{transactionId}")
 				.then()
 				.extract()
 				.response();

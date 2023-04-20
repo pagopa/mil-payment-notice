@@ -2,9 +2,9 @@ package it.gov.pagopa.swclient.mil.paymentnotice.util;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -13,8 +13,17 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import javax.net.ssl.SSLHandshakeException;
+import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.mongodb.MongoWriteException;
+import com.mongodb.ServerAddress;
+import com.mongodb.WriteError;
 import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -106,26 +115,35 @@ public class TestUtils {
         );
     }
 
+    public static Stream<Arguments> providePreCloseRequestValidationErrorCases() {
+
+        return Stream.of(
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "outcome", null), ErrorCode.ERROR_OUTCOME_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "outcome", "OK"), ErrorCode.ERROR_OUTCOME_MUST_MATCH_MATCH_REGEXP),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "paymentTokens", null), ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "paymentTokens", List.of("100","101","102","103","104","105")), ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_HAVE_AT_MOST),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "paymentTokens", List.of("123456789012345678901234567890123456")), ErrorCode.ERROR_PAYMENT_TOKEN_MATCH_MATCH_REGEXP),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "transactionId", null), ErrorCode.ERROR_TRANSACTION_ID_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "transactionId", "abc"), ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "totalAmount", null), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "totalAmount", 0L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_GREATER_THAN),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "totalAmount", 199999999999L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_LESS_THAN),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "totalAmount", 12345L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_MATCH_TOTAL_CACHED_VALUE),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "fee", null), ErrorCode.ERROR_FEE_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "fee", 0L), ErrorCode.ERROR_FEE_MUST_BE_GREATER_THAN),
+                Arguments.of(setAndGet(getPreCloseRequest(true, 1), "fee", 199999999999L), ErrorCode.ERROR_FEE_MUST_BE_LESS_THAN)
+        );
+    }
+
     public static Stream<Arguments> provideCloseRequestValidationErrorCases() {
 
         return Stream.of(
                 Arguments.of(setAndGet(getClosePaymentRequest(true), "outcome", null), ErrorCode.ERROR_OUTCOME_MUST_NOT_BE_NULL),
                 Arguments.of(setAndGet(getClosePaymentRequest(true), "outcome", "O"), ErrorCode.ERROR_OUTCOME_MUST_MATCH_MATCH_REGEXP),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "paymentTokens", null), ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "paymentTokens", List.of("100","101","102","103","104","105")), ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_HAVE_AT_MOST),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "paymentTokens", List.of("123456789012345678901234567890123456")), ErrorCode.ERROR_PAYMENT_TOKEN_MATCH_MATCH_REGEXP),
                 Arguments.of(setAndGet(getClosePaymentRequest(true), "paymentMethod", null), ErrorCode.ERROR_PAYMENT_METHOD_MUST_NOT_BE_NULL),
                 Arguments.of(setAndGet(getClosePaymentRequest(true), "paymentMethod", "INVALID_PAYMENT_METHOD"), ErrorCode.ERROR_PAYMENT_METHOD_MUST_MATCH_REGEXP),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "transactionId", null), ErrorCode.ERROR_TRANSACTION_ID_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "transactionId", "abd_123"), ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "totalAmount", null), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "totalAmount", BigInteger.ZERO), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_GREATER_THAN),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "totalAmount", BigInteger.valueOf(199999999999L)), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_LESS_THAN),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "fee", null), ErrorCode.ERROR_FEE_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "fee", BigInteger.ZERO), ErrorCode.ERROR_FEE_MUST_BE_GREATER_THAN),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "fee", BigInteger.valueOf(199999999999L)), ErrorCode.ERROR_FEE_MUST_BE_LESS_THAN),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "timestampOp", null), ErrorCode.ERROR_TIMESTAMP_OP_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(getClosePaymentRequest(true), "timestampOp", "abcde"), ErrorCode.ERROR_TIMESTAMP_OP_MUST_MATCH_REGEXP)
+                Arguments.of(setAndGet(getClosePaymentRequest(true), "paymentTimestamp", null), ErrorCode.ERROR_PAYMENT_TIMESTAMP_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(getClosePaymentRequest(true), "paymentTimestamp", "abcde"), ErrorCode.ERROR_PAYMENT_TIMESTAMP_MUST_MATCH_REGEXP)
         );
     }
 
@@ -135,11 +153,31 @@ public class TestUtils {
             case CLIENT_WEB_APPLICATION_EXCEPTION_400 -> new ClientWebApplicationException(400);
             case CLIENT_WEB_APPLICATION_EXCEPTION_404 -> new ClientWebApplicationException(404);
             case CLIENT_WEB_APPLICATION_EXCEPTION_500 -> new ClientWebApplicationException(500);
-            case UNPARSABLE_EXCEPTION -> new ClientWebApplicationException(); // TODO generate correct exception
+            case UNPARSABLE_EXCEPTION -> new ClientWebApplicationException(new JsonParseException(getJsonParser(), ""));
             case REDIS_TIMEOUT_EXCEPTION -> new SSLHandshakeException("Timeout");
+            case DB_TIMEOUT_EXCEPTION -> new TimeoutException(); // TODO generate correct exception
+            case DB_DUPLICATED_KEY -> {
+                WriteError writeError = new WriteError(11000,
+                        "'E11000 duplicate key error collection: mil.paymentTransactions index: _id_",
+                        new BsonDocument("", new BsonString("")));
+                ServerAddress serverAddress = new ServerAddress("127.0.0.1", 27017);
+                yield new MongoWriteException(writeError, serverAddress);
+            }
         };
     }
 
+    public static ClientWebApplicationException getExceptionWithEntity(int statusCode) {
+        return new ClientWebApplicationException(Response.status(statusCode).entity("").build());
+    }
+
+    private static JsonParser getJsonParser() {
+        JsonParser jsonParser = null;
+        try {
+            jsonParser = new JsonFactory().createParser("{}");
+        } catch (IOException ignored) {
+        }
+        return jsonParser;
+    }
 
     private static <K, V> Map<K, V> removeAndGet(Map<K, V> map, K key) {
         map.remove(key);

@@ -69,7 +69,7 @@ public class RedisTestResource implements QuarkusTestResourceLifecycleManager, D
         logger.info("Starting Redis container...");
 
         // Start the needed container(s)
-        redisContainer = new GenericContainer(DockerImageName.parse("redis:6"))
+        redisContainer = new GenericContainer(DockerImageName.parse("redis:6.0"))
                 .withExposedPorts(6379)
                 .withNetwork(getNetwork())
                 .withNetworkAliases(REDIS_NETWORK_ALIAS)

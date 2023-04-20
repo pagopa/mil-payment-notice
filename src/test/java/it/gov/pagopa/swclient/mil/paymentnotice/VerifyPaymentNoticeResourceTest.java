@@ -223,8 +223,8 @@ class VerifyPaymentNoticeResourceTest {
 		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPassword(),captorVerifyPaymentNoticeReq.getValue().getPassword());
 		Assertions.assertEquals(acquirerConfiguration.getPspConfigForVerifyAndActivate().getPsp(),captorVerifyPaymentNoticeReq.getValue().getIdPSP());
 		
-		Assertions.assertEquals("00000000000",captorVerifyPaymentNoticeReq.getValue().getQrCode().getFiscalCode());
-		Assertions.assertEquals("000000000000000000",captorVerifyPaymentNoticeReq.getValue().getQrCode().getNoticeNumber());
+		Assertions.assertEquals(PaymentTestData.PA_TAX_CODE,captorVerifyPaymentNoticeReq.getValue().getQrCode().getFiscalCode());
+		Assertions.assertEquals(PaymentTestData.NOTICE_NUMBER,captorVerifyPaymentNoticeReq.getValue().getQrCode().getNoticeNumber());
 	}
 
 	@ParameterizedTest

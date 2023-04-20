@@ -59,7 +59,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 
 		// parse qr-code to retrieve the notice number and the PA tax code
 		QrCode parsedQrCode = qrCodeParser.b64UrlParse(b64UrlQrCode);
-		Log.debugf("decoded qrCode: %s", parsedQrCode);
+		Log.debugf("Decoded qrCode: %s", parsedQrCode);
 
 		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeVerifyPaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(), pspConf));
@@ -137,7 +137,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 								NodeForPspLoggingUtil.toString(nodeResponse.getFault()));
 						verifyPaymentNoticeResponse = buildResponseKo(nodeResponse);
 					}
-					Log.debugf("verifyPaymentNotice response %s", verifyPaymentNoticeResponse.toString());
+					Log.debugf("verifyPaymentNotice: Response %s", verifyPaymentNoticeResponse.toString());
 					return Response.status(Status.OK).entity(verifyPaymentNoticeResponse).build();
 				});
 	}

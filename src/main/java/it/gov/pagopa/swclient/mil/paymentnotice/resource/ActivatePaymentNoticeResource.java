@@ -2,7 +2,6 @@ package it.gov.pagopa.swclient.mil.paymentnotice.resource;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +21,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
+import it.gov.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.gov.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.QrCode;
 import it.gov.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
@@ -47,6 +48,9 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 
 	@Inject
 	QrCodeParser qrCodeParser;
+
+	@Inject
+	PaymentNoticeService paymentNoticeService;
 
 	/**
 	 * The expiration time of the payment token passed to the node
@@ -83,7 +87,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 
 		// parse qr-code to retrieve the notice number and the PA tax code
 		QrCode parsedQrCode = qrCodeParser.b64UrlParse(b64UrlQrCode);
-		Log.debugf("decoded qrCode: %s", parsedQrCode);
+		Log.debugf("Decoded qrCode: %s", parsedQrCode);
 
 		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.ACTIVATE).
 				chain(pspConf -> callNodeActivatePaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(),
@@ -156,7 +160,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 
 		nodeActivateRequest.setExpirationTime(paymentNoticeExpirationTime);
 		// conversion from euro cents to euro
-		nodeActivateRequest.setAmount(new BigDecimal(activatePaymentNoticeRequest.getAmount()).divide(new BigDecimal(100), RoundingMode.HALF_DOWN));
+		nodeActivateRequest.setAmount(BigDecimal.valueOf(activatePaymentNoticeRequest.getAmount(), 2));
 
 		return nodeWrapper.activatePaymentNoticeV2Async(nodeActivateRequest)
 				.onFailure().transform(t-> {
@@ -166,17 +170,53 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 							.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES)))
 							.build());
 				})
+				.chain(nodeResponse -> storeNoticeData(noticeNumber, nodeResponse));
+	}
+
+	/**
+	 * Store the payment notice data in the redis cache
+	 *
+	 * @param noticeNumber the identifier of the payment notice
+	 * @param activateResponse the response of the activatePaymentNoticeV2Async
+	 * @return a {@link Uni} emitting Void
+	 */
+	private Uni<Response> storeNoticeData(String noticeNumber, ActivatePaymentNoticeV2Response activateResponse) {
+
+		Uni<ActivatePaymentNoticeV2Response> response;
+		if (Outcome.OK.name().equals(activateResponse.getOutcome().value())) {
+			Notice notice = new Notice();
+			notice.setPaymentToken(activateResponse.getPaymentToken());
+			notice.setPaTaxCode(activateResponse.getFiscalCodePA());
+			notice.setNoticeNumber(noticeNumber);
+			notice.setAmount(activateResponse.getTotalAmount().scaleByPowerOfTen(2).longValue());
+			notice.setDescription(activateResponse.getPaymentDescription());
+			notice.setCompany(activateResponse.getCompanyName());
+			notice.setOffice(activateResponse.getOfficeName());
+
+			response = paymentNoticeService.set(activateResponse.getPaymentToken(), notice)
+					.onFailure().transform(t-> {
+						Log.errorf(t, "[%s] Error while storing payment data in cache", ErrorCode.ERROR_STORING_DATA_INTO_REDIS);
+						return new InternalServerErrorException(Response
+								.status(Status.INTERNAL_SERVER_ERROR)
+								.entity(new Errors(List.of(ErrorCode.ERROR_STORING_DATA_INTO_REDIS)))
+								.build());
+					})
+					.replaceWith(activateResponse);
+
+		}
+		else response = Uni.createFrom().item(activateResponse);
+
+		return response
 				.map(nodeResponse -> {
 					ActivatePaymentNoticeResponse activatePaymentNoticeResponse;
-					if (Outcome.OK.toString().equals(nodeResponse.getOutcome().value())) {
-						 activatePaymentNoticeResponse = buildResponseOk(nodeResponse);
-					}
-					else {
-						 activatePaymentNoticeResponse = buildResponseKo(nodeResponse);
+					if (Outcome.OK.name().equals(nodeResponse.getOutcome().value())) {
+						activatePaymentNoticeResponse = buildResponseOk(nodeResponse);
+					} else {
+						activatePaymentNoticeResponse = buildResponseKo(nodeResponse);
 					}
 					Log.debugf("verifyPaymentNotice response %s", activatePaymentNoticeResponse.toString());
 					return Response.status(Status.OK).entity(activatePaymentNoticeResponse).build();
-		});
+				});
 	}
 
 	/**

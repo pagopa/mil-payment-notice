@@ -16,6 +16,11 @@ public class PaymentNoticeConstants {
 	public static final String QRCODE_REGEX 		= "^[ -~]{6}\\|[ -~]{3}\\|\\d{18}\\|\\d{11}\\|\\d{2,11}$";
 
 	/**
+	 * The regex to be used to validate the transaction ID
+	 */
+	public static final String TRANSACTION_ID_REGEX = "^[a-zA-Z0-9]{32}$";
+
+	/**
 	 * The regex to be used to validate the PA tax code
 	 */
 	public static final String PA_TAX_CODE_REGEX 	= "^\\d{11}$";

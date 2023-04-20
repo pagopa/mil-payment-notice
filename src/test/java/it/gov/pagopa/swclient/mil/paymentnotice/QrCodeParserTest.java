@@ -31,8 +31,8 @@ class QrCodeParserTest {
 
 		Assertions.assertEquals("PAGOPA", parsedQrCode.getIdCode());
 		Assertions.assertEquals("002", parsedQrCode.getVersion());
-		Assertions.assertEquals("000000000000000000", parsedQrCode.getNoticeNumber());
-		Assertions.assertEquals("00000000000", parsedQrCode.getPaTaxCode());
+		Assertions.assertEquals(PaymentTestData.NOTICE_NUMBER, parsedQrCode.getNoticeNumber());
+		Assertions.assertEquals(PaymentTestData.PA_TAX_CODE, parsedQrCode.getPaTaxCode());
 		Assertions.assertEquals("9999", parsedQrCode.getAmount());
 
 	}
@@ -45,8 +45,8 @@ class QrCodeParserTest {
 
 		Assertions.assertEquals("PAGOPA", parsedQrCode.getIdCode());
 		Assertions.assertEquals("002", parsedQrCode.getVersion());
-		Assertions.assertEquals("000000000000000000", parsedQrCode.getNoticeNumber());
-		Assertions.assertEquals("00000000000", parsedQrCode.getPaTaxCode());
+		Assertions.assertEquals(PaymentTestData.NOTICE_NUMBER, parsedQrCode.getNoticeNumber());
+		Assertions.assertEquals(PaymentTestData.PA_TAX_CODE, parsedQrCode.getPaTaxCode());
 		Assertions.assertEquals("9999", parsedQrCode.getAmount());
 
 	}
@@ -59,8 +59,8 @@ class QrCodeParserTest {
 
 		Assertions.assertEquals("PAGOPA", parsedQrCode.getIdCode());
 		Assertions.assertEquals("002", parsedQrCode.getVersion());
-		Assertions.assertEquals("000000000000000000", parsedQrCode.getNoticeNumber());
-		Assertions.assertEquals("00000000000", parsedQrCode.getPaTaxCode());
+		Assertions.assertEquals(PaymentTestData.NOTICE_NUMBER, parsedQrCode.getNoticeNumber());
+		Assertions.assertEquals(PaymentTestData.PA_TAX_CODE, parsedQrCode.getPaTaxCode());
 		Assertions.assertEquals("9999", parsedQrCode.getAmount());
 
 	}
