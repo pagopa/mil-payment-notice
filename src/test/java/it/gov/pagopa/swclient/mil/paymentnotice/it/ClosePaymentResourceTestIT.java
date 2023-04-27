@@ -355,9 +355,6 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.extract()
 				.response();
 
-		Assertions.assertEquals(404, response.statusCode());
-		Assertions.assertEquals(StringUtils.EMPTY, response.body().asString());
-
 		Assertions.assertEquals(500, response.statusCode());
 		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
 		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.UNKNOWN_ACQUIRER_ID));

@@ -141,6 +141,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -213,6 +218,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -287,6 +297,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -354,6 +369,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -428,6 +448,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -495,6 +520,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -568,6 +598,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -770,6 +805,11 @@
 										"method": "GET",
 										"header": [
 											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
 												"key": "Version",
 												"value": "{{mil_payment_notice_api_version}}",
 												"type": "text"
@@ -782,6 +822,11 @@
 											{
 												"key": "Channel",
 												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -855,6 +900,11 @@
 											{
 												"key": "TerminalId",
 												"value": "13---..99",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -1052,6 +1102,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
@@ -1133,6 +1188,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -1216,6 +1276,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
@@ -1298,6 +1363,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
@@ -1374,6 +1444,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -1456,6 +1531,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -1844,6 +1924,11 @@
 										"method": "PATCH",
 										"header": [
 											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
 												"key": "Version",
 												"value": "{{mil_payment_notice_api_version}}",
 												"type": "text"
@@ -1856,6 +1941,11 @@
 											{
 												"key": "Channel",
 												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -1938,6 +2028,11 @@
 											{
 												"key": "TerminalId",
 												"value": "13---..99",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -2052,6 +2147,93 @@
 										{
 											"key": "qrCode",
 											"value": "abcde"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "activateByQrCode - Request vuota",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"00800002C\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/paymentNotices/:qrCode",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"paymentNotices",
+										":qrCode"
+									],
+									"variable": [
+										{
+											"key": "qrCode",
+											"value": "{{qr_code}}"
 										}
 									]
 								}
@@ -2548,6 +2730,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -2625,6 +2812,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -2704,6 +2896,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -2782,6 +2979,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -2854,6 +3056,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -2932,6 +3139,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -3217,6 +3429,11 @@
 										"method": "GET",
 										"header": [
 											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
 												"key": "Version",
 												"value": "{{mil_payment_notice_api_version}}",
 												"type": "text"
@@ -3229,6 +3446,11 @@
 											{
 												"key": "Channel",
 												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -3307,6 +3529,11 @@
 											{
 												"key": "TerminalId",
 												"value": "13---..99",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -3539,6 +3766,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
@@ -3625,6 +3857,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -3713,6 +3950,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
@@ -3800,6 +4042,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
@@ -3881,6 +4128,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -3968,6 +4220,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -4381,6 +4638,11 @@
 										"method": "PATCH",
 										"header": [
 											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
 												"key": "Version",
 												"value": "{{mil_payment_notice_api_version}}",
 												"type": "text"
@@ -4393,6 +4655,11 @@
 											{
 												"key": "Channel",
 												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -4480,6 +4747,11 @@
 											{
 												"key": "TerminalId",
 												"value": "13---..99",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -4887,6 +5159,98 @@
 							"response": []
 						},
 						{
+							"name": "activateByTaxCodeAndNoticeNumber - PA Tax Code non valido Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"00800002C\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/paymentNotices/:paTaxCode/:noticeNumber",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"paymentNotices",
+										":paTaxCode",
+										":noticeNumber"
+									],
+									"variable": [
+										{
+											"key": "paTaxCode",
+											"value": "{{pa_tax_code}}"
+										},
+										{
+											"key": "noticeNumber",
+											"value": "{{notice_number}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "activateByTaxCodeAndNoticeNumber - Amount nullo",
 							"event": [
 								{
@@ -5165,13 +5529,13 @@
 					]
 				},
 				{
-					"name": "5. close",
+					"name": "5. preClose",
 					"item": [
 						{
 							"name": "Validazione header",
 							"item": [
 								{
-									"name": "close - RequestId nullo",
+									"name": "preClose - RequestId nullo",
 									"event": [
 										{
 											"listen": "test",
@@ -5217,11 +5581,16 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5241,7 +5610,7 @@
 									"response": []
 								},
 								{
-									"name": "close - RequestId non valido",
+									"name": "preClose - RequestId non valido",
 									"event": [
 										{
 											"listen": "test",
@@ -5292,11 +5661,16 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5316,7 +5690,7 @@
 									"response": []
 								},
 								{
-									"name": "close - Version non valida",
+									"name": "preClose - Version non valida",
 									"event": [
 										{
 											"listen": "test",
@@ -5367,11 +5741,16 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5391,7 +5770,7 @@
 									"response": []
 								},
 								{
-									"name": "close - Version size non valida",
+									"name": "preClose - Version size non valida",
 									"event": [
 										{
 											"listen": "test",
@@ -5442,11 +5821,16 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5466,7 +5850,7 @@
 									"response": []
 								},
 								{
-									"name": "close - AcquirerId nullo",
+									"name": "preClose - AcquirerId nullo",
 									"event": [
 										{
 											"listen": "test",
@@ -5512,11 +5896,16 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5536,7 +5925,7 @@
 									"response": []
 								},
 								{
-									"name": "close - AcquirerId non valido",
+									"name": "preClose - AcquirerId non valido",
 									"event": [
 										{
 											"listen": "test",
@@ -5587,11 +5976,16 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5611,7 +6005,7 @@
 									"response": []
 								},
 								{
-									"name": "close - Channel nullo",
+									"name": "preClose - Channel nullo",
 									"event": [
 										{
 											"listen": "test",
@@ -5661,7 +6055,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5681,7 +6075,7 @@
 									"response": []
 								},
 								{
-									"name": "close - Channel non valido",
+									"name": "preClose - Channel non valido",
 									"event": [
 										{
 											"listen": "test",
@@ -5736,7 +6130,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5756,7 +6150,7 @@
 									"response": []
 								},
 								{
-									"name": "close - MerchantId nullo",
+									"name": "preClose - MerchantId nullo",
 									"event": [
 										{
 											"listen": "test",
@@ -5811,7 +6205,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5831,7 +6225,7 @@
 									"response": []
 								},
 								{
-									"name": "close - MerchantId non valido",
+									"name": "preClose - MerchantId non valido",
 									"event": [
 										{
 											"listen": "test",
@@ -5891,7 +6285,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5911,7 +6305,7 @@
 									"response": []
 								},
 								{
-									"name": "close - TerminalId nullo",
+									"name": "preClose - TerminalId nullo",
 									"event": [
 										{
 											"listen": "test",
@@ -5939,6 +6333,11 @@
 										"method": "POST",
 										"header": [
 											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
 												"key": "Version",
 												"value": "{{mil_payment_notice_api_version}}",
 												"type": "text"
@@ -5952,11 +6351,16 @@
 												"key": "Channel",
 												"value": "{{channel}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5976,7 +6380,7 @@
 									"response": []
 								},
 								{
-									"name": "close - TerminalId non valido",
+									"name": "preClose - TerminalId non valido",
 									"event": [
 										{
 											"listen": "test",
@@ -6027,11 +6431,16 @@
 												"key": "TerminalId",
 												"value": "13---..99",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key}}\",\r\n    \"amount\": 10000\r\n}",
+											"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -6053,7 +6462,78 @@
 							]
 						},
 						{
-							"name": "close - Outcome nullo",
+							"name": "preClose - Request vuota",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"00800002E\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "preClose - Outcome nullo",
 							"event": [
 								{
 									"listen": "test",
@@ -6104,7 +6584,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6124,7 +6604,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Outcome non valido",
+							"name": "preClose - Outcome non valido",
 							"event": [
 								{
 									"listen": "test",
@@ -6175,7 +6655,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"test\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"test\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6195,7 +6675,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Payment Tokens nullo",
+							"name": "preClose - Payment Tokens nullo",
 							"event": [
 								{
 									"listen": "test",
@@ -6246,7 +6726,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6266,7 +6746,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Payment Tokens con più di 5 elementi",
+							"name": "preClose - Payment Tokens con più di 5 elementi",
 							"event": [
 								{
 									"listen": "test",
@@ -6317,7 +6797,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\",\r\n        \"648fhg36s95jfg7DS\",\r\n        \"648fhg36s95jfg7DS\",\r\n        \"648fhg36s95jfg7DS\",\r\n        \"648fhg36s95jfg7DS\",\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\",\r\n    \"648fhg36s95jfg7DS\",\r\n    \"648fhg36s95jfg7DS\",\r\n    \"648fhg36s95jfg7DS\",\r\n    \"648fhg36s95jfg7DS\",\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6337,7 +6817,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Payment Token non valido",
+							"name": "preClose - Payment Token non valido",
 							"event": [
 								{
 									"listen": "test",
@@ -6388,7 +6868,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"sEoITKKOCAJG9wzOmXrHErjzppiLPTcrbopkgJ3X\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"sEoITKKOCAJG9wzOmXrHErjzppiLPTcrbopkgJ3X\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6408,149 +6888,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Payment Method nullo",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"errors containes value\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.errors).to.contain(\"00800000E\");\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "RequestId",
-										"value": "{{$guid}}",
-										"type": "text"
-									},
-									{
-										"key": "Version",
-										"value": "{{mil_payment_notice_api_version}}",
-										"type": "text"
-									},
-									{
-										"key": "AcquirerId",
-										"value": "{{acquirer_id}}",
-										"type": "text"
-									},
-									{
-										"key": "Channel",
-										"value": "{{channel}}",
-										"type": "text"
-									},
-									{
-										"key": "TerminalId",
-										"value": "{{terminal_id}}",
-										"type": "text"
-									},
-									{
-										"key": "MerchantId",
-										"value": "{{merchant_id}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
-									"host": [
-										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
-									],
-									"path": [
-										"payments"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "close - Payment Method non valido",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"errors containes value\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.errors).to.contain(\"00800000F\");\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "RequestId",
-										"value": "{{$guid}}",
-										"type": "text"
-									},
-									{
-										"key": "Version",
-										"value": "{{mil_payment_notice_api_version}}",
-										"type": "text"
-									},
-									{
-										"key": "AcquirerId",
-										"value": "{{acquirer_id}}",
-										"type": "text"
-									},
-									{
-										"key": "Channel",
-										"value": "{{channel}}",
-										"type": "text"
-									},
-									{
-										"key": "TerminalId",
-										"value": "{{terminal_id}}",
-										"type": "text"
-									},
-									{
-										"key": "MerchantId",
-										"value": "{{merchant_id}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"test\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
-									"host": [
-										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
-									],
-									"path": [
-										"payments"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "close - Transaction ID nullo",
+							"name": "preClose - Transaction ID nullo",
 							"event": [
 								{
 									"listen": "test",
@@ -6601,7 +6939,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6621,7 +6959,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Transaction ID non valido",
+							"name": "preClose - Transaction ID non valido",
 							"event": [
 								{
 									"listen": "test",
@@ -6672,7 +7010,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a488-02a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E46-1fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6692,7 +7030,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Total Amount nullo",
+							"name": "preClose - Total Amount nullo",
 							"event": [
 								{
 									"listen": "test",
@@ -6743,7 +7081,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6763,7 +7101,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Total Amount minore di 1",
+							"name": "preClose - Total Amount minore di 1",
 							"event": [
 								{
 									"listen": "test",
@@ -6814,7 +7152,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 0,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 0,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6834,7 +7172,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Total Amount maggiore di 99999999999",
+							"name": "preClose - Total Amount maggiore di 99999999999",
 							"event": [
 								{
 									"listen": "test",
@@ -6885,7 +7223,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 100000000000,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 100000000000,\r\n  \"fee\": 100\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6905,7 +7243,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Fee nullo",
+							"name": "preClose - Fee nullo",
 							"event": [
 								{
 									"listen": "test",
@@ -6956,7 +7294,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6976,7 +7314,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Fee minore di 1",
+							"name": "preClose - Fee minore di 1",
 							"event": [
 								{
 									"listen": "test",
@@ -7027,7 +7365,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 0,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 0\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7047,7 +7385,7 @@
 							"response": []
 						},
 						{
-							"name": "close - Fee maggiore di 99999999999",
+							"name": "preClose - Fee maggiore di 99999999999",
 							"event": [
 								{
 									"listen": "test",
@@ -7098,149 +7436,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 100000000000,\r\n    \"timestampOp\": \"2022-11-12T08:53:55\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
-									"host": [
-										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
-									],
-									"path": [
-										"payments"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "close - Timestamp Op nullo",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"errors containes value\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.errors).to.contain(\"008000018\");\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "RequestId",
-										"value": "{{$guid}}",
-										"type": "text"
-									},
-									{
-										"key": "Version",
-										"value": "{{mil_payment_notice_api_version}}",
-										"type": "text"
-									},
-									{
-										"key": "AcquirerId",
-										"value": "{{acquirer_id}}",
-										"type": "text"
-									},
-									{
-										"key": "Channel",
-										"value": "{{channel}}",
-										"type": "text"
-									},
-									{
-										"key": "TerminalId",
-										"value": "{{terminal_id}}",
-										"type": "text"
-									},
-									{
-										"key": "MerchantId",
-										"value": "{{merchant_id}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
-									"host": [
-										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
-									],
-									"path": [
-										"payments"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "close - Timestamp Op non valido",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"errors containes value\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.errors).to.contain(\"008000019\");\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "RequestId",
-										"value": "{{$guid}}",
-										"type": "text"
-									},
-									{
-										"key": "Version",
-										"value": "{{mil_payment_notice_api_version}}",
-										"type": "text"
-									},
-									{
-										"key": "AcquirerId",
-										"value": "{{acquirer_id}}",
-										"type": "text"
-									},
-									{
-										"key": "Channel",
-										"value": "{{channel}}",
-										"type": "text"
-									},
-									{
-										"key": "TerminalId",
-										"value": "{{terminal_id}}",
-										"type": "text"
-									},
-									{
-										"key": "MerchantId",
-										"value": "{{merchant_id}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"648fhg36s95jfg7DS\"\r\n    ],\r\n    \"paymentMethod\": \"PAGOBANCOMAT\",\r\n    \"transactionId\": \"27de01c5c4b24a48802a59696c2bef20\",\r\n    \"totalAmount\": 234234,\r\n    \"fee\": 897,\r\n    \"timestampOp\": \"test\"\r\n}",
+									"raw": "{\r\n  \"outcome\": \"PRE_CLOSE\",\r\n  \"paymentTokens\": [\r\n    \"648fhg36s95jfg7DS\"\r\n  ],\r\n  \"transactionId\": \"517a4216840E461fB011036A0fd134E1\",\r\n  \"totalAmount\": 10000,\r\n  \"fee\": 100000000000\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7262,7 +7458,1650 @@
 					]
 				},
 				{
-					"name": "6. receivePaymentStatus",
+					"name": "6. close",
+					"item": [
+						{
+							"name": "Validazione header",
+							"item": [
+								{
+									"name": "close - RequestId nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000001\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - RequestId non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000002\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "131///00=",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - Version non valida",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000004\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "pppL",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - Version size non valida",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000003\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay78237829748274",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - AcquirerId nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000005\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - AcquirerId non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000006\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "ssk23",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - Channel nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000007\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - Channel non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000008\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "AATTMM",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - MerchantId nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"00000000B\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - MerchantId non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"00000000C\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "23-32-42-r",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - TerminalId nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000009\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "close - TerminalId non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"00000000A\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "13---..99",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments",
+												":transactionId"
+											],
+											"variable": [
+												{
+													"key": "transactionId",
+													"value": "517a4216840E461fB011036A0fd134E1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "close - Request vuota",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"00800002D\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "517a4216840E461fB011036A0fd134E1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "close - Transaction ID non valido",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"008000011\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "517a421684-0E461fB011036A0fd134E1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "close - Outcome nullo",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"008000009\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "517a4216840E461fB011036A0fd134E1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "close - Outcome non valido",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"00800000A\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"outcome\": \"test\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "517a4216840E461fB011036A0fd134E1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "close - Payment Method nullo",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"00800000E\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "517a4216840E461fB011036A0fd134E1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "close - Payment Method non valido",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"00800000F\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"test\",\r\n  \"paymentTimestamp\": \"2022-11-12T08:53:55\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "517a4216840E461fB011036A0fd134E1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "close - Payment Timestamp nullo",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"008000018\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "517a4216840E461fB011036A0fd134E1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "close - Payment Timestamp non valido",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"008000019\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"outcome\": \"CLOSE\",\r\n  \"paymentMethod\": \"PAGOBANCOMAT\",\r\n  \"paymentTimestamp\": \"2022-11-1208:53:55\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "517a4216840E461fB011036A0fd134E1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "7. receivePaymentStatus",
 					"item": [
 						{
 							"name": "receivePaymentStatus - Transaction ID non valido",
@@ -8359,7 +10198,7 @@
 					]
 				},
 				{
-					"name": "7. getPaymentStatus",
+					"name": "8. getPaymentStatus",
 					"item": [
 						{
 							"name": "Validazione header",
@@ -8410,6 +10249,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -8484,6 +10328,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -8556,6 +10405,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -8630,6 +10484,11 @@
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
 												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
 											}
 										],
 										"url": {
@@ -8697,6 +10556,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -8770,6 +10634,11 @@
 											{
 												"key": "TerminalId",
 												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -9118,6 +10987,11 @@
 												"type": "text"
 											},
 											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
 												"key": "AcquirerId",
 												"value": "{{acquirer_id}}",
 												"type": "text"
@@ -9125,6 +10999,11 @@
 											{
 												"key": "Channel",
 												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -9198,6 +11077,11 @@
 											{
 												"key": "TerminalId",
 												"value": "13---..99",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
 												"type": "text"
 											}
 										],
@@ -9292,6 +11176,833 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "9. getPayments",
+					"item": [
+						{
+							"name": "Validazione header",
+							"item": [
+								{
+									"name": "getPayments - RequestId nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000001\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - RequestId non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000002\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "131///00=",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - Version non valida",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000004\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "pppL",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - Version size non valida",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000003\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay78237829748274",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - AcquirerId nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000005\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - AcquirerId non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000006\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "ssk23",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - Channel nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000007\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - Channel non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000008\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "AATTMM",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - MerchantId nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"00000000B\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - MerchantId non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"00000000C\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "23-32-42-r",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "{{terminal_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - TerminalId nullo",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"000000009\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getPayments - TerminalId non valido",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"errors containes value\", function () {\r",
+													"    var jsonData = pm.response.json();\r",
+													"    pm.expect(jsonData.errors).to.contain(\"00000000A\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "RequestId",
+												"value": "{{$guid}}",
+												"type": "text"
+											},
+											{
+												"key": "Version",
+												"value": "{{mil_payment_notice_api_version}}",
+												"type": "text"
+											},
+											{
+												"key": "AcquirerId",
+												"value": "{{acquirer_id}}",
+												"type": "text"
+											},
+											{
+												"key": "Channel",
+												"value": "{{channel}}",
+												"type": "text"
+											},
+											{
+												"key": "TerminalId",
+												"value": "13---..99",
+												"type": "text"
+											},
+											{
+												"key": "MerchantId",
+												"value": "{{merchant_id}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+											"host": [
+												"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+											],
+											"path": [
+												"payments"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
 				}
 			],
 			"event": [
@@ -9323,6 +12034,11 @@
 							"",
 							"pm.test('Schema is valid', function() {",
 							"  pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"pm.test(\"errors containes only one element\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.errors).to.have.length(1);",
 							"});"
 						]
 					}
@@ -9350,53 +12066,62 @@
 											"    pm.response.to.have.status(200);\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Outcome is OK\", function () {\r",
+											"pm.test(\"outcome is OK\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
 											"    pm.expect(jsonData.outcome).to.eql(\"OK\");\r",
 											"});\r",
 											"\r",
-											"pm.test(\"amount is 10099\", function () {\r",
+											"pm.test(\"amount is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.amount).to.eql(10099);\r",
+											"    pm.expect(jsonData.amount).to.be.not.null;\r",
 											"});\r",
 											"\r",
-											"pm.test(\"dueDate is 2021-07-31\", function () {\r",
+											"pm.test(\"paTaxCode is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.dueDate).to.eql(\"2021-07-31\");\r",
+											"    pm.expect(jsonData.paTaxCode).to.be.not.null;\r",
 											"});\r",
 											"\r",
-											"pm.test(\"note is pagamentoTest\", function () {\r",
+											"pm.test(\"noticeNumber matches\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.note).to.eql(\"pagamentoTest\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"description is Pagamento di Test\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.description).to.eql(\"Pagamento di Test\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"company is companyName\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.company).to.eql(\"companyName\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"office is officeName\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.office).to.eql(\"officeName\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"paTaxCode is 77777777777\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.paTaxCode).to.eql(\"77777777777\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"noticeNumber is 302051234567890125\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.noticeNumber).to.eql(\"302051234567890125\");\r",
+											"    pm.expect(jsonData.noticeNumber).to.eql(pm.collectionVariables.get(\"notice_number_pay\"));\r",
 											"});\r",
 											"\r",
 											"\r",
 											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function randInt(min, max) {\r",
+											"   return Math.round((Math.random() * Math.abs(max - min)) + min);\r",
+											"}\r",
+											"\r",
+											"function base64url(input) {\r",
+											"    var base64String = btoa(input);\r",
+											"    return urlConvertBase64(base64String);\r",
+											"}\r",
+											"\r",
+											"function urlConvertBase64(input) {\r",
+											"    var output = input.replace(/=+$/, '');\r",
+											"    output = output.replace(/\\+/g, '-');\r",
+											"    output = output.replace(/\\//g, '_');\r",
+											"    return output;\r",
+											"}\r",
+											"\r",
+											"var noticeNumber = \"30205\" + randInt(1000000000000, 9999999999999);\r",
+											"pm.collectionVariables.set(\"notice_number_pay\", noticeNumber);\r",
+											"console.log(\"noticeNumber -> \" + noticeNumber);\r",
+											"\r",
+											"var paTaxCode = pm.collectionVariables.get(\"pa_tax_code\");\r",
+											"\r",
+											"var qrCode = \"PAGOPA|002|\" + noticeNumber + \"|\" + paTaxCode + \"|\" + 10000;\r",
+											"console.log(\"qrCode -> \" + qrCode);\r",
+											"\r",
+											"pm.collectionVariables.set(\"qr_code_pay\", base64url(qrCode));"
 										],
 										"type": "text/javascript"
 									}
@@ -9448,7 +12173,7 @@
 									"variable": [
 										{
 											"key": "qrCode",
-											"value": "{{qr_code}}"
+											"value": "{{qr_code_pay}}"
 										}
 									]
 								}
@@ -9471,37 +12196,33 @@
 											"    pm.expect(jsonData.outcome).to.eql(\"OK\");\r",
 											"});\r",
 											"\r",
-											"pm.test(\"amount is 10099\", function () {\r",
+											"pm.test(\"amount is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.amount).to.eql(10099);\r",
+											"    pm.expect(jsonData.amount).to.be.not.null;\r",
+											"    console.log(\"totalAmount -> \" + jsonData.amount);\r",
+											"    if (jsonData.amount) {\r",
+											"        pm.collectionVariables.set(\"totalAmountPay\", jsonData.amount);\r",
+											"    }\r",
 											"});\r",
 											"\r",
-											"pm.test(\"paTaxCode is 77777777777\", function () {\r",
+											"pm.test(\"paTaxCode is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.paTaxCode).to.eql(\"77777777777\");\r",
+											"    pm.expect(jsonData.paTaxCode).to.be.not.null;\r",
 											"});\r",
 											"\r",
-											"pm.test(\"paymentToken is 3a254e00347d4f29a3607a35d780faac\", function () {\r",
+											"pm.test(\"paymentToken is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.paymentToken).to.eql(\"3a254e00347d4f29a3607a35d780faac\");\r",
+											"    pm.expect(jsonData.paymentToken).to.be.not.null;\r",
+											"    console.log(\"paymentToken -> \" + jsonData.paymentToken);\r",
+											"    if (jsonData.paymentToken) {\r",
+											"        pm.collectionVariables.set(\"paymentToken\", jsonData.paymentToken);\r",
+											"    }\r",
 											"});\r",
 											"\r",
 											"pm.test(\"transfers is present\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
 											"    pm.expect(jsonData.transfers).to.have;\r",
 											"});\r",
-											"\r",
-											"var paymentToken = _.get(pm.response.json(), \"paymentToken\");\r",
-											"console.log(\"paymentToken -> \" + paymentToken);\r",
-											"if (paymentToken) {\r",
-											"    pm.collectionVariables.set(\"paymentToken\", paymentToken);\r",
-											"}\r",
-											"\r",
-											"var totalAmount = _.get(pm.response.json(), \"amount\");\r",
-											"console.log(\"totalAmount -> \" + totalAmount);\r",
-											"if (paymentToken) {\r",
-											"    pm.collectionVariables.set(\"totalAmount\", totalAmount);\r",
-											"}\r",
 											""
 										],
 										"type": "text/javascript"
@@ -9511,16 +12232,34 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"var moment = require('moment')\r",
 											"var uuid = require('uuid')\r",
+											"\r",
+											"function randomString(minValue, maxValue, dataSet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ') {\r",
+											"    if (!minValue) {\r",
+											"        minValue = 20;\r",
+											"        maxValue = 20;\r",
+											"    }\r",
+											"\r",
+											"    if (!maxValue) {\r",
+											"        maxValue = minValue;\r",
+											"    }\r",
+											"\r",
+											"    let length = _.random(minValue, maxValue),\r",
+											"        randomString = \"\";\r",
+											"\r",
+											"    for (let i = 0; i < length; i++)\r",
+											"        randomString += dataSet.charAt(Math.floor(Math.random() * dataSet.length));\r",
+											"    return randomString;\r",
+											"}\r",
 											"\r",
 											"var transactionId = uuid.v4().replace(/-/g, '');\r",
 											"console.log(\"transactionId ->\" + transactionId);\r",
 											"pm.collectionVariables.set(\"transactionId\", transactionId);\r",
 											"\r",
-											"var timestampOp = moment().utc().format('YYYY-MM-DDTHH:mm:ss');\r",
-											"console.log(\"timestampOp ->\" + timestampOp);\r",
-											"pm.collectionVariables.set(\"timestampOp\", timestampOp);"
+											"var paTaxCode = pm.collectionVariables.get(\"pa_tax_code\");\r",
+											"var idempotencyKey = paTaxCode + \"_\" + randomString(10);\r",
+											"console.log(\"idempotencyKey ->\" + idempotencyKey);\r",
+											"pm.collectionVariables.set(\"idempotency_key_pay\", idempotencyKey);"
 										],
 										"type": "text/javascript"
 									}
@@ -9562,7 +12301,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"idempotencyKey\": \"77777777777_abcDEF1238\",\r\n    \"amount\": 10000\r\n}",
+									"raw": "{\r\n    \"idempotencyKey\": \"{{idempotency_key_pay}}\",\r\n    \"amount\": 10000\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -9589,7 +12328,7 @@
 							"response": []
 						},
 						{
-							"name": "3. Conferma pagamento (OK)",
+							"name": "3. Pre Close (OK)",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -9604,21 +12343,13 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
+											"pm.test(\"Status code is 201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Outcome is OK\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
 											"    pm.expect(jsonData.outcome).to.eql(\"OK\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Max-Retries header is present\", function () {\r",
-											"    pm.expect(pm.response.to.have.header(\"Max-Retries\"));\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Retry-After header is present\", function () {\r",
-											"    pm.expect(pm.response.to.have.header(\"Retry-After\"));\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Location header is present\", function () {\r",
@@ -9666,7 +12397,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"paymentMethod\": \"{{paymentMethod}}\",\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"totalAmount\": {{totalAmount}},\r\n    \"fee\": {{fee}},\r\n    \"timestampOp\": \"{{timestampOp}}\"\r\n}",
+									"raw": "{\r\n    \"outcome\": \"PRE_CLOSE\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"totalAmount\": {{totalAmountPay}},\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"fee\": {{fee}}\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -9686,7 +12417,655 @@
 							"response": []
 						},
 						{
-							"name": "4. Recupera stato pagamento (KO)",
+							"name": "3a. Pre Close (Trasanction Id duplicato)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 409\", function () {\r",
+											"    pm.response.to.have.status(409);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check  response body is empty\", function() {\r",
+											"    var responseLenght = pm.response.body;\r",
+											"    pm.expect(responseLenght).to.eql(undefined)\r",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"outcome\": \"PRE_CLOSE\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"totalAmount\": {{totalAmountPay}},\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"fee\": {{fee}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3b. Pre Close (Payment Token sconosciuto)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"const schema = {\r",
+											"  \"properties\": {\r",
+											"    \"errors\": {\r",
+											"      \"type\": \"array\"\r",
+											"    }\r",
+											"  }\r",
+											"};\r",
+											"\r",
+											"pm.test('Schema is valid', function() {\r",
+											"  pm.response.to.have.jsonSchema(schema);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"errors containes only one element\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.have.length(1);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"008000032\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"outcome\": \"PRE_CLOSE\",\r\n    \"paymentTokens\": [\r\n        \"00000000000000000000000000000000\"\r\n    ],\r\n    \"totalAmount\": {{totalAmountPay}},\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"fee\": {{fee}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3c. Pre Close (Amount errato)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"const schema = {\r",
+											"  \"properties\": {\r",
+											"    \"errors\": {\r",
+											"      \"type\": \"array\"\r",
+											"    }\r",
+											"  }\r",
+											"};\r",
+											"\r",
+											"pm.test('Schema is valid', function() {\r",
+											"  pm.response.to.have.jsonSchema(schema);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"errors containes only one element\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.have.length(1);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"errors containes value\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors).to.contain(\"008000033\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"outcome\": \"PRE_CLOSE\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"totalAmount\": 9,\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"fee\": {{fee}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4. Recupera stato pagamento (PreClose)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"transactionId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().transactionId).to.eq(pm.collectionVariables.get(\"transactionId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"acquirerId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().acquirerId).to.eq(pm.environment.get(\"acquirer_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"channel matches value\", function () {\r",
+											"    pm.expect(pm.response.json().channel).to.eq(pm.collectionVariables.get(\"channel\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"merchantId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"terminalId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().terminalId).to.eq(pm.collectionVariables.get(\"terminal_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"insertTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().insertTimestamp).to.be.not.null;\r",
+											"});\r",
+											"\r",
+											"// TODO insert validation of notices\r",
+											"\r",
+											"pm.test(\"totalAmount matches value\", function () {\r",
+											"    pm.expect(pm.response.json().totalAmount).to.eq(parseInt(pm.collectionVariables.get(\"totalAmountPay\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"fee matches value\", function () {\r",
+											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"status matches PENDING\", function () {\r",
+											"    pm.expect(pm.response.json().status).to.eq(\"PRE_CLOSE\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentMethod is null\", function () {\r",
+											"    pm.expect(pm.response.json().paymentMethod).to.be.null;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentTimestamp is null\", function () {\r",
+											"    pm.expect(pm.response.json().paymentTimestamp).to.be.null;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"closeTimestamp is null\", function () {\r",
+											"    pm.expect(pm.response.json().closeTimestamp).to.be.null;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentDate is null\", function () {\r",
+											"    pm.expect(pm.response.json().paymentDate).to.be.null;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"callbackTimestamp is null\", function () {\r",
+											"    pm.expect(pm.response.json().callbackTimestamp).to.be.null;\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "{{transactionId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Conferma pagamento (OK)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var moment = require('moment')\r",
+											"\r",
+											"var paymentTimestamp = moment().utc().format('YYYY-MM-DDTHH:mm:ss');\r",
+											"console.log(\"paymentTimestamp -> \" + paymentTimestamp);\r",
+											"pm.collectionVariables.set(\"paymentTimestamp\", paymentTimestamp);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Outcome is OK\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.outcome).to.eql(\"OK\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Max-Retries header is present\", function () {\r",
+											"    pm.expect(pm.response.to.have.header(\"Max-Retries\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Retry-After header is present\", function () {\r",
+											"    pm.expect(pm.response.to.have.header(\"Retry-After\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Location header is present\", function () {\r",
+											"    pm.expect(pm.response.to.have.header(\"Location\"));\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"outcome\": \"CLOSE\",\r\n    \"paymentMethod\": \"{{paymentMethod}}\",\r\n    \"paymentTimestamp\": \"{{paymentTimestamp}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "{{transactionId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6. Recupera stato pagamento (Pending)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"transactionId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().transactionId).to.eq(pm.collectionVariables.get(\"transactionId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"acquirerId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().acquirerId).to.eq(pm.environment.get(\"acquirer_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"channel matches value\", function () {\r",
+											"    pm.expect(pm.response.json().channel).to.eq(pm.collectionVariables.get(\"channel\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"merchantId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"terminalId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().terminalId).to.eq(pm.collectionVariables.get(\"terminal_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"insertTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().insertTimestamp).to.be.not.null;\r",
+											"});\r",
+											"\r",
+											"// TODO insert validation of notices\r",
+											"\r",
+											"pm.test(\"totalAmount matches value\", function () {\r",
+											"    pm.expect(pm.response.json().totalAmount).to.eq(parseInt(pm.collectionVariables.get(\"totalAmountPay\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"fee matches value\", function () {\r",
+											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"status matches PENDING\", function () {\r",
+											"    pm.expect(pm.response.json().status).to.eq(\"PENDING\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentMethod matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentTimestamp matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"closeTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().closeTimestamp).to.be.not.null;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentDate is null\", function () {\r",
+											"    pm.expect(pm.response.json().paymentDate).to.be.null;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"callbackTimestamp is null\", function () {\r",
+											"    pm.expect(pm.response.json().callbackTimestamp).to.be.null;\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "{{transactionId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6a. Recupera stato pagamento (Transaction Id non presente)",
 							"event": [
 								{
 									"listen": "test",
@@ -9754,7 +13133,7 @@
 							"response": []
 						},
 						{
-							"name": "5. Aggiorna stato pagamento",
+							"name": "7. Aggiorna stato pagamento",
 							"event": [
 								{
 									"listen": "test",
@@ -9763,6 +13142,19 @@
 											"pm.test(\"Status code is 200\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
 											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var moment = require('moment')\r",
+											"\r",
+											"var paymentDate = moment().utc().format('YYYY-MM-DDTHH:mm:ss');\r",
+											"console.log(\"paymentDate -> \" + paymentDate);\r",
+											"pm.collectionVariables.set(\"paymentDate\", paymentDate);"
 										],
 										"type": "text/javascript"
 									}
@@ -9804,7 +13196,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentDate\": \"{{timestampOp}}\",\r\n    \"payments\": [\r\n        {\r\n            \"paymentToken\": \"{{paymentToken}}\",\r\n            \"description\": \"Health ticket for chest x-ray\",\r\n            \"creditorReferenceId\": \"4839d50603fssfW5X\",\r\n            \"fiscalCode\": \"{{pa_tax_code}}\",\r\n            \"company\": \"ASL Roma\",\r\n            \"office\": \"Ufficio di Roma\",\r\n            \"debtor\": \"Mario Rossi\"\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentDate\": \"{{paymentDate}}\",\r\n    \"payments\": [\r\n        {\r\n            \"paymentToken\": \"{{paymentToken}}\",\r\n            \"description\": \"Health ticket for chest x-ray\",\r\n            \"creditorReferenceId\": \"4839d50603fssfW5X\",\r\n            \"fiscalCode\": \"{{pa_tax_code}}\",\r\n            \"company\": \"ASL Roma\",\r\n            \"office\": \"Ufficio di Roma\",\r\n            \"debtor\": \"Mario Rossi\"\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -9831,7 +13223,7 @@
 							"response": []
 						},
 						{
-							"name": "6. Recupera stato pagamento (OK)",
+							"name": "8. Recupera stato pagamento (Closed)",
 							"event": [
 								{
 									"listen": "test",
@@ -9839,7 +13231,62 @@
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
-											"});"
+											"});\r",
+											"\r",
+											"pm.test(\"transactionId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().transactionId).to.eq(pm.collectionVariables.get(\"transactionId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"acquirerId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().acquirerId).to.eq(pm.environment.get(\"acquirer_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"channel matches value\", function () {\r",
+											"    pm.expect(pm.response.json().channel).to.eq(pm.collectionVariables.get(\"channel\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"merchantId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"terminalId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().terminalId).to.eq(pm.collectionVariables.get(\"terminal_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"insertTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().insertTimestamp).to.be.not.null;\r",
+											"});\r",
+											"\r",
+											"// TODO insert validation of notices\r",
+											"\r",
+											"pm.test(\"totalAmount matches value\", function () {\r",
+											"    pm.expect(pm.response.json().totalAmount).to.eq(parseInt(pm.collectionVariables.get(\"totalAmountPay\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"fee matches value\", function () {\r",
+											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"status matches CLOSED\", function () {\r",
+											"    pm.expect(pm.response.json().status).to.eq(\"CLOSED\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentMethod matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentTimestamp matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentDate matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentDate).to.eq(pm.collectionVariables.get(\"paymentDate\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"callbackTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().callbackTimestamp).to.be.not.null;\r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -9897,6 +13344,67 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "9. Recupera lista pagamenti",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -9914,40 +13422,44 @@
 											"    pm.response.to.have.status(200);\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Outcome is OK\", function () {\r",
+											"pm.test(\"outcome is OK\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
 											"    pm.expect(jsonData.outcome).to.eql(\"OK\");\r",
 											"});\r",
 											"\r",
-											"pm.test(\"amount is 10099\", function () {\r",
+											"pm.test(\"amount is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.amount).to.eql(10099);\r",
+											"    pm.expect(jsonData.amount).to.be.not.null;\r",
 											"});\r",
 											"\r",
-											"pm.test(\"dueDate is 2021-07-31\", function () {\r",
+											"pm.test(\"paTaxCode is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.dueDate).to.eql(\"2021-07-31\");\r",
+											"    pm.expect(jsonData.paTaxCode).to.be.not.null;\r",
 											"});\r",
 											"\r",
-											"pm.test(\"note is pagamentoTest\", function () {\r",
+											"pm.test(\"noticeNumber matches\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.note).to.eql(\"pagamentoTest\");\r",
+											"    pm.expect(jsonData.noticeNumber).to.eql(pm.collectionVariables.get(\"notice_number_pay\"));\r",
 											"});\r",
 											"\r",
-											"pm.test(\"description is Pagamento di Test\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.description).to.eql(\"Pagamento di Test\");\r",
-											"});\r",
 											"\r",
-											"pm.test(\"company is companyName\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.company).to.eql(\"companyName\");\r",
-											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"function randInt(min, max) {\r",
+											"   return Math.round((Math.random() * Math.abs(max - min)) + min);\r",
+											"}\r",
 											"\r",
-											"pm.test(\"office is officeName\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.office).to.eql(\"officeName\");\r",
-											"});"
+											"var noticeNumber = \"30205\" + randInt(1000000000000, 9999999999999);\r",
+											"pm.collectionVariables.set(\"notice_number_pay\", noticeNumber);\r",
+											"console.log(\"noticeNumber -> \" + noticeNumber);\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -10004,7 +13516,7 @@
 										},
 										{
 											"key": "noticeNumber",
-											"value": "{{notice_number}}"
+											"value": "{{notice_number_pay}}"
 										}
 									]
 								}
@@ -10027,37 +13539,33 @@
 											"    pm.expect(jsonData.outcome).to.eql(\"OK\");\r",
 											"});\r",
 											"\r",
-											"pm.test(\"amount is 10099\", function () {\r",
+											"pm.test(\"amount is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.amount).to.eql(10099);\r",
+											"    pm.expect(jsonData.amount).to.be.not.null;\r",
+											"    console.log(\"totalAmount -> \" + jsonData.amount);\r",
+											"    if (jsonData.amount) {\r",
+											"        pm.collectionVariables.set(\"totalAmountPay\", jsonData.amount);\r",
+											"    }\r",
 											"});\r",
 											"\r",
-											"pm.test(\"paTaxCode is 77777777777\", function () {\r",
+											"pm.test(\"paTaxCode is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.paTaxCode).to.eql(\"77777777777\");\r",
+											"    pm.expect(jsonData.paTaxCode).to.be.not.null;\r",
 											"});\r",
 											"\r",
-											"pm.test(\"paymentToken is 3a254e00347d4f29a3607a35d780faac\", function () {\r",
+											"pm.test(\"paymentToken is not null\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.paymentToken).to.eql(\"3a254e00347d4f29a3607a35d780faac\");\r",
+											"    pm.expect(jsonData.paymentToken).to.be.not.null;\r",
+											"    console.log(\"paymentToken -> \" + jsonData.paymentToken);\r",
+											"    if (jsonData.paymentToken) {\r",
+											"        pm.collectionVariables.set(\"paymentToken\", jsonData.paymentToken);\r",
+											"    }\r",
 											"});\r",
 											"\r",
 											"pm.test(\"transfers is present\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
 											"    pm.expect(jsonData.transfers).to.have;\r",
 											"});\r",
-											"\r",
-											"var paymentToken = _.get(pm.response.json(), \"paymentToken\");\r",
-											"console.log(\"paymentToken -> \" + paymentToken);\r",
-											"if (paymentToken) {\r",
-											"    pm.collectionVariables.set(\"paymentToken\", paymentToken);\r",
-											"}\r",
-											"\r",
-											"var totalAmount = _.get(pm.response.json(), \"amount\");\r",
-											"console.log(\"totalAmount -> \" + totalAmount);\r",
-											"if (paymentToken) {\r",
-											"    pm.collectionVariables.set(\"totalAmount\", totalAmount);\r",
-											"}\r",
 											""
 										],
 										"type": "text/javascript"
@@ -10142,7 +13650,7 @@
 										},
 										{
 											"key": "noticeNumber",
-											"value": "{{notice_number}}"
+											"value": "{{notice_number_pay}}"
 										}
 									]
 								}
@@ -10150,7 +13658,7 @@
 							"response": []
 						},
 						{
-							"name": "3. Conferma pagamento (OK)",
+							"name": "3. Pre Close (OK)",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -10165,8 +13673,8 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
+											"pm.test(\"Status code is 201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Outcome is OK\", function () {\r",
@@ -10174,18 +13682,9 @@
 											"    pm.expect(jsonData.outcome).to.eql(\"OK\");\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Max-Retries header is present\", function () {\r",
-											"    pm.expect(pm.response.to.have.header(\"Max-Retries\"));\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Retry-After header is present\", function () {\r",
-											"    pm.expect(pm.response.to.have.header(\"Retry-After\"));\r",
-											"});\r",
-											"\r",
 											"pm.test(\"Location header is present\", function () {\r",
 											"    pm.expect(pm.response.to.have.header(\"Location\"));\r",
 											"});\r",
-											"\r",
 											""
 										],
 										"type": "text/javascript"
@@ -10228,7 +13727,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"paymentMethod\": \"{{paymentMethod}}\",\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"totalAmount\": {{totalAmount}},\r\n    \"fee\": {{fee}},\r\n    \"timestampOp\": \"{{timestampOp}}\"\r\n}",
+									"raw": "{\r\n    \"outcome\": \"PRE_CLOSE\",\r\n    \"paymentTokens\": [\r\n        \"{{paymentToken}}\"\r\n    ],\r\n    \"totalAmount\": {{totalAmountPay}},\r\n    \"transactionId\": \"{{transactionId}}\",\r\n    \"fee\": {{fee}}\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10248,15 +13747,182 @@
 							"response": []
 						},
 						{
-							"name": "4. Recupera stato pagamento (KO)",
+							"name": "4. Conferma pagamento (OK)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var moment = require('moment')\r",
+											"\r",
+											"var paymentTimestamp = moment().utc().format('YYYY-MM-DDTHH:mm:ss');\r",
+											"console.log(\"paymentTimestamp -> \" + paymentTimestamp);\r",
+											"pm.collectionVariables.set(\"paymentTimestamp\", paymentTimestamp);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Outcome is OK\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.outcome).to.eql(\"OK\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Max-Retries header is present\", function () {\r",
+											"    pm.expect(pm.response.to.have.header(\"Max-Retries\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Retry-After header is present\", function () {\r",
+											"    pm.expect(pm.response.to.have.header(\"Retry-After\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Location header is present\", function () {\r",
+											"    pm.expect(pm.response.to.have.header(\"Location\"));\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"outcome\": \"CLOSE\",\r\n    \"paymentMethod\": \"{{paymentMethod}}\",\r\n    \"paymentTimestamp\": \"{{paymentTimestamp}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments/:transactionId",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments",
+										":transactionId"
+									],
+									"variable": [
+										{
+											"key": "transactionId",
+											"value": "{{transactionId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Recupera stato pagamento (Pending)",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Status code is 404\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"});"
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"transactionId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().transactionId).to.eq(pm.collectionVariables.get(\"transactionId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"acquirerId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().acquirerId).to.eq(pm.environment.get(\"acquirer_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"channel matches value\", function () {\r",
+											"    pm.expect(pm.response.json().channel).to.eq(pm.collectionVariables.get(\"channel\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"merchantId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"terminalId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().terminalId).to.eq(pm.collectionVariables.get(\"terminal_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"insertTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().insertTimestamp).to.be.not.null;\r",
+											"});\r",
+											"\r",
+											"// TODO insert validation of notices\r",
+											"\r",
+											"pm.test(\"totalAmount matches value\", function () {\r",
+											"    pm.expect(pm.response.json().totalAmount).to.eq(parseInt(pm.collectionVariables.get(\"totalAmountPay\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"fee matches value\", function () {\r",
+											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"status matches PENDING\", function () {\r",
+											"    pm.expect(pm.response.json().status).to.eq(\"PENDING\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentMethod matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentTimestamp matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"closeTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().closeTimestamp).to.be.not.null;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentDate is null\", function () {\r",
+											"    pm.expect(pm.response.json().paymentDate).to.be.null;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"callbackTimestamp is null\", function () {\r",
+											"    pm.expect(pm.response.json().callbackTimestamp).to.be.null;\r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -10316,7 +13982,7 @@
 							"response": []
 						},
 						{
-							"name": "5. Aggiorna stato pagamento",
+							"name": "6. Aggiorna stato pagamento",
 							"event": [
 								{
 									"listen": "test",
@@ -10325,6 +13991,19 @@
 											"pm.test(\"Status code is 200\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
 											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var moment = require('moment')\r",
+											"\r",
+											"var paymentDate = moment().utc().format('YYYY-MM-DDTHH:mm:ss');\r",
+											"console.log(\"paymentDate -> \" + paymentDate);\r",
+											"pm.collectionVariables.set(\"paymentDate\", paymentDate);"
 										],
 										"type": "text/javascript"
 									}
@@ -10361,7 +14040,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentDate\": \"{{timestampOp}}\",\r\n    \"payments\": [\r\n        {\r\n            \"paymentToken\": \"{{paymentToken}}\",\r\n            \"description\": \"Health ticket for chest x-ray\",\r\n            \"creditorReferenceId\": \"4839d50603fssfW5X\",\r\n            \"fiscalCode\": \"{{pa_tax_code}}\",\r\n            \"company\": \"ASL Roma\",\r\n            \"office\": \"Ufficio di Roma\",\r\n            \"debtor\": \"Mario Rossi\"\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"outcome\": \"OK\",\r\n    \"paymentDate\": \"{{paymentDate}}\",\r\n    \"payments\": [\r\n        {\r\n            \"paymentToken\": \"{{paymentToken}}\",\r\n            \"description\": \"Health ticket for chest x-ray\",\r\n            \"creditorReferenceId\": \"4839d50603fssfW5X\",\r\n            \"fiscalCode\": \"{{pa_tax_code}}\",\r\n            \"company\": \"ASL Roma\",\r\n            \"office\": \"Ufficio di Roma\",\r\n            \"debtor\": \"Mario Rossi\"\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10388,7 +14067,7 @@
 							"response": []
 						},
 						{
-							"name": "6. Recupera stato pagamento (OK)",
+							"name": "7. Recupera stato pagamento (Closed)",
 							"event": [
 								{
 									"listen": "test",
@@ -10396,7 +14075,62 @@
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
-											"});"
+											"});\r",
+											"\r",
+											"pm.test(\"transactionId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().transactionId).to.eq(pm.collectionVariables.get(\"transactionId\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"acquirerId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().acquirerId).to.eq(pm.environment.get(\"acquirer_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"channel matches value\", function () {\r",
+											"    pm.expect(pm.response.json().channel).to.eq(pm.collectionVariables.get(\"channel\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"merchantId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"terminalId matches value\", function () {\r",
+											"    pm.expect(pm.response.json().terminalId).to.eq(pm.collectionVariables.get(\"terminal_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"insertTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().insertTimestamp).to.be.not.null;\r",
+											"});\r",
+											"\r",
+											"// TODO insert validation of notices\r",
+											"\r",
+											"pm.test(\"totalAmount matches value\", function () {\r",
+											"    pm.expect(pm.response.json().totalAmount).to.eq(parseInt(pm.collectionVariables.get(\"totalAmountPay\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"fee matches value\", function () {\r",
+											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"status matches CLOSED\", function () {\r",
+											"    pm.expect(pm.response.json().status).to.eq(\"CLOSED\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentMethod matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentTimestamp matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"paymentDate matches value\", function () {\r",
+											"    pm.expect(pm.response.json().paymentDate).to.eq(pm.collectionVariables.get(\"paymentDate\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"callbackTimestamp is not null\", function () {\r",
+											"    pm.expect(pm.response.json().callbackTimestamp).to.be.not.null;\r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -10566,6 +14300,30 @@
 			"key": "paymentMethod",
 			"value": "PAYMENT_CARD",
 			"type": "string"
+		},
+		{
+			"key": "paymentTimestamp",
+			"value": ""
+		},
+		{
+			"key": "paymentDate",
+			"value": ""
+		},
+		{
+			"key": "notice_number_pay",
+			"value": ""
+		},
+		{
+			"key": "qr_code_pay",
+			"value": ""
+		},
+		{
+			"key": "idempotency_key_pay",
+			"value": ""
+		},
+		{
+			"key": "totalAmountPay",
+			"value": ""
 		}
 	]
 }
