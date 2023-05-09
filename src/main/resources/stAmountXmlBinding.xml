@@ -4,8 +4,8 @@
         <jxb:bindings node="//xs:simpleType[@name='stAmount']">
 
                     <jxb:javaType name="java.math.BigDecimal"
-                                  parseMethod="it.gov.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter.parseBigDecimal"
-                                  printMethod="it.gov.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter.printBigDecimal" />
+                                  parseMethod="it.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter.parseBigDecimal"
+                                  printMethod="it.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter.printBigDecimal" />
 
         </jxb:bindings>
     </jxb:bindings>
