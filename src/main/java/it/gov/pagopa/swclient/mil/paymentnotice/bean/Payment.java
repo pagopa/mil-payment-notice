@@ -1,6 +1,6 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.bean;
 
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
 

@@ -5,8 +5,8 @@ import it.gov.pagopa.swclient.mil.paymentnotice.bean.QrCode;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.validation.constraints.Pattern;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.constraints.Pattern;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 

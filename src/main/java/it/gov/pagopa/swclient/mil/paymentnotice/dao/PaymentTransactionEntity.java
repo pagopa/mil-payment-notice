@@ -1,7 +1,7 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.dao;
 
 import io.quarkus.mongodb.panache.common.MongoEntity;
-import it.gov.pagopa.swclient.mil.bean.CommonHeader;
+import it.pagopa.swclient.mil.bean.CommonHeader;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
 import org.bson.codecs.pojo.annotations.BsonId;
 

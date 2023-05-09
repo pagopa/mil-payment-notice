@@ -2,8 +2,8 @@ package it.gov.pagopa.swclient.mil.paymentnotice.resource;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import it.gov.pagopa.swclient.mil.bean.CommonHeader;
-import it.gov.pagopa.swclient.mil.bean.Errors;
+import it.pagopa.swclient.mil.bean.CommonHeader;
+import it.pagopa.swclient.mil.bean.Errors;
 import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
@@ -24,9 +24,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
-import javax.inject.Inject;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;

@@ -2,8 +2,8 @@ package it.gov.pagopa.swclient.mil.paymentnotice.bean;
 
 import it.gov.pagopa.swclient.mil.paymentnotice.ErrorCode;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Request of the closePayment API.

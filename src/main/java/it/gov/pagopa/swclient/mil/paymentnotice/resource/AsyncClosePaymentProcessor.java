@@ -2,7 +2,7 @@ package it.gov.pagopa.swclient.mil.paymentnotice.resource;
 
 import java.time.Duration;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 

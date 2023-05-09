@@ -5,8 +5,8 @@ import io.quarkus.vertx.ConsumeEvent;
 import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.gov.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionRepository;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.time.Duration;
 
 @ApplicationScoped

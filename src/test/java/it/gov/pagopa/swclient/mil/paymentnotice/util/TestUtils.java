@@ -13,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import javax.net.ssl.SSLHandshakeException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -56,29 +56,29 @@ public class TestUtils {
     public static Stream<Arguments> provideHeaderValidationErrorCases() {
         return Stream.of(
                 // RequestId null
-                Arguments.of(removeAndGet(getMilHeaders(false, true), "RequestId"), it.gov.pagopa.swclient.mil.ErrorCode.REQUEST_ID_MUST_NOT_BE_NULL ),
+                Arguments.of(removeAndGet(getMilHeaders(false, true), "RequestId"), it.pagopa.swclient.mil.ErrorCode.REQUEST_ID_MUST_NOT_BE_NULL ),
                 // RequestId invalid regex
-                Arguments.of(putAndGet(getMilHeaders(false, true), "RequestId", "dmmmm0d654e6-97da-4848-b568-99fedccb642ba"), it.gov.pagopa.swclient.mil.ErrorCode.REQUEST_ID_MUST_MATCH_REGEXP ),
+                Arguments.of(putAndGet(getMilHeaders(false, true), "RequestId", "dmmmm0d654e6-97da-4848-b568-99fedccb642ba"), it.pagopa.swclient.mil.ErrorCode.REQUEST_ID_MUST_MATCH_REGEXP ),
                 // Version longer than max size
-                Arguments.of(putAndGet(getMilHeaders(false, true), "Version", "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okayokayokayokayokayokayokayokay"), it.gov.pagopa.swclient.mil.ErrorCode.VERSION_SIZE_MUST_BE_AT_MOST_MAX ),
+                Arguments.of(putAndGet(getMilHeaders(false, true), "Version", "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okayokayokayokayokayokayokayokay"), it.pagopa.swclient.mil.ErrorCode.VERSION_SIZE_MUST_BE_AT_MOST_MAX ),
                 // Version invalid regex
-                Arguments.of(putAndGet(getMilHeaders(false, true), "Version", ".1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay"), it.gov.pagopa.swclient.mil.ErrorCode.VERSION_MUST_MATCH_REGEXP ),
+                Arguments.of(putAndGet(getMilHeaders(false, true), "Version", ".1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay"), it.pagopa.swclient.mil.ErrorCode.VERSION_MUST_MATCH_REGEXP ),
                 // AcquirerId null
-                Arguments.of(removeAndGet(getMilHeaders(false, true), "AcquirerId"), it.gov.pagopa.swclient.mil.ErrorCode.ACQUIRER_ID_MUST_NOT_BE_NULL ),
+                Arguments.of(removeAndGet(getMilHeaders(false, true), "AcquirerId"), it.pagopa.swclient.mil.ErrorCode.ACQUIRER_ID_MUST_NOT_BE_NULL ),
                 // AcquirerId invalid regex
-                Arguments.of(putAndGet(getMilHeaders(false, true), "AcquirerId", "45856bb25"), it.gov.pagopa.swclient.mil.ErrorCode.ACQUIRER_ID_MUST_MATCH_REGEXP ),
+                Arguments.of(putAndGet(getMilHeaders(false, true), "AcquirerId", "45856bb25"), it.pagopa.swclient.mil.ErrorCode.ACQUIRER_ID_MUST_MATCH_REGEXP ),
                 // Channel null
-                Arguments.of(removeAndGet(getMilHeaders(false, true), "Channel"), it.gov.pagopa.swclient.mil.ErrorCode.CHANNEL_MUST_NOT_BE_NULL ),
+                Arguments.of(removeAndGet(getMilHeaders(false, true), "Channel"), it.pagopa.swclient.mil.ErrorCode.CHANNEL_MUST_NOT_BE_NULL ),
                 // Channel invalid regex
-                Arguments.of(putAndGet(getMilHeaders(false, true), "Channel", "ATOM"), it.gov.pagopa.swclient.mil.ErrorCode.CHANNEL_MUST_MATCH_REGEXP ),
+                Arguments.of(putAndGet(getMilHeaders(false, true), "Channel", "ATOM"), it.pagopa.swclient.mil.ErrorCode.CHANNEL_MUST_MATCH_REGEXP ),
                 // TerminalId null
-                Arguments.of(removeAndGet(getMilHeaders(false, true), "TerminalId"), it.gov.pagopa.swclient.mil.ErrorCode.TERMINAL_ID_MUST_NOT_BE_NULL ),
+                Arguments.of(removeAndGet(getMilHeaders(false, true), "TerminalId"), it.pagopa.swclient.mil.ErrorCode.TERMINAL_ID_MUST_NOT_BE_NULL ),
                 // TerminalId invalid regex
-                Arguments.of(putAndGet(getMilHeaders(false, true), "TerminalId", "0aB9wXyZ0029DDDsno9"), it.gov.pagopa.swclient.mil.ErrorCode.TERMINAL_ID_MUST_MATCH_REGEXP ),
+                Arguments.of(putAndGet(getMilHeaders(false, true), "TerminalId", "0aB9wXyZ0029DDDsno9"), it.pagopa.swclient.mil.ErrorCode.TERMINAL_ID_MUST_MATCH_REGEXP ),
                 // Merchant invalid regex
-                Arguments.of(putAndGet(getMilHeaders(true, true), "MerchantId", "0aB9wXyZ00_29DDDsno9"), it.gov.pagopa.swclient.mil.ErrorCode.MERCHANT_ID_MUST_MATCH_REGEXP ),
+                Arguments.of(putAndGet(getMilHeaders(true, true), "MerchantId", "0aB9wXyZ00_29DDDsno9"), it.pagopa.swclient.mil.ErrorCode.MERCHANT_ID_MUST_MATCH_REGEXP ),
                 // Merchant null if pos
-                Arguments.of(removeAndGet(getMilHeaders(true, true), "MerchantId"), it.gov.pagopa.swclient.mil.ErrorCode.MERCHANT_ID_MUST_NOT_BE_NULL_FOR_POS )
+                Arguments.of(removeAndGet(getMilHeaders(true, true), "MerchantId"), it.pagopa.swclient.mil.ErrorCode.MERCHANT_ID_MUST_NOT_BE_NULL_FOR_POS )
         );
     }
 

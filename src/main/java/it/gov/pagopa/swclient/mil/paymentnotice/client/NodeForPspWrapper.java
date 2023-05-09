@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import io.quarkiverse.cxf.annotation.CXFClient;
 import io.smallrye.mutiny.Uni;

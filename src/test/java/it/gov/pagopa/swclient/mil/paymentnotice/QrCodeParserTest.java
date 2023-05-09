@@ -12,8 +12,8 @@ import org.junit.jupiter.api.TestInstance;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.swclient.mil.paymentnotice.bean.QrCode;
 
-import javax.inject.Inject;
-import javax.validation.ConstraintViolationException;
+import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 

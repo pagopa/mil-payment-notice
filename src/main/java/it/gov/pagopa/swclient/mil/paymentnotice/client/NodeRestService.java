@@ -1,7 +1,7 @@
 package it.gov.pagopa.swclient.mil.paymentnotice.client;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.gov.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
