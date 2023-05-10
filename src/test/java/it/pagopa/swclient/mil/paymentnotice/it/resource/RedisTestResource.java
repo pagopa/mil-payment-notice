@@ -3,6 +3,7 @@ package it.pagopa.swclient.mil.paymentnotice.it.resource;
 import com.google.common.collect.ImmutableMap;
 import io.quarkus.test.common.DevServicesContext;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
@@ -121,7 +122,7 @@ public class RedisTestResource implements QuarkusTestResourceLifecycleManager, D
         return new Network() {
             @Override
             public String getId() {
-                return devServicesContext.containerNetworkId().get();
+                return devServicesContext.containerNetworkId().orElse(StringUtils.EMPTY);
             }
 
             @Override
@@ -234,6 +235,9 @@ public class RedisTestResource implements QuarkusTestResourceLifecycleManager, D
         }
         catch (NoSuchAlgorithmException | OperatorCreationException | IOException | CertificateException e) {
             logger.error("Error while generating redis certificates", e);
+        }
+        catch (Throwable e) {
+            logger.error("Generic error while generating redis certificates ", e);
         }
 
         return tlsEnabled;
