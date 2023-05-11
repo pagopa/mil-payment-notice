@@ -2,7 +2,7 @@
     "priority": 7,
     "request": {
         "method": "POST",
-        "url": "/closepayment",
+        "urlPattern": "/closepayment?(.*)",
         "bodyPatterns" : [
             {
                 "matchesJsonPath" : "$[?(@.transactionId == '968b64b284dc48a08eb948d8777bf9e6')]"

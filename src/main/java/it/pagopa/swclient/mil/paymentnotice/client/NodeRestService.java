@@ -1,10 +1,12 @@
 package it.pagopa.swclient.mil.paymentnotice.client;
 
+import io.quarkus.rest.client.reactive.ClientQueryParam;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
+import jakarta.ws.rs.QueryParam;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
@@ -28,7 +30,8 @@ public interface NodeRestService {
 	@POST
 	@Path("/closepayment")
 	@ClientHeaderParam(name = "Ocp-Apim-Subscription-Key", value = "{determineHeaderValue}", required=false)
-    Uni<NodeClosePaymentResponse> closePayment(NodeClosePaymentRequest nodeClosePaymentRequest);
+	@ClientQueryParam(name="clientId", value = "${node-rest-client.client-id}")
+    Uni<NodeClosePaymentResponse> closePayment(@QueryParam("deviceId") String deviceId, NodeClosePaymentRequest nodeClosePaymentRequest);
 
 	default String determineHeaderValue(String headerName) {
          if ("Ocp-Apim-Subscription-Key".equals(headerName)) {

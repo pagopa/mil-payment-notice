@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
+import io.smallrye.mutiny.Context;
+import io.smallrye.mutiny.ItemWithContext;
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseResponse;
@@ -172,7 +174,8 @@ public class PaymentResource extends BasePaymentResource {
                                             Outcome.KO, transactionEntity.paymentTransaction, pspConf);
 
                                     // we are using the non-mutiny variant of the event bus because this is a fire-and-forget scenario
-                                    bus.<String>request("processClosePayment", nodeClosePaymentRequest);
+                                    Context context = Context.of("deviceId", getDeviceId(headers));
+                                    bus.<String>request("processClosePayment", new ItemWithContext<>(context, nodeClosePaymentRequest));
                                 } else {
                                     Log.errorf("No notice found in cache, skipping call node");
                                 }
@@ -327,8 +330,9 @@ public class PaymentResource extends BasePaymentResource {
                 .chain(pspConf -> retrievePaymentTransaction(transactionId, headers)
                         .chain(txEntity -> {
                             Log.debugf("Retrieved payment transaction: %s", txEntity.paymentTransaction);
+                            String deviceId = getDeviceId(headers);
                             if (PaymentTransactionOutcome.CLOSE.name().equals(closePaymentRequest.getOutcome())) {
-                                return callNodeClosePaymentOutcomeOk(closePaymentRequest, txEntity, pspConf);
+                                return callNodeClosePaymentOutcomeOk(closePaymentRequest, txEntity, pspConf, deviceId);
                             } else {
                                 NodeClosePaymentRequest nodeClosePaymentRequest =
                                         createNodeClosePaymentRequest(closePaymentRequest.getPaymentMethod(),
@@ -336,7 +340,8 @@ public class PaymentResource extends BasePaymentResource {
 
                                 // asynchronously process the close payment
                                 // we are using the non-mutiny variant of the event bus because this is a fire-and-forget scenario
-                                bus.<String>request("processClosePayment", nodeClosePaymentRequest);
+                                bus.<String>request("processClosePayment",
+                                        new ItemWithContext<>(Context.of("deviceId", deviceId), nodeClosePaymentRequest));
 
                                 // update transaction on DB
                                 txEntity.paymentTransaction.setStatus(PaymentTransactionStatus.ERROR_ON_PAYMENT.name());
@@ -494,18 +499,20 @@ public class PaymentResource extends BasePaymentResource {
      * @param closePaymentRequest the object received in request of the {@link #closePayment(CommonHeader, String, ClosePaymentRequest)}
      * @param paymentTransactionEntity the object containing the data of the payment transaction, retrieved from the DB
      * @param pspConfiguration the configuration of the PSP, retrieved from the MIL configuration API
+     * @param deviceId the deviceId of the client
      * @return a {@link Uni} emitting a {@link ClosePaymentResponse} containing the OK / KO outcome of the call to the node
      */
     private Uni<Response> callNodeClosePaymentOutcomeOk(ClosePaymentRequest closePaymentRequest,
                                                         PaymentTransactionEntity paymentTransactionEntity,
-                                                        PspConfiguration pspConfiguration) {
+                                                        PspConfiguration pspConfiguration,
+                                                        String deviceId) {
 
         var nodeClosePaymentRequest = createNodeClosePaymentRequest(closePaymentRequest.getPaymentMethod(),
                 closePaymentRequest.getPaymentTimestamp(), Outcome.OK,
                 paymentTransactionEntity.paymentTransaction, pspConfiguration);
 
-        Log.debugf("Calling the node closePayment service for OK outcome, request: %s", nodeClosePaymentRequest);
-        return nodeRestService.closePayment(nodeClosePaymentRequest)
+        Log.debugf("Calling the node closePayment service for OK outcome, deviceId: %s, request: %s", deviceId, nodeClosePaymentRequest);
+        return nodeRestService.closePayment(deviceId, nodeClosePaymentRequest)
                 .onItemOrFailure()
                 .transformToUni((closePayRes, error) -> {
                     boolean outcomeOk = false;

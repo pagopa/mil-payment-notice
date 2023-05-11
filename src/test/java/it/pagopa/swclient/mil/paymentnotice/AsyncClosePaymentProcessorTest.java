@@ -5,6 +5,8 @@ package it.pagopa.swclient.mil.paymentnotice;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.smallrye.mutiny.Context;
+import io.smallrye.mutiny.ItemWithContext;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
@@ -21,6 +23,7 @@ import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.paymentnotice.resource.AsyncClosePaymentProcessor;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.awaitility.Awaitility;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Assertions;
@@ -87,18 +90,21 @@ class AsyncClosePaymentProcessorTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 		
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any()))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
 
 		NodeClosePaymentRequest nodeClosePaymentRequest = createNodeClosePaymentRequest("CP",
 				closePaymentRequestKO.getPaymentTimestamp(), Outcome.KO, paymentTransactionEntity.paymentTransaction,
 				acquirerConfiguration.getPspConfigForGetFeeAndClosePayment());
-		
-		asyncClosePaymentProcessor.processClosePayment(nodeClosePaymentRequest);
+
+		String deviceId = StringUtils.join(List.of(commonHeaders.get("AcquirerId"), commonHeaders.get("TerminalId")), "|");
+		Context context = Context.of("deviceId", deviceId);
+		asyncClosePaymentProcessor.processClosePayment(new ItemWithContext<>(context, nodeClosePaymentRequest));
 
 		ArgumentCaptor<NodeClosePaymentRequest> captor = ArgumentCaptor.forClass(NodeClosePaymentRequest.class);
+		ArgumentCaptor<String> deviceIdCaptor = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(nodeRestService).closePayment(captor.capture());
+		Mockito.verify(nodeRestService).closePayment(deviceIdCaptor.capture(), captor.capture());
 		Assertions.assertEquals(Outcome.KO.name(), captor.getValue().getOutcome());
 		Assertions.assertEquals("CP", captor.getValue().getPaymentMethod());
 		ZonedDateTime timestampOperation = LocalDateTime.parse(closePaymentRequestKO.getPaymentTimestamp()).atZone(ZoneId.of("UTC"));
@@ -106,6 +112,8 @@ class AsyncClosePaymentProcessorTest {
 		Assertions.assertEquals(transactionId, captor.getValue().getTransactionId());
 		Assertions.assertEquals(BigDecimal.valueOf(paymentTransactionEntity.paymentTransaction.getTotalAmount(), 2), captor.getValue().getTotalAmount());
 		Assertions.assertEquals(BigDecimal.valueOf(paymentTransactionEntity.paymentTransaction.getFee(), 2), captor.getValue().getFee());
+
+		Assertions.assertEquals(deviceId, deviceIdCaptor.getValue());
 
 		List<String> paymentTokens = captor.getValue().getPaymentTokens();
 		Assertions.assertEquals(paymentTransactionEntity.paymentTransaction.getNotices().size(),
@@ -122,20 +130,23 @@ class AsyncClosePaymentProcessorTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
 		
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any()))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
 
 		NodeClosePaymentRequest nodeClosePaymentRequest = createNodeClosePaymentRequest("CP",
 				closePaymentRequestKO.getPaymentTimestamp(), Outcome.KO, paymentTransactionEntity.paymentTransaction,
 				acquirerConfiguration.getPspConfigForGetFeeAndClosePayment());
-		
-		asyncClosePaymentProcessor.processClosePayment(nodeClosePaymentRequest);
+
+		String deviceId = StringUtils.join(List.of(commonHeaders.get("AcquirerId"), commonHeaders.get("TerminalId")), "|");
+		Context context = Context.of("deviceId", deviceId);
+		asyncClosePaymentProcessor.processClosePayment(new ItemWithContext<>(context, nodeClosePaymentRequest));
 
 		Awaitility.await().atLeast(15, TimeUnit.SECONDS);
 
 		ArgumentCaptor<NodeClosePaymentRequest> captor = ArgumentCaptor.forClass(NodeClosePaymentRequest.class);
+		ArgumentCaptor<String> deviceIdCaptor = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(nodeRestService).closePayment(captor.capture());
+		Mockito.verify(nodeRestService).closePayment(deviceIdCaptor.capture(), captor.capture());
 		Assertions.assertEquals(Outcome.KO.name(), captor.getValue().getOutcome());
 		Assertions.assertEquals("CP", captor.getValue().getPaymentMethod());
 		ZonedDateTime timestampOperation = LocalDateTime.parse(closePaymentRequestKO.getPaymentTimestamp()).atZone(ZoneId.of("UTC"));
@@ -143,6 +154,8 @@ class AsyncClosePaymentProcessorTest {
 		Assertions.assertEquals(transactionId, captor.getValue().getTransactionId());
 		Assertions.assertEquals(BigDecimal.valueOf(paymentTransactionEntity.paymentTransaction.getTotalAmount(), 2), captor.getValue().getTotalAmount());
 		Assertions.assertEquals(BigDecimal.valueOf(paymentTransactionEntity.paymentTransaction.getFee(), 2), captor.getValue().getFee());
+
+		Assertions.assertEquals(deviceId, deviceIdCaptor.getValue());
 
 		List<String> paymentTokens = captor.getValue().getPaymentTokens();
 		Assertions.assertEquals(paymentTransactionEntity.paymentTransaction.getNotices().size(),

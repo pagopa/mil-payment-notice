@@ -225,4 +225,14 @@ public class BasePaymentResource {
 				&& StringUtils.equals(headers.getTerminalId(), paymentTransaction.getTerminalId());
 	}
 
+	/**
+	 * Generates the deviceId to be passed as query param to the node in the close payment API
+	 *
+	 * @param commonHeader the object containing all the common headers used by the mil services
+	 * @return the deviceId value
+	 */
+	protected String getDeviceId(CommonHeader commonHeader) {
+		return StringUtils.join(List.of(commonHeader.getAcquirerId(), commonHeader.getTerminalId()), "|");
+	}
+
 }

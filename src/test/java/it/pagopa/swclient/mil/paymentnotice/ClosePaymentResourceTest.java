@@ -110,7 +110,7 @@ class ClosePaymentResourceTest {
                 .thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any()))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
 
 		Mockito
@@ -155,8 +155,9 @@ class ClosePaymentResourceTest {
 
 		// check node close rest service
 		ArgumentCaptor<NodeClosePaymentRequest> captorNodeClosePaymentRequest = ArgumentCaptor.forClass(NodeClosePaymentRequest.class);
+		ArgumentCaptor<String> captorDeviceId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(nodeRestService).closePayment(captorNodeClosePaymentRequest.capture());
+		Mockito.verify(nodeRestService).closePayment(captorDeviceId.capture(), captorNodeClosePaymentRequest.capture());
 		Assertions.assertEquals(Outcome.OK.name(), captorNodeClosePaymentRequest.getValue().getOutcome());
 		Assertions.assertEquals("CP", captorNodeClosePaymentRequest.getValue().getPaymentMethod());
 		ZonedDateTime timestampOperation = LocalDateTime.parse(closePaymentRequestOK.getPaymentTimestamp()).atZone(ZoneId.of("UTC"));
@@ -172,6 +173,10 @@ class ClosePaymentResourceTest {
 				paymentTransactionEntity.paymentTransaction.getNotices().stream()
 						.map(Notice::getPaymentToken)
 						.filter(paymentTokens::contains).distinct().toList().size());
+
+		Assertions.assertEquals(
+				StringUtils.join(List.of(commonHeaders.get("AcquirerId"), commonHeaders.get("TerminalId")), "|"),
+				captorDeviceId.getValue());
 
 		// check DB integration - write
 		ArgumentCaptor<PaymentTransactionEntity> captorEntity = ArgumentCaptor.forClass(PaymentTransactionEntity.class);
@@ -197,7 +202,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any()))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
 
 		Mockito
@@ -248,7 +253,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any()))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getExceptionWithEntity(statusCode)));
 
 		Mockito
@@ -298,7 +303,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any()))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getExceptionWithEntity(statusCode)));
 
 		Mockito
@@ -347,7 +352,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any(NodeClosePaymentRequest.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.UNPARSABLE_EXCEPTION)));
 
 		Mockito
@@ -398,7 +403,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any(NodeClosePaymentRequest.class)))
 				.thenReturn(Uni.createFrom().failure(new TimeoutException()));
 
 		Mockito
@@ -611,7 +616,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any()))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Uni.createFrom().failure(Exception::new));
 
 //		Mockito
@@ -703,7 +708,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any()))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any()))
 				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
 
 		Mockito
@@ -753,7 +758,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any(NodeClosePaymentRequest.class)))
 				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
 
 
@@ -816,7 +821,7 @@ class ClosePaymentResourceTest {
 				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 		Mockito
-				.when(nodeRestService.closePayment(Mockito.any(NodeClosePaymentRequest.class)))
+				.when(nodeRestService.closePayment(Mockito.anyString(), Mockito.any(NodeClosePaymentRequest.class)))
 				.thenReturn(Uni.createFrom().item(nodeClosePaymentResponse));
 
 

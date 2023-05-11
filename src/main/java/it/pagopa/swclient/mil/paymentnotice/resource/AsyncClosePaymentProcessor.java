@@ -2,6 +2,7 @@ package it.pagopa.swclient.mil.paymentnotice.resource;
 
 import java.time.Duration;
 
+import io.smallrye.mutiny.ItemWithContext;
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -27,13 +28,15 @@ public class AsyncClosePaymentProcessor {
     /**
      * Consumes the event of failed payment transaction
      *
-     * @param nodeClosePaymentRequest the object received in request of the closePayment
+     * @param ctxNodeClosePaymentRequest the request to the closePayment API of the node,
+     *                                   with a context containing the deviceId to be passed as query param
      */
     @ConsumeEvent("processClosePayment")
-    public void processClosePayment(NodeClosePaymentRequest nodeClosePaymentRequest) {
-        Log.debugf("Asynchronously process %s", nodeClosePaymentRequest);
+    public void processClosePayment(ItemWithContext<NodeClosePaymentRequest> ctxNodeClosePaymentRequest) {
 
-        callNodeClosePayment(nodeClosePaymentRequest)
+        Log.debugf("Asynchronously process %s", ctxNodeClosePaymentRequest.get());
+
+        callNodeClosePayment(ctxNodeClosePaymentRequest.get(), ctxNodeClosePaymentRequest.context().get("deviceId"))
                 .onFailure().retry().withBackOff(Duration.ofSeconds(5), Duration.ofSeconds(5)).atMost(2)
                 .subscribe().with(
                         r -> Log.debugf("The node closePayment service responded %s", r),
@@ -47,10 +50,11 @@ public class AsyncClosePaymentProcessor {
      * If the outcome is "KO" it is considered an error and respond with a failure.
      *
      * @param nodeClosePaymentRequest the request to be sent to the node
+     * @param deviceId the deviceId of the client
      * @return an {@link Uni} emitting the response from the node, or a failure otherwise
      */
-    private Uni<NodeClosePaymentResponse> callNodeClosePayment(NodeClosePaymentRequest nodeClosePaymentRequest) {
-        return nodeRestService.closePayment(nodeClosePaymentRequest)
+    private Uni<NodeClosePaymentResponse> callNodeClosePayment(NodeClosePaymentRequest nodeClosePaymentRequest, String deviceId) {
+        return nodeRestService.closePayment(deviceId, nodeClosePaymentRequest)
                 .onItem().transform(Unchecked.function(r -> {
                     if (r.getOutcome().equals("KO")) {
                     	throw new InvalidResponseException();
