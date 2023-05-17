@@ -1,11 +1,11 @@
 <jxb:bindings xmlns:xs="http://www.w3.org/2001/XMLSchema"
-              xmlns:jxb="http://java.sun.com/xml/ns/jaxb" version="2.1">
+              xmlns:jxb="https://jakarta.ee/xml/ns/jaxb" version="3.0">
     <jxb:bindings schemaLocation="./xsd/sac-common-types-1.0.xsd">
         <jxb:bindings node="//xs:simpleType[@name='stAmount']">
 
                     <jxb:javaType name="java.math.BigDecimal"
-                                  parseMethod="it.gov.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter.parseBigDecimal"
-                                  printMethod="it.gov.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter.printBigDecimal" />
+                                  parseMethod="it.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter.parseBigDecimal"
+                                  printMethod="it.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter.printBigDecimal" />
 
         </jxb:bindings>
     </jxb:bindings>
