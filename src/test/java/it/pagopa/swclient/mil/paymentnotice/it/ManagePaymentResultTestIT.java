@@ -1,27 +1,18 @@
 package it.pagopa.swclient.mil.paymentnotice.it;
 
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.model.Filters;
-import io.quarkus.test.common.DevServicesContext;
-import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.junit.QuarkusIntegrationTest;
-import io.quarkus.test.junit.TestProfile;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.pagopa.swclient.mil.paymentnotice.bean.Payment;
-import it.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
-import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
-import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
-import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
+import static io.restassured.RestAssured.given;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,18 +28,29 @@ import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
 
-import static io.restassured.RestAssured.given;
+import io.quarkus.test.common.DevServicesContext;
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
+import io.quarkus.test.junit.TestProfile;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.pagopa.swclient.mil.paymentnotice.bean.Payment;
+import it.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
+import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 
 @QuarkusIntegrationTest
 @TestProfile(IntegrationTestProfile.class)

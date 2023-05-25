@@ -1,6 +1,7 @@
 package it.pagopa.swclient.mil.paymentnotice.dao;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import it.pagopa.swclient.mil.paymentnotice.bean.Preset;
 
 import java.util.List;
 
@@ -85,6 +86,11 @@ public class PaymentTransaction {
 	 */
 	private String callbackTimestamp;
 
+	/**
+	 * Preset information
+	 */
+	private Preset preset;
+	
 	/**
 	 * Gets transactionId
 	 * @return value of transactionId
@@ -325,25 +331,56 @@ public class PaymentTransaction {
 		this.callbackTimestamp = callbackTimestamp;
 	}
 
+	/**
+	 * @return the preset
+	 */
+	public Preset getPreset() {
+		return preset;
+	}
+
+	/**
+	 * @param preset the preset to set
+	 */
+	public void setPreset(Preset preset) {
+		this.preset = preset;
+	}
+
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("PaymentTransaction{");
-		sb.append("transactionId='").append(transactionId).append('\'');
-		sb.append(", acquirerId='").append(acquirerId).append('\'');
-		sb.append(", channel='").append(channel).append('\'');
-		sb.append(", merchantId='").append(merchantId).append('\'');
-		sb.append(", terminalId='").append(terminalId).append('\'');
-		sb.append(", insertTimestamp='").append(insertTimestamp).append('\'');
-		sb.append(", notices=").append(notices);
-		sb.append(", totalAmount=").append(totalAmount);
-		sb.append(", fee=").append(fee);
-		sb.append(", status='").append(status).append('\'');
-		sb.append(", paymentMethod='").append(paymentMethod).append('\'');
-		sb.append(", paymentTimestamp='").append(paymentTimestamp).append('\'');
-		sb.append(", closeTimestamp='").append(closeTimestamp).append('\'');
-		sb.append(", paymentDate='").append(paymentDate).append('\'');
-		sb.append(", callbackTimestamp='").append(callbackTimestamp).append('\'');
-		sb.append('}');
-		return sb.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("PaymentTransaction [transactionId=");
+		builder.append(transactionId);
+		builder.append(", acquirerId=");
+		builder.append(acquirerId);
+		builder.append(", channel=");
+		builder.append(channel);
+		builder.append(", merchantId=");
+		builder.append(merchantId);
+		builder.append(", terminalId=");
+		builder.append(terminalId);
+		builder.append(", insertTimestamp=");
+		builder.append(insertTimestamp);
+		builder.append(", notices=");
+		builder.append(notices);
+		builder.append(", totalAmount=");
+		builder.append(totalAmount);
+		builder.append(", fee=");
+		builder.append(fee);
+		builder.append(", status=");
+		builder.append(status);
+		builder.append(", paymentMethod=");
+		builder.append(paymentMethod);
+		builder.append(", paymentTimestamp=");
+		builder.append(paymentTimestamp);
+		builder.append(", closeTimestamp=");
+		builder.append(closeTimestamp);
+		builder.append(", paymentDate=");
+		builder.append(paymentDate);
+		builder.append(", callbackTimestamp=");
+		builder.append(callbackTimestamp);
+		builder.append(", preset=");
+		builder.append(preset);
+		builder.append("]");
+		return builder.toString();
 	}
 }

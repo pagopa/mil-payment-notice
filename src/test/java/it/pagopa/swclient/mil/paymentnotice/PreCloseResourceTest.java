@@ -1,24 +1,11 @@
 package it.pagopa.swclient.mil.paymentnotice;
 
-import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
-import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
-import it.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
-import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionRepository;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
-import it.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
-import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
-import it.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
-import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
-import it.pagopa.swclient.mil.paymentnotice.util.TestUtils;
+import static io.restassured.RestAssured.given;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Assertions;
@@ -30,11 +17,26 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static io.restassured.RestAssured.given;
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
+import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
+import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionRepository;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import it.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
+import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import it.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
+import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
+import it.pagopa.swclient.mil.paymentnotice.util.TestUtils;
 
 @QuarkusTest
 @TestHTTPEndpoint(PaymentResource.class)
@@ -86,9 +88,12 @@ class PreCloseResourceTest {
 				.when(paymentNoticeService.mget(Mockito.any()))
 				.thenReturn(Uni.createFrom().item(noticeMap));
 
+		PaymentTransaction paymentTransaction = new PaymentTransaction();
+		PaymentTransactionEntity paymentTransactionEntity = new  PaymentTransactionEntity();
+		paymentTransactionEntity.paymentTransaction = paymentTransaction;
 		Mockito
 				.when(paymentTransactionRepository.persist(Mockito.any(PaymentTransactionEntity.class)))
-				.thenReturn(Uni.createFrom().item(new PaymentTransactionEntity()));
+				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
 
 
 		Response response = given()

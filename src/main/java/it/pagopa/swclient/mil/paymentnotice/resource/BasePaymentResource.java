@@ -1,32 +1,5 @@
 package it.pagopa.swclient.mil.paymentnotice.resource;
 
-import io.quarkus.logging.Log;
-import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.bean.CommonHeader;
-import it.pagopa.swclient.mil.bean.Errors;
-import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
-import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
-import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
-import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
-import it.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
-import it.pagopa.swclient.mil.paymentnotice.client.bean.AdditionalPaymentInformations;
-import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
-import it.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
-import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
-import it.pagopa.swclient.mil.paymentnotice.utils.NodeErrorMapping;
-import it.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.resteasy.reactive.ClientWebApplicationException;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -40,6 +13,35 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
+
+import io.quarkus.logging.Log;
+import io.smallrye.mutiny.Uni;
+import it.pagopa.swclient.mil.bean.CommonHeader;
+import it.pagopa.swclient.mil.bean.Errors;
+import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
+import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
+import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
+import it.pagopa.swclient.mil.paymentnotice.bean.Preset;
+import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.AdditionalPaymentInformations;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
+import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import it.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
+import it.pagopa.swclient.mil.paymentnotice.utils.NodeErrorMapping;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.core.Response;
 
 public class BasePaymentResource {
 
@@ -142,7 +144,8 @@ public class BasePaymentResource {
 																			 String transactionId,
 																			 Long fees,
 																			 List<Notice> notices,
-																			 String outcome) {
+																			 String outcome,
+																			 Preset preset) {
 
 		PaymentTransaction paymentTransaction = new PaymentTransaction();
 		paymentTransaction.setTransactionId(transactionId);
@@ -157,6 +160,7 @@ public class BasePaymentResource {
 		paymentTransaction.setStatus(PaymentTransactionOutcome.PRE_CLOSE.name().equals(outcome) ?
 				PaymentTransactionStatus.PRE_CLOSE.name() : PaymentTransactionStatus.ABORTED.name());
 
+		paymentTransaction.setPreset(preset);
 		PaymentTransactionEntity entity = new PaymentTransactionEntity();
 		entity.transactionId = transactionId;
 		entity.paymentTransaction = paymentTransaction;
