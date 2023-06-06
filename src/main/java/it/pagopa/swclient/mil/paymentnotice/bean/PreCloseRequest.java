@@ -4,6 +4,7 @@ import java.util.List;
 
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertFalse;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -53,6 +54,7 @@ public class PreCloseRequest {
 	/**
 	 * Preset information
 	 */
+	@Valid
 	private Preset preset;
 	
 	@AssertFalse(message = "[" + ErrorCode.ERROR_TRANSACTION_ID_MUST_NOT_BE_NULL + "] transactionId must not be null when outcome is PRE_CLOSE")

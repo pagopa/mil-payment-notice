@@ -5,6 +5,7 @@ package it.pagopa.swclient.mil.paymentnotice.bean;
 
 import java.io.Serializable;
 
+import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
@@ -18,22 +19,22 @@ public class Preset implements Serializable{
 	/*
 	 * Tax code of the creditor company
 	 */
-	@NotNull
-	@Pattern(regexp = "^[0-9]{11}$")
+	@NotNull(message = ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL_MSG)
+	@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
 	private String paTaxCode;
 	
 	/*
 	 * Subscriber ID
 	 */
-	@NotNull
-	@Pattern(regexp = "^[0-9a-z]{6}$")
+	@NotNull(message = ErrorCode.SUBSCRIBER_ID_CODE_MUST_NOT_BE_NULL_MSG)
+	@Pattern(regexp = "^[0-9a-z]{6}$", message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_MATCH_REGEXP_MSG + "] subscriberId must match \"{regexp}\"")
 	private String subscriberId;
 	
 	/*
 	 * Preset Id
 	 */
-	@NotNull
-	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
+	@NotNull(message = ErrorCode.PRESET_ID_MUST_NOT_BE_NULL_MSG)
+	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$", message = "[" + ErrorCode.PRESET_ID_MUST_MATCH_REGEXP_MSG + "] presetId must match \"{regexp}\"")
 	private String presetId;
 	
 	/**
