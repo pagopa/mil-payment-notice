@@ -13,17 +13,25 @@ import java.util.Map;
 
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheQuery;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.test.junit.TestProfile;
+import io.smallrye.reactive.messaging.memory.InMemoryConnector;
+import io.smallrye.reactive.messaging.memory.InMemorySink;
 import it.pagopa.swclient.mil.paymentnotice.bean.Payment;
 import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionRepository;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
 import it.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
 import it.pagopa.swclient.mil.paymentnotice.util.TestUtils;
 import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.reactive.messaging.Message;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -42,19 +50,29 @@ import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 @QuarkusTest
 @TestHTTPEndpoint(PaymentResource.class)
+@TestProfile(UnitTestProfile.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ManagePaymentResultTest {
 
+	static final Logger logger = LoggerFactory.getLogger(ManagePaymentResultTest.class);
 
 	@InjectMock
 	PaymentTransactionRepository paymentTransactionRepository;
 
+	@Inject @Any
+	InMemoryConnector connector;
+
 	Map<String, String> commonHeaders;
 
 	PaymentTransactionEntity paymentTransactionEntity;
+
+	PaymentTransactionEntity paymentTransactionPresetEntity;
 
 	ReceivePaymentStatusRequest paymentStatusOK;
 
@@ -63,6 +81,8 @@ class ManagePaymentResultTest {
 	String transactionId;
 
 	String paymentDate;
+
+	int receivedMessage = 0;
 
 	@BeforeAll
 	void createTestObjects() {
@@ -75,7 +95,10 @@ class ManagePaymentResultTest {
 		paymentDate = LocalDateTime.ofInstant(Instant.now().truncatedTo(ChronoUnit.SECONDS), ZoneOffset.UTC).toString();
 
 		paymentTransactionEntity = PaymentTestData.getPaymentTransaction(transactionId,
-				PaymentTransactionStatus.PENDING, commonHeaders, 3);
+				PaymentTransactionStatus.PENDING, commonHeaders, 3, null);
+
+		paymentTransactionPresetEntity = PaymentTestData.getPaymentTransaction(transactionId,
+				PaymentTransactionStatus.PENDING, commonHeaders, 3, PaymentTestData.getPreset());
 
 
 		List<Payment> paymentList = new ArrayList<>();
@@ -101,6 +124,11 @@ class ManagePaymentResultTest {
 		paymentStatusKO.setPaymentDate(paymentDate);
 		paymentStatusKO.setPayments(paymentList);
 
+	}
+
+	@AfterAll
+	void cleanUp() {
+		connector.sink("presets").clear();
 	}
 
 	@Test
@@ -350,7 +378,7 @@ class ManagePaymentResultTest {
 
 		Mockito
 				.when(paymentTransactionRepository.update(Mockito.any(PaymentTransactionEntity.class)))
-				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+				.then(i-> Uni.createFrom().item(i.getArgument(0, PaymentTransactionEntity.class)));
 
 
 		Response response = given()
@@ -387,6 +415,49 @@ class ManagePaymentResultTest {
 		}
 	}
 
+	void testReceivePaymentStatusOK_200_preset() {
+
+		Mockito
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().item(paymentTransactionPresetEntity));
+
+		Mockito
+				.when(paymentTransactionRepository.update(Mockito.any(PaymentTransactionEntity.class)))
+				.then(i-> Uni.createFrom().item(i.getArgument(0, PaymentTransactionEntity.class)));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.and()
+				.pathParam("transactionId", transactionId)
+				.body(paymentStatusOK)
+				.when()
+				.post("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertEquals(Outcome.OK.toString(), response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+
+		// check topic integration
+		ArgumentCaptor<PaymentTransactionEntity> captorEntity = ArgumentCaptor.forClass(PaymentTransactionEntity.class);
+		Mockito.verify(paymentTransactionRepository).update(captorEntity.capture());
+
+		receivedMessage++;
+		InMemorySink<PaymentTransaction> presetsOut = connector.sink("presets");
+		Awaitility.await().<List<? extends Message<PaymentTransaction>>>until(presetsOut::received, t -> t.size() == receivedMessage);
+
+		PaymentTransaction message = presetsOut.received().get(receivedMessage-1).getPayload();
+		logger.info("Topic message: {}", message);
+		Assertions.assertEquals(paymentTransactionPresetEntity.paymentTransaction.getTransactionId(), message.getTransactionId());
+		Assertions.assertEquals(captorEntity.getValue().paymentTransaction.getStatus(), message.getStatus());
+		Assertions.assertEquals(paymentTransactionPresetEntity.paymentTransaction.getPreset().getPresetId(), message.getPreset().getPresetId());
+		Assertions.assertEquals(paymentTransactionPresetEntity.paymentTransaction.getPreset().getSubscriberId(), message.getPreset().getSubscriberId());
+		Assertions.assertEquals(paymentTransactionPresetEntity.paymentTransaction.getPreset().getPaTaxCode(), message.getPreset().getPaTaxCode());
+	}
+
 	@Test
 	void testReceivePaymentStatusKO_200() {
 
@@ -396,7 +467,7 @@ class ManagePaymentResultTest {
 
 		Mockito
 				.when(paymentTransactionRepository.update(Mockito.any(PaymentTransactionEntity.class)))
-				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+				.then(i-> Uni.createFrom().item(i.getArgument(0, PaymentTransactionEntity.class)));
 
 
 		Response response = given()
@@ -431,6 +502,50 @@ class ManagePaymentResultTest {
 			Assertions.assertEquals("4839d50603fssfW5X", notice.getCreditorReferenceId());
 			Assertions.assertEquals("Mario Rossi", notice.getDebtor());
 		}
+	}
+
+	@Test
+	void testReceivePaymentStatusKO_200_preset() {
+
+		Mockito
+				.when(paymentTransactionRepository.findById(Mockito.anyString()))
+				.thenReturn(Uni.createFrom().item(paymentTransactionPresetEntity));
+
+		Mockito
+				.when(paymentTransactionRepository.update(Mockito.any(PaymentTransactionEntity.class)))
+				.then(i-> Uni.createFrom().item(i.getArgument(0, PaymentTransactionEntity.class)));
+
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.and()
+				.pathParam("transactionId", transactionId)
+				.body(paymentStatusKO)
+				.when()
+				.post("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(200, response.statusCode());
+		Assertions.assertEquals(Outcome.OK.toString(), response.jsonPath().getString("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+
+		// check topic integration
+		ArgumentCaptor<PaymentTransactionEntity> captorEntity = ArgumentCaptor.forClass(PaymentTransactionEntity.class);
+		Mockito.verify(paymentTransactionRepository).update(captorEntity.capture());
+
+		receivedMessage++;
+		InMemorySink<PaymentTransaction> presetsOut = connector.sink("presets");
+		Awaitility.await().<List<? extends Message<PaymentTransaction>>>until(presetsOut::received, t -> t.size() == receivedMessage);
+
+		PaymentTransaction message = presetsOut.received().get(receivedMessage-1).getPayload();
+		logger.info("Topic message: {}", message);
+		Assertions.assertEquals(paymentTransactionPresetEntity.paymentTransaction.getTransactionId(), message.getTransactionId());
+		Assertions.assertEquals(captorEntity.getValue().paymentTransaction.getStatus(), message.getStatus());
+		Assertions.assertEquals(paymentTransactionPresetEntity.paymentTransaction.getPreset().getPresetId(), message.getPreset().getPresetId());
+		Assertions.assertEquals(paymentTransactionPresetEntity.paymentTransaction.getPreset().getSubscriberId(), message.getPreset().getSubscriberId());
+		Assertions.assertEquals(paymentTransactionPresetEntity.paymentTransaction.getPreset().getPaTaxCode(), message.getPreset().getPaTaxCode());
 	}
 
 	@Test
@@ -492,7 +607,7 @@ class ManagePaymentResultTest {
 		Mockito
 				.when(paymentTransactionRepository.update(Mockito.any(PaymentTransactionEntity.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(ExceptionType.DB_TIMEOUT_EXCEPTION)))
-				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
+				.then(i-> Uni.createFrom().item(i.getArgument(0, PaymentTransactionEntity.class)));
 
 		Response response = given()
 				.contentType(ContentType.JSON)

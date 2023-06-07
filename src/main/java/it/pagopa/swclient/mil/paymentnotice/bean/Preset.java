@@ -19,22 +19,22 @@ public class Preset implements Serializable{
 	/*
 	 * Tax code of the creditor company
 	 */
-	@NotNull(message = ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL_MSG)
+	@NotNull(message = "[" + ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL + "] paTaxCode must not be null")
 	@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
 	private String paTaxCode;
 	
 	/*
 	 * Subscriber ID
 	 */
-	@NotNull(message = ErrorCode.SUBSCRIBER_ID_CODE_MUST_NOT_BE_NULL_MSG)
-	@Pattern(regexp = "^[0-9a-z]{6}$", message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_MATCH_REGEXP_MSG + "] subscriberId must match \"{regexp}\"")
+	@NotNull(message = "[" + ErrorCode.SUBSCRIBER_ID_CODE_MUST_NOT_BE_NULL + "] paTaxCode must not be null")
+	@Pattern(regexp = "^[0-9a-z]{6}$", message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_MATCH_REGEXP + "] subscriberId must match \"{regexp}\"")
 	private String subscriberId;
 	
 	/*
 	 * Preset Id
 	 */
-	@NotNull(message = ErrorCode.PRESET_ID_MUST_NOT_BE_NULL_MSG)
-	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$", message = "[" + ErrorCode.PRESET_ID_MUST_MATCH_REGEXP_MSG + "] presetId must match \"{regexp}\"")
+	@NotNull(message = "[" + ErrorCode.PRESET_ID_MUST_NOT_BE_NULL + "] presetId must not be null")
+	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$", message = "[" + ErrorCode.PRESET_ID_MUST_MATCH_REGEXP + "] presetId must match \"{regexp}\"")
 	private String presetId;
 	
 	/**

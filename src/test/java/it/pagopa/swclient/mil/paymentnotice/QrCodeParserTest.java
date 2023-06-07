@@ -3,6 +3,8 @@
  */
 package it.pagopa.swclient.mil.paymentnotice;
 
+import io.quarkus.test.junit.TestProfile;
+import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @QuarkusTest
+@TestProfile(UnitTestProfile.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class QrCodeParserTest {
 

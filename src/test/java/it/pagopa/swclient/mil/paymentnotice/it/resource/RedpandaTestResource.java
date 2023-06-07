@@ -1,7 +1,8 @@
-package it.pagopa.swclient.mil.paymentnotice.it;
+package it.pagopa.swclient.mil.paymentnotice.it.resource;
 
 import java.util.Map;
 
+import it.pagopa.swclient.mil.paymentnotice.it.CustomRedpandaContainer;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

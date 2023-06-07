@@ -307,7 +307,11 @@ public class PaymentResource extends BasePaymentResource {
 
     }
 
-
+    /**
+     * Sends the payment transaction data to the preset topic, if the preset info is present
+     *
+     * @param paymentTransaction the payment transaction data to be sent to the topic
+     */
 	private void sendToQueue(PaymentTransaction paymentTransaction) {
 		if (paymentTransaction.getPreset() != null) {
 			Log.debugf("Send to queue %s", paymentTransaction.toString());
@@ -373,6 +377,7 @@ public class PaymentResource extends BasePaymentResource {
                                             return txEntity;
                                         })
                                         .map(e -> {
+                                            sendToQueue(txEntity.paymentTransaction);
                                             Log.debugf("closePayment - Response status %s", Status.ACCEPTED);
                                             return Response.status(Status.ACCEPTED).build();
                                         });

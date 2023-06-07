@@ -105,7 +105,7 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		);
 
 		List<PaymentTransactionEntity> paymentTransactionEntities = transactionIdList.stream()
-				.map(tx -> PaymentTestData.getPaymentTransaction(tx, PaymentTransactionStatus.PRE_CLOSE, validMilHeaders, 1))
+				.map(tx -> PaymentTestData.getPaymentTransaction(tx, PaymentTransactionStatus.PRE_CLOSE, validMilHeaders, 1, null))
 				.toList();
 
 		MongoCollection<PaymentTransactionEntity> collection = mongoClient.getDatabase("mil")

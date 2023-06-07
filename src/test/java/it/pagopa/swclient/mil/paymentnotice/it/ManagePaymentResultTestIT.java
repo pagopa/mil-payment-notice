@@ -107,10 +107,10 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		pendingTransactionIdKO = RandomStringUtils.random(32, true, true);
 
 		List<PaymentTransactionEntity> paymentTransactionEntities = new ArrayList<>();
-		paymentTransactionEntities.add(PaymentTestData.getPaymentTransaction(closedTransactionId, PaymentTransactionStatus.CLOSED, milHeaders, 1));
-		PaymentTransactionEntity transactionOK = PaymentTestData.getPaymentTransaction(pendingTransactionIdOK, PaymentTransactionStatus.PENDING, milHeaders, 1);
+		paymentTransactionEntities.add(PaymentTestData.getPaymentTransaction(closedTransactionId, PaymentTransactionStatus.CLOSED, milHeaders, 1, null));
+		PaymentTransactionEntity transactionOK = PaymentTestData.getPaymentTransaction(pendingTransactionIdOK, PaymentTransactionStatus.PENDING, milHeaders, 1, null);
 		paymentTransactionEntities.add(transactionOK);
-		PaymentTransactionEntity transactionKO = PaymentTestData.getPaymentTransaction(pendingTransactionIdKO, PaymentTransactionStatus.PENDING, milHeaders, 1);
+		PaymentTransactionEntity transactionKO = PaymentTestData.getPaymentTransaction(pendingTransactionIdKO, PaymentTransactionStatus.PENDING, milHeaders, 1, null);
 		paymentTransactionEntities.add(transactionKO);
 
 		MongoCollection<PaymentTransactionEntity> collection = mongoClient.getDatabase("mil")
@@ -145,7 +145,7 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		List<PaymentTransactionEntity> paymentTransactionGet = new ArrayList<>();
 		for(int i=0; i<totalTransactions; i++) {
 			String transactionId = RandomStringUtils.random(32, true, true);
-			paymentTransactionGet.add(PaymentTestData.getPaymentTransaction(transactionId, PaymentTransactionStatus.CLOSED, milHeadersGetTransactions, 1));
+			paymentTransactionGet.add(PaymentTestData.getPaymentTransaction(transactionId, PaymentTransactionStatus.CLOSED, milHeadersGetTransactions, 1, null));
 		}
 
 		collection.insertMany(paymentTransactionGet);

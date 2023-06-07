@@ -132,7 +132,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		// store existing transaction on DB
 		existingTransactionId = RandomStringUtils.random(32, true, true);
 		PaymentTransactionEntity existingTransactionEntity =
-				PaymentTestData.getPaymentTransaction(existingTransactionId, PaymentTransactionStatus.CLOSED, validMilHeaders, 1);
+				PaymentTestData.getPaymentTransaction(existingTransactionId, PaymentTransactionStatus.CLOSED, validMilHeaders, 1, null);
 
 		MongoCollection<PaymentTransactionEntity> collection = mongoClient.getDatabase("mil")
 				.getCollection("paymentTransactions", PaymentTransactionEntity.class)

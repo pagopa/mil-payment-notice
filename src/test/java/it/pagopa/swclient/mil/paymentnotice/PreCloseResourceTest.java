@@ -6,8 +6,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.quarkus.test.junit.TestProfile;
+import io.smallrye.reactive.messaging.memory.InMemoryConnector;
+import io.smallrye.reactive.messaging.memory.InMemorySink;
+import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -37,11 +45,17 @@ import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 import it.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.pagopa.swclient.mil.paymentnotice.util.TestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 @QuarkusTest
 @TestHTTPEndpoint(PaymentResource.class)
+@TestProfile(UnitTestProfile.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PreCloseResourceTest {
+
+	static final Logger logger = LoggerFactory.getLogger(PreCloseResourceTest.class);
 
 	@InjectMock
 	@RestClient
@@ -53,7 +67,12 @@ class PreCloseResourceTest {
 	@InjectMock
     PaymentNoticeService paymentNoticeService;
 
+	@Inject @Any
+	InMemoryConnector connector;
+
 	PreCloseRequest preCloseRequest;
+
+	PreCloseRequest preClosePresetRequest;
 
 	PreCloseRequest abortRequest;
 
@@ -72,10 +91,17 @@ class PreCloseResourceTest {
 		// acquirer PSP configuration
 		acquirerConfiguration = PaymentTestData.getAcquirerConfiguration();
 
-		preCloseRequest = PaymentTestData.getPreCloseRequest(true, tokens);
+		preCloseRequest = PaymentTestData.getPreCloseRequest(true, tokens, false);
 
-		abortRequest = PaymentTestData.getPreCloseRequest(false, tokens);
+		preClosePresetRequest = PaymentTestData.getPreCloseRequest(true, tokens, true);
 
+		abortRequest = PaymentTestData.getPreCloseRequest(false, tokens, false);
+
+	}
+
+	@AfterAll
+	void cleanUp() {
+		connector.sink("presets").clear();
 	}
 
 	@Test
@@ -88,13 +114,9 @@ class PreCloseResourceTest {
 				.when(paymentNoticeService.mget(Mockito.any()))
 				.thenReturn(Uni.createFrom().item(noticeMap));
 
-		PaymentTransaction paymentTransaction = new PaymentTransaction();
-		PaymentTransactionEntity paymentTransactionEntity = new  PaymentTransactionEntity();
-		paymentTransactionEntity.paymentTransaction = paymentTransaction;
 		Mockito
 				.when(paymentTransactionRepository.persist(Mockito.any(PaymentTransactionEntity.class)))
-				.thenReturn(Uni.createFrom().item(paymentTransactionEntity));
-
+				.then(i-> Uni.createFrom().item(i.getArgument(0, PaymentTransactionEntity.class)));
 
 		Response response = given()
 				.contentType(ContentType.JSON)
@@ -138,6 +160,54 @@ class PreCloseResourceTest {
 		Assertions.assertEquals(PaymentTransactionStatus.PRE_CLOSE.name(), captorEntity.getValue().paymentTransaction.getStatus());
 
 		Assertions.assertEquals(noticeMap.size(), captorEntity.getValue().paymentTransaction.getNotices().size());
+
+	}
+
+	@Test
+	void testPreClose_201_preset() {
+
+		final Map<String, Notice> noticeMap = getNoticeMap(preClosePresetRequest.getPaymentTokens(),
+				preClosePresetRequest.getPaymentTokens().size());
+
+		Mockito
+				.when(paymentNoticeService.mget(Mockito.any()))
+				.thenReturn(Uni.createFrom().item(noticeMap));
+
+		Mockito
+				.when(paymentTransactionRepository.persist(Mockito.any(PaymentTransactionEntity.class)))
+				.then(i-> Uni.createFrom().item(i.getArgument(0, PaymentTransactionEntity.class)));
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(validMilHeaders)
+				.and()
+				.body(preClosePresetRequest)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(201, response.statusCode());
+		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
+		Assertions.assertEquals(Outcome.OK.name(), response.jsonPath().getString("outcome"));
+		Assertions.assertTrue(response.getHeader("Location") != null &&
+				response.getHeader("Location").endsWith("/payments/" + preClosePresetRequest.getTransactionId()));
+
+		// check topic integration
+		ArgumentCaptor<PaymentTransactionEntity> captorEntity = ArgumentCaptor.forClass(PaymentTransactionEntity.class);
+		Mockito.verify(paymentTransactionRepository).persist(captorEntity.capture());
+
+		InMemorySink<PaymentTransaction> presetsOut = connector.sink("presets");
+		Awaitility.await().<List<? extends Message<PaymentTransaction>>>until(presetsOut::received, t -> t.size() == 1);
+
+		PaymentTransaction message = presetsOut.received().get(0).getPayload();
+		logger.info("Topic message: {}", message);
+		Assertions.assertEquals(preClosePresetRequest.getTransactionId(), message.getTransactionId());
+		Assertions.assertEquals(captorEntity.getValue().paymentTransaction.getStatus(), message.getStatus());
+		Assertions.assertEquals(preClosePresetRequest.getPreset().getPresetId(), message.getPreset().getPresetId());
+		Assertions.assertEquals(preClosePresetRequest.getPreset().getSubscriberId(), message.getPreset().getSubscriberId());
+		Assertions.assertEquals(preClosePresetRequest.getPreset().getPaTaxCode(), message.getPreset().getPaTaxCode());
 
 	}
 

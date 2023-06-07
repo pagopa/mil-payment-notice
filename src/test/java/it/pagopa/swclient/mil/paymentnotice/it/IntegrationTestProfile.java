@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import it.pagopa.swclient.mil.paymentnotice.it.resource.MongoTestResource;
 import it.pagopa.swclient.mil.paymentnotice.it.resource.RedisTestResource;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.RedpandaTestResource;
 import it.pagopa.swclient.mil.paymentnotice.it.resource.WiremockTestResource;
 
 public class IntegrationTestProfile implements QuarkusTestProfile {
