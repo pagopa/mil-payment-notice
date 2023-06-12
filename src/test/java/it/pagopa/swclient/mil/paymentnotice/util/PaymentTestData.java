@@ -111,7 +111,7 @@ public final class PaymentTestData {
 
     public static Preset getPreset() {
         String presetId = UUID.randomUUID().toString();
-        String subscriberId = org.apache.commons.lang3.RandomStringUtils.random(6, 0, 0, true, true, null, new SecureRandom()).toLowerCase();
+        String subscriberId = RandomStringUtils.random(6, 0, 0, true, true, null, new SecureRandom()).toLowerCase();
         return getPreset(presetId, subscriberId);
     }
 
