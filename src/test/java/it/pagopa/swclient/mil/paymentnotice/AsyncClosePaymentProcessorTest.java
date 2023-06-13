@@ -4,6 +4,7 @@
 package it.pagopa.swclient.mil.paymentnotice;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.smallrye.mutiny.Context;
 import io.smallrye.mutiny.ItemWithContext;
@@ -21,6 +22,7 @@ import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.paymentnotice.resource.AsyncClosePaymentProcessor;
+import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +47,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @QuarkusTest
+@TestProfile(UnitTestProfile.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AsyncClosePaymentProcessorTest {
 
@@ -79,7 +82,7 @@ class AsyncClosePaymentProcessorTest {
 		transactionId = RandomStringUtils.random(32, true, true);
 
 		paymentTransactionEntity = PaymentTestData.getPaymentTransaction(transactionId,
-				PaymentTransactionStatus.PENDING, commonHeaders, 3);
+				PaymentTransactionStatus.PENDING, commonHeaders, 3, null);
 
 	}
 	

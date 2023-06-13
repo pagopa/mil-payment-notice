@@ -1,15 +1,16 @@
 package it.pagopa.swclient.mil.paymentnotice.bean;
 
+import java.util.List;
+
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
-
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertFalse;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import java.util.List;
 
 /**
  * Request of the preClose API
@@ -50,6 +51,12 @@ public class PreCloseRequest {
 	@Max(value = 99999999999L, message = "[" + ErrorCode.ERROR_FEE_MUST_BE_LESS_THAN + "] fee must less than {value}")
 	private Long fee;
 
+	/**
+	 * Preset information
+	 */
+	@Valid
+	private Preset preset;
+	
 	@AssertFalse(message = "[" + ErrorCode.ERROR_TRANSACTION_ID_MUST_NOT_BE_NULL + "] transactionId must not be null when outcome is PRE_CLOSE")
 	private boolean isTransactionIdNullForPreClose() {
 		return PaymentTransactionOutcome.PRE_CLOSE.name().equals(outcome) && transactionId == null;
@@ -146,15 +153,37 @@ public class PreCloseRequest {
 		this.fee = fee;
 	}
 
+	/**
+	 * @return the preset
+	 */
+	public Preset getPreset() {
+		return preset;
+	}
+
+	/**
+	 * @param preset the preset to set
+	 */
+	public void setPreset(Preset preset) {
+		this.preset = preset;
+	}
+
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("PreCloseRequest{");
-		sb.append("outcome='").append(outcome).append('\'');
-		sb.append(", paymentTokens=").append(paymentTokens);
-		sb.append(", transactionId='").append(transactionId).append('\'');
-		sb.append(", totalAmount=").append(totalAmount);
-		sb.append(", fee=").append(fee);
-		sb.append('}');
-		return sb.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("PreCloseRequest [outcome=");
+		builder.append(outcome);
+		builder.append(", paymentTokens=");
+		builder.append(paymentTokens);
+		builder.append(", transactionId=");
+		builder.append(transactionId);
+		builder.append(", totalAmount=");
+		builder.append(totalAmount);
+		builder.append(", fee=");
+		builder.append(fee);
+		builder.append(", preset=");
+		builder.append(preset);
+		builder.append("]");
+		return builder.toString();
 	}
+
 }

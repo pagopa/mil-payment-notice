@@ -1,14 +1,16 @@
 package it.pagopa.swclient.mil.paymentnotice.it;
 
-import com.google.common.collect.ImmutableList;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import it.pagopa.swclient.mil.paymentnotice.it.resource.MongoTestResource;
-import it.pagopa.swclient.mil.paymentnotice.it.resource.RedisTestResource;
-import it.pagopa.swclient.mil.paymentnotice.it.resource.WiremockTestResource;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.ImmutableList;
+
+import io.quarkus.test.junit.QuarkusTestProfile;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.KafkaTestResource;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.MongoTestResource;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.RedisTestResource;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.WiremockTestResource;
 
 public class IntegrationTestProfile implements QuarkusTestProfile {
 
@@ -40,7 +42,8 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
         return ImmutableList.of(
                 new TestResourceEntry(WiremockTestResource.class),
                 new TestResourceEntry(RedisTestResource.class),
-                new TestResourceEntry(MongoTestResource.class)
+                new TestResourceEntry(MongoTestResource.class),
+                new TestResourceEntry(KafkaTestResource.class)
         );
     }
 

@@ -5,6 +5,7 @@ import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentMethod;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
+import it.pagopa.swclient.mil.paymentnotice.bean.Preset;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
 import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
@@ -13,6 +14,7 @@ import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -59,7 +61,7 @@ public final class PaymentTestData {
         return activatePaymentNoticeRequest;
     }
 
-    public static PreCloseRequest getPreCloseRequest(boolean isPreClose, int tokens) {
+    public static PreCloseRequest getPreCloseRequest(boolean isPreClose, int tokens, boolean isPreset) {
         PreCloseRequest preCloseRequest = new PreCloseRequest();
         if (isPreClose) {
             preCloseRequest.setOutcome(PaymentTransactionOutcome.PRE_CLOSE.name());
@@ -77,6 +79,11 @@ public final class PaymentTestData {
             paymentTokens.add(RandomStringUtils.random(32, true, true));
         }
         preCloseRequest.setPaymentTokens(paymentTokens);
+
+        // preset is optional
+        if (isPreset) {
+            preCloseRequest.setPreset(getPreset());
+        }
 
         return preCloseRequest;
     }
@@ -102,10 +109,25 @@ public final class PaymentTestData {
         return notice;
     }
 
+    public static Preset getPreset() {
+        String presetId = UUID.randomUUID().toString();
+        String subscriberId = RandomStringUtils.random(6, 0, 0, true, true, null, new SecureRandom()).toLowerCase();
+        return getPreset(presetId, subscriberId);
+    }
+
+    public static Preset getPreset(String presetId, String subscriberId) {
+        Preset preset = new Preset();
+        preset.setPresetId(presetId);
+        preset.setPaTaxCode(PA_TAX_CODE);
+        preset.setSubscriberId(subscriberId);
+        return preset;
+    }
+
     public static PaymentTransactionEntity getPaymentTransaction(String transactionId,
                                                                  PaymentTransactionStatus status,
                                                                  Map<String, String> headers,
-                                                                 int tokens) {
+                                                                 int tokens,
+                                                                 Preset preset) {
 
         if (status == PaymentTransactionStatus.ABORTED) throw new IllegalArgumentException();
 
@@ -149,6 +171,8 @@ public final class PaymentTestData {
                 });
             }
         }
+
+        paymentTransaction.setPreset(preset);
 
         var paymentTransactionEntity = new PaymentTransactionEntity();
         paymentTransactionEntity.transactionId = transactionId;

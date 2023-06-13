@@ -25,9 +25,12 @@ import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
+import it.pagopa.swclient.mil.paymentnotice.util.KafkaUtils;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -47,6 +50,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,6 +75,8 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 	MongoClient mongoClient;
 
 	CodecRegistry pojoCodecRegistry;
+
+	KafkaConsumer<String, PaymentTransaction> paymentTransactionConsumer;
 
 	List<String> paymentTokens;
 
@@ -132,7 +139,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		// store existing transaction on DB
 		existingTransactionId = RandomStringUtils.random(32, true, true);
 		PaymentTransactionEntity existingTransactionEntity =
-				PaymentTestData.getPaymentTransaction(existingTransactionId, PaymentTransactionStatus.CLOSED, validMilHeaders, 1);
+				PaymentTestData.getPaymentTransaction(existingTransactionId, PaymentTransactionStatus.CLOSED, validMilHeaders, 1, null);
 
 		MongoCollection<PaymentTransactionEntity> collection = mongoClient.getDatabase("mil")
 				.getCollection("paymentTransactions", PaymentTransactionEntity.class)
@@ -140,7 +147,11 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 
 		collection.insertMany(List.of(existingTransactionEntity));
 
+		paymentTransactionConsumer = KafkaUtils.getKafkaConsumer(devServicesContext, PaymentTransaction.class);
+
 	}
+
+
 
 	@AfterAll
 	void destroyTestObjects() {
@@ -156,9 +167,17 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		} catch (Exception e){
 			logger.error("Error while destroying Jedis pool", e);
 		}
+
+		try {
+			paymentTransactionConsumer.unsubscribe();
+			paymentTransactionConsumer.close();
+		} catch (Exception e){
+			logger.error("Error while closing kafka consumer", e);
+		}
 	}
 
-	PreCloseRequest getPreCloseRequest(String transactionId, PaymentTransactionOutcome outcome, List<String> tokens, long totalAmount) {
+	PreCloseRequest getPreCloseRequest(String transactionId, PaymentTransactionOutcome outcome, List<String> tokens,
+									   long totalAmount, boolean hasPreset) {
 
 		PreCloseRequest preCloseRequest = new PreCloseRequest();
 		preCloseRequest.setOutcome(outcome.name());
@@ -168,6 +187,8 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 			preCloseRequest.setTotalAmount(totalAmount);
 			preCloseRequest.setFee(100L);
 		}
+
+		if (hasPreset) preCloseRequest.setPreset(PaymentTestData.getPreset());
 
 		return preCloseRequest;
 	}
@@ -181,7 +202,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
-				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount))
+				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount, true))
 				.when()
 				.post("/")
 				.then()
@@ -196,11 +217,24 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				response.getHeader("Location").endsWith("/" + transactionId));
 
 		// check transaction written on DB
-		checkDatabaseData(transactionId);
+		PaymentTransaction dbPaymentTransaction = checkDatabaseData(transactionId);
+
+		// check transaction sent to topic
+		Instant start = Instant.now();
+		ConsumerRecords<String, PaymentTransaction> records = paymentTransactionConsumer.poll(Duration.ofSeconds(10));
+		paymentTransactionConsumer.commitSync();
+		logger.info("Finished polling in {} seconds, found {} records", Duration.between(start, Instant.now()), records.count());
+		Assertions.assertEquals(1, records.count());
+
+		PaymentTransaction topicPaymentTransaction = records.iterator().next().value();
+		Assertions.assertEquals(dbPaymentTransaction.getTransactionId(), topicPaymentTransaction.getTransactionId());
+		Assertions.assertEquals(dbPaymentTransaction.getStatus(), topicPaymentTransaction.getStatus());
+		Assertions.assertEquals(dbPaymentTransaction.getPreset().getPresetId(), topicPaymentTransaction.getPreset().getPresetId());
+		Assertions.assertEquals(dbPaymentTransaction.getPreset().getSubscriberId(), topicPaymentTransaction.getPreset().getSubscriberId());
 
 	}
 
-	private void checkDatabaseData(String transactionId) {
+	private PaymentTransaction checkDatabaseData(String transactionId) {
 
 		MongoCollection<PaymentTransactionEntity> collection = mongoClient.getDatabase("mil")
 				.getCollection("paymentTransactions", PaymentTransactionEntity.class)
@@ -209,13 +243,15 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Bson filter = Filters.in("_id", transactionId);
 		FindIterable<PaymentTransactionEntity> documents  = collection.find(filter);
 
+		PaymentTransaction paymentTransaction;
+
 		try (MongoCursor<PaymentTransactionEntity> iterator = documents.iterator()) {
 			Assertions.assertTrue(iterator.hasNext());
 			PaymentTransactionEntity paymentTransactionEntity = iterator.next();
 
 			logger.info("Found transaction on DB: {}", paymentTransactionEntity.paymentTransaction);
 
-			PaymentTransaction paymentTransaction = paymentTransactionEntity.paymentTransaction;
+			paymentTransaction = paymentTransactionEntity.paymentTransaction;
 
 			Assertions.assertEquals(transactionId, paymentTransaction.getTransactionId());
 			Assertions.assertEquals(validMilHeaders.get("AcquirerId"), paymentTransaction.getAcquirerId());
@@ -235,6 +271,8 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 			Assertions.assertNull(paymentTransaction.getCallbackTimestamp());
 
 		}
+
+		return paymentTransaction;
 	}
 
 	private void validateNotices(List<Notice> cachedNotices, List<Notice> returnedNotices) {
@@ -261,7 +299,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
-				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount-10))
+				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount-10, false))
 				.when()
 				.post("/")
 				.then()
@@ -283,7 +321,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
-				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, List.of(transactionId), totalAmount))
+				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, List.of(transactionId), totalAmount, false))
 				.when()
 				.post("/")
 				.then()
@@ -303,7 +341,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
-				.body(getPreCloseRequest(existingTransactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount))
+				.body(getPreCloseRequest(existingTransactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount, false))
 				.when()
 				.post("/")
 				.then()
@@ -325,7 +363,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
-				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount))
+				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount, false))
 				.when()
 				.post("/")
 				.then()
@@ -348,7 +386,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
-				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount))
+				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount, false))
 				.when()
 				.post("/")
 				.then()
@@ -368,7 +406,7 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, false))
 				.and()
-				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount))
+				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount, false))
 				.when()
 				.post("/")
 				.then()

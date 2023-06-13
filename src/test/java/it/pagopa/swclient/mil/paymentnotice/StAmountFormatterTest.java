@@ -5,6 +5,8 @@ package it.pagopa.swclient.mil.paymentnotice;
 
 import java.math.BigDecimal;
 
+import io.quarkus.test.junit.TestProfile;
+import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
 import it.pagopa.swclient.mil.paymentnotice.utils.StAmountFormatter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.TestInstance;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
+@TestProfile(UnitTestProfile.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StAmountFormatterTest {
 

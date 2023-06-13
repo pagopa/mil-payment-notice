@@ -1,5 +1,19 @@
 package it.pagopa.swclient.mil.paymentnotice.util;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.mongodb.MongoWriteException;
+import com.mongodb.ServerAddress;
+import com.mongodb.WriteError;
+import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
+import jakarta.ws.rs.core.Response;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
+import org.junit.jupiter.params.provider.Arguments;
+
+import javax.net.ssl.SSLHandshakeException;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -11,22 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
-
-import javax.net.ssl.SSLHandshakeException;
-
-import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
-import jakarta.ws.rs.core.Response;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.mongodb.MongoWriteException;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteError;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
-import org.jboss.resteasy.reactive.ClientWebApplicationException;
-import org.junit.jupiter.params.provider.Arguments;
 
 public class TestUtils {
 
@@ -117,20 +115,33 @@ public class TestUtils {
     public static Stream<Arguments> providePreCloseRequestValidationErrorCases() {
 
         return Stream.of(
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "outcome", null), ErrorCode.ERROR_OUTCOME_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "outcome", "OK"), ErrorCode.ERROR_OUTCOME_MUST_MATCH_MATCH_REGEXP),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "paymentTokens", null), ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "paymentTokens", List.of("100","101","102","103","104","105")), ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_HAVE_AT_MOST),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "paymentTokens", List.of("123456789012345678901234567890123456")), ErrorCode.ERROR_PAYMENT_TOKEN_MATCH_MATCH_REGEXP),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "transactionId", null), ErrorCode.ERROR_TRANSACTION_ID_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "transactionId", "abc"), ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "totalAmount", null), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "totalAmount", 0L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_GREATER_THAN),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "totalAmount", 199999999999L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_LESS_THAN),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "totalAmount", 12345L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_MATCH_TOTAL_CACHED_VALUE),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "fee", null), ErrorCode.ERROR_FEE_MUST_NOT_BE_NULL),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "fee", 0L), ErrorCode.ERROR_FEE_MUST_BE_GREATER_THAN),
-                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1), "fee", 199999999999L), ErrorCode.ERROR_FEE_MUST_BE_LESS_THAN)
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "outcome", null), ErrorCode.ERROR_OUTCOME_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "outcome", "OK"), ErrorCode.ERROR_OUTCOME_MUST_MATCH_MATCH_REGEXP),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "paymentTokens", null), ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "paymentTokens", List.of("100","101","102","103","104","105")), ErrorCode.ERROR_PAYMENT_TOKEN_LIST_MUST_HAVE_AT_MOST),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "paymentTokens", List.of("123456789012345678901234567890123456")), ErrorCode.ERROR_PAYMENT_TOKEN_MATCH_MATCH_REGEXP),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "transactionId", null), ErrorCode.ERROR_TRANSACTION_ID_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "transactionId", "abc"), ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "totalAmount", null), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "totalAmount", 0L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_GREATER_THAN),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "totalAmount", 199999999999L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_BE_LESS_THAN),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "totalAmount", 12345L), ErrorCode.ERROR_TOTAL_AMOUNT_MUST_MATCH_TOTAL_CACHED_VALUE),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "fee", null), ErrorCode.ERROR_FEE_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "fee", 0L), ErrorCode.ERROR_FEE_MUST_BE_GREATER_THAN),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false), "fee", 199999999999L), ErrorCode.ERROR_FEE_MUST_BE_LESS_THAN),
+                // preset test data
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
+                        "preset", setAndGet(PaymentTestData.getPreset(), "paTaxCode", null)), ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
+                        "preset", setAndGet(PaymentTestData.getPreset(), "paTaxCode", "abcde")), ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
+                        "preset", setAndGet(PaymentTestData.getPreset(), "subscriberId", null)), ErrorCode.SUBSCRIBER_ID_CODE_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
+                        "preset", setAndGet(PaymentTestData.getPreset(), "subscriberId", "abcde")), ErrorCode.SUBSCRIBER_ID_MUST_MATCH_REGEXP),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
+                        "preset", setAndGet(PaymentTestData.getPreset(), "presetId", null)), ErrorCode.PRESET_ID_MUST_NOT_BE_NULL),
+                Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
+                        "preset", setAndGet(PaymentTestData.getPreset(), "presetId", "abcde")), ErrorCode.PRESET_ID_MUST_MATCH_REGEXP)
         );
     }
 
@@ -200,6 +211,5 @@ public class TestUtils {
 
         return object;
     }
-
 
 }

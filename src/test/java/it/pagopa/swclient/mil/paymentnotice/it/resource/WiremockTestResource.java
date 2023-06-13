@@ -40,7 +40,7 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
                 //.withNetworkMode(devServicesContext.containerNetworkId().get())
                 .waitingFor(Wait.forListeningPort());
 
-        wiremockContainer.withLogConsumer(new Slf4jLogConsumer(logger));
+        //wiremockContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
         wiremockContainer.setCommand("--verbose --local-response-templating");
         wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock", "/home/wiremock");
 

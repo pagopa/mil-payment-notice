@@ -77,6 +77,14 @@ public final class ErrorCode {
 	public static final String CACHED_NOTICE_NOT_FOUND			 							= MODULE_ID + "000032";
 
 	public static final String ERROR_TOTAL_AMOUNT_MUST_MATCH_TOTAL_CACHED_VALUE				= MODULE_ID + "000033";
+	
+	public static final String PA_TAX_CODE_MUST_NOT_BE_NULL									 = MODULE_ID + "000034";
+	
+	public static final String SUBSCRIBER_ID_CODE_MUST_NOT_BE_NULL 							= MODULE_ID + "000035";
+	public static final String SUBSCRIBER_ID_MUST_MATCH_REGEXP 								= MODULE_ID + "000036";
+	
+	public static final String PRESET_ID_MUST_NOT_BE_NULL									= MODULE_ID + "000037";
+	public static final String PRESET_ID_MUST_MATCH_REGEXP 									= MODULE_ID + "000038";
 
 	private ErrorCode() {
 	}

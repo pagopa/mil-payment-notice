@@ -11,6 +11,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
+import io.quarkus.test.junit.TestProfile;
+import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
 import jakarta.inject.Inject;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
@@ -53,6 +55,7 @@ import it.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
 
 @QuarkusTest
 @TestHTTPEndpoint(VerifyPaymentNoticeResource.class)
+@TestProfile(UnitTestProfile.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class VerifyPaymentNoticeResourceTest {
 

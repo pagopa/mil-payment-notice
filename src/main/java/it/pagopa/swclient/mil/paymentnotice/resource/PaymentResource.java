@@ -13,13 +13,50 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.mongodb.ErrorCategory;
+import com.mongodb.MongoWriteException;
+
+import io.quarkus.logging.Log;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Context;
 import io.smallrye.mutiny.ItemWithContext;
+import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.unchecked.Unchecked;
+import io.vertx.core.eventbus.EventBus;
+import it.pagopa.swclient.mil.bean.CommonHeader;
+import it.pagopa.swclient.mil.bean.Errors;
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
+import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
+import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentResponse;
+import it.pagopa.swclient.mil.paymentnotice.bean.GetPaymentsResponse;
+import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.pagopa.swclient.mil.paymentnotice.bean.PaymentMethod;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
+import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseResponse;
+import it.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
+import it.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusResponse;
+import it.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
+import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
+import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionRepository;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import it.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
+import it.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
+import it.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -39,43 +76,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.mongodb.ErrorCategory;
-import com.mongodb.MongoWriteException;
-import io.quarkus.panache.common.Page;
-import io.quarkus.panache.common.Sort;
-import io.smallrye.mutiny.unchecked.Unchecked;
-import io.vertx.core.eventbus.EventBus;
-import it.pagopa.swclient.mil.paymentnotice.bean.GetPaymentsResponse;
-import it.pagopa.swclient.mil.paymentnotice.bean.PaymentMethod;
-import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
-import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
-import it.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
-import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
-import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionRepository;
-import it.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
-import it.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
-import it.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
-import io.quarkus.logging.Log;
-import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.bean.CommonHeader;
-import it.pagopa.swclient.mil.bean.Errors;
-import it.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusResponse;
-import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentResponse;
-import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.pagopa.swclient.mil.paymentnotice.bean.ReceivePaymentStatusRequest;
-import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
-import it.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
-import org.jboss.resteasy.reactive.ClientWebApplicationException;
-
 @Path("/payments")
 public class PaymentResource extends BasePaymentResource {
+	
+	@Inject
+    @Channel("presets")
+    Emitter<PaymentTransaction> emitter;
 
     /**
      * The reactive REDIS client for retrieving the activated payment notices
@@ -167,7 +173,7 @@ public class PaymentResource extends BasePaymentResource {
                             .call(notices -> {
                                 if (!notices.isEmpty()) {
                                     var transactionEntity = createPaymentTransactionEntity(headers, transactionId,
-                                            null, notices, preCloseRequest.getOutcome());
+                                            null, notices, preCloseRequest.getOutcome(), preCloseRequest.getPreset());
 
                                     var nodeClosePaymentRequest = createNodeClosePaymentRequest(PaymentMethod.PAYMENT_CARD.name(),
                                             LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).toString(),
@@ -262,7 +268,8 @@ public class PaymentResource extends BasePaymentResource {
                 preCloseRequest.getTransactionId(),
                 preCloseRequest.getFee(),
                 notices,
-                preCloseRequest.getOutcome());
+                preCloseRequest.getOutcome(), 
+                preCloseRequest.getPreset());
 
         // store the payment transaction in the db
         Log.debugf("Storing payment transaction %s on DB", entity.paymentTransaction);
@@ -286,6 +293,8 @@ public class PaymentResource extends BasePaymentResource {
                 })
                 // return OK to the caller
                 .map(e -> {
+                	sendToQueue(e.paymentTransaction);
+                	
                     PreCloseResponse okResponse = new PreCloseResponse();
                     okResponse.setOutcome(Outcome.OK.name());
                     Log.debugf("preClose - Response: %s", okResponse);
@@ -297,6 +306,18 @@ public class PaymentResource extends BasePaymentResource {
                 });
 
     }
+
+    /**
+     * Sends the payment transaction data to the preset topic, if the preset info is present
+     *
+     * @param paymentTransaction the payment transaction data to be sent to the topic
+     */
+	private void sendToQueue(PaymentTransaction paymentTransaction) {
+		if (paymentTransaction.getPreset() != null) {
+			Log.debugf("Send to queue %s", paymentTransaction.toString());
+			emitter.send(paymentTransaction);
+		}
+	}
 
 
     /**
@@ -356,6 +377,7 @@ public class PaymentResource extends BasePaymentResource {
                                             return txEntity;
                                         })
                                         .map(e -> {
+                                            sendToQueue(txEntity.paymentTransaction);
                                             Log.debugf("closePayment - Response status %s", Status.ACCEPTED);
                                             return Response.status(Status.ACCEPTED).build();
                                         });
@@ -483,6 +505,9 @@ public class PaymentResource extends BasePaymentResource {
                             return entity;
                         })
                         .map(e -> {
+                        	
+                        	sendToQueue(e.paymentTransaction);
+                        	
                             ReceivePaymentStatusResponse receiveResponse = new ReceivePaymentStatusResponse();
                             receiveResponse.setOutcome(Outcome.OK.toString());
                             Log.debugf("receivePaymentStatus - Response: %s", receiveResponse);
@@ -558,6 +583,8 @@ public class PaymentResource extends BasePaymentResource {
                     paymentTransaction.setPaymentTimestamp(closePaymentRequest.getPaymentTimestamp());
                     paymentTransaction.setCloseTimestamp(getTimestamp());
 
+                    sendToQueue(paymentTransaction);
+                    
                     Log.debugf("closePayment - Response %s", closePaymentResponse);
 
                     // update transaction on DB

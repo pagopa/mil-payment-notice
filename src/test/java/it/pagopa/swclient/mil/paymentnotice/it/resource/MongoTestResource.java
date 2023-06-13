@@ -43,7 +43,7 @@ public class MongoTestResource implements QuarkusTestResourceLifecycleManager, D
                 //.withNetworkMode(devServicesContext.containerNetworkId().get())
                 .waitingFor(Wait.forListeningPort());
 
-        mongoContainer.withLogConsumer(new Slf4jLogConsumer(logger));
+        //mongoContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
 
         mongoContainer.withFileSystemBind("./src/test/resources/it/mongo", "/home/mongo");
 		//mongoContainer.setCommand("--verbose");
@@ -52,13 +52,13 @@ public class MongoTestResource implements QuarkusTestResourceLifecycleManager, D
 		final Integer exposedPort = mongoContainer.getMappedPort(27017);
 		devServicesContext.devServicesProperties().put("test.mongo.exposed-port", exposedPort.toString());
 
-        try {
-			ExecResult result = mongoContainer.execInContainer("mongosh", "<", "/home/mongo/mongoInit.js");
-			logger.info("Init script result {}", result);
-		}
-		catch (Exception e) {
-			logger.error("Error while importing data into DB", e);
-		}
+//        try {
+//			ExecResult result = mongoContainer.execInContainer("mongosh", "<", "/home/mongo/mongoInit.js");
+//			logger.info("Init script result {}", result);
+//		}
+//		catch (Exception e) {
+//			logger.error("Error while importing data into DB", e);
+//		}
 
         // Pass the configuration to the application under test
 		return ImmutableMap.of(

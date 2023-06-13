@@ -1,5 +1,37 @@
 package it.pagopa.swclient.mil.paymentnotice.it;
 
+import static io.restassured.RestAssured.given;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import it.pagopa.swclient.mil.paymentnotice.util.KafkaUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
@@ -7,6 +39,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+
 import io.quarkus.test.common.DevServicesContext;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
@@ -22,33 +55,6 @@ import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-import org.bson.conversions.Bson;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import static io.restassured.RestAssured.given;
 
 @QuarkusIntegrationTest
 @TestProfile(IntegrationTestProfile.class)
@@ -67,6 +73,8 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 	MongoClient mongoClient;
 
 	CodecRegistry pojoCodecRegistry;
+
+	KafkaConsumer<String, PaymentTransaction> paymentTransactionConsumer;
 
 	String closedTransactionId;
 
@@ -105,10 +113,10 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		pendingTransactionIdKO = RandomStringUtils.random(32, true, true);
 
 		List<PaymentTransactionEntity> paymentTransactionEntities = new ArrayList<>();
-		paymentTransactionEntities.add(PaymentTestData.getPaymentTransaction(closedTransactionId, PaymentTransactionStatus.CLOSED, milHeaders, 1));
-		PaymentTransactionEntity transactionOK = PaymentTestData.getPaymentTransaction(pendingTransactionIdOK, PaymentTransactionStatus.PENDING, milHeaders, 1);
+		paymentTransactionEntities.add(PaymentTestData.getPaymentTransaction(closedTransactionId, PaymentTransactionStatus.CLOSED, milHeaders, 1, null));
+		PaymentTransactionEntity transactionOK = PaymentTestData.getPaymentTransaction(pendingTransactionIdOK, PaymentTransactionStatus.PENDING, milHeaders, 1, PaymentTestData.getPreset());
 		paymentTransactionEntities.add(transactionOK);
-		PaymentTransactionEntity transactionKO = PaymentTestData.getPaymentTransaction(pendingTransactionIdKO, PaymentTransactionStatus.PENDING, milHeaders, 1);
+		PaymentTransactionEntity transactionKO = PaymentTestData.getPaymentTransaction(pendingTransactionIdKO, PaymentTransactionStatus.PENDING, milHeaders, 1, PaymentTestData.getPreset());
 		paymentTransactionEntities.add(transactionKO);
 
 		MongoCollection<PaymentTransactionEntity> collection = mongoClient.getDatabase("mil")
@@ -143,11 +151,13 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		List<PaymentTransactionEntity> paymentTransactionGet = new ArrayList<>();
 		for(int i=0; i<totalTransactions; i++) {
 			String transactionId = RandomStringUtils.random(32, true, true);
-			paymentTransactionGet.add(PaymentTestData.getPaymentTransaction(transactionId, PaymentTransactionStatus.CLOSED, milHeadersGetTransactions, 1));
+			paymentTransactionGet.add(PaymentTestData.getPaymentTransaction(transactionId, PaymentTransactionStatus.CLOSED, milHeadersGetTransactions, 1, null));
 		}
 
 		collection.insertMany(paymentTransactionGet);
 		logger.debug("Total documents on DB: {}", collection.countDocuments());
+
+		paymentTransactionConsumer = KafkaUtils.getKafkaConsumer(devServicesContext, PaymentTransaction.class);
 
 	}
 
@@ -158,6 +168,13 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 			mongoClient.close();
 		} catch (Exception e){
 			logger.error("Error while closing mongo client", e);
+		}
+
+		try {
+			paymentTransactionConsumer.unsubscribe();
+			paymentTransactionConsumer.close();
+		} catch (Exception e){
+			logger.error("Error while closing kafka consumer", e);
 		}
 
 	}
@@ -251,7 +268,6 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		paymentStatusRequest.setPaymentDate(timestamp);
 		paymentStatusRequest.setPayments(List.of(paymentOK));
 
-
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(milHeaders)
@@ -269,7 +285,20 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
 
 		// check transaction written on DB
-		checkDatabaseData(pendingTransactionIdOK, timestamp, PaymentTransactionStatus.CLOSED, List.of(paymentOK));
+		PaymentTransaction dbPaymentTransaction = checkDatabaseData(pendingTransactionIdOK, timestamp, PaymentTransactionStatus.CLOSED, List.of(paymentOK));
+
+		// check transaction sent to topic
+		Instant start = Instant.now();
+		ConsumerRecords<String, PaymentTransaction> records = paymentTransactionConsumer.poll(Duration.ofSeconds(10));
+		paymentTransactionConsumer.commitSync();
+		logger.info("Finished polling in {} seconds, found {} records", Duration.between(start, Instant.now()), records.count());
+		Assertions.assertEquals(1, records.count());
+
+		PaymentTransaction topicPaymentTransaction = records.iterator().next().value();
+		Assertions.assertEquals(dbPaymentTransaction.getTransactionId(), topicPaymentTransaction.getTransactionId());
+		Assertions.assertEquals(dbPaymentTransaction.getStatus(), topicPaymentTransaction.getStatus());
+		Assertions.assertEquals(dbPaymentTransaction.getPreset().getPresetId(), topicPaymentTransaction.getPreset().getPresetId());
+		Assertions.assertEquals(dbPaymentTransaction.getPreset().getSubscriberId(), topicPaymentTransaction.getPreset().getSubscriberId());
 
 	}
 
@@ -300,7 +329,20 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		Assertions.assertNull(response.jsonPath().getJsonObject("errors"));
 
 		// check transaction written on DB
-		checkDatabaseData(pendingTransactionIdKO, timestamp, PaymentTransactionStatus.ERROR_ON_RESULT, List.of(paymentKO));
+		PaymentTransaction dbPaymentTransaction = checkDatabaseData(pendingTransactionIdKO, timestamp, PaymentTransactionStatus.ERROR_ON_RESULT, List.of(paymentKO));
+
+		// check transaction sent to topic
+		Instant start = Instant.now();
+		ConsumerRecords<String, PaymentTransaction> records = paymentTransactionConsumer.poll(Duration.ofSeconds(10));
+		paymentTransactionConsumer.commitSync();
+		logger.info("Finished polling in {} seconds, found {} records", Duration.between(start, Instant.now()), records.count());
+		Assertions.assertEquals(1, records.count());
+
+		PaymentTransaction topicPaymentTransaction = records.iterator().next().value();
+		Assertions.assertEquals(dbPaymentTransaction.getTransactionId(), topicPaymentTransaction.getTransactionId());
+		Assertions.assertEquals(dbPaymentTransaction.getStatus(), topicPaymentTransaction.getStatus());
+		Assertions.assertEquals(dbPaymentTransaction.getPreset().getPresetId(), topicPaymentTransaction.getPreset().getPresetId());
+		Assertions.assertEquals(dbPaymentTransaction.getPreset().getSubscriberId(), topicPaymentTransaction.getPreset().getSubscriberId());
 
 	}
 
@@ -333,8 +375,10 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 
 	}
 
-	private void checkDatabaseData(String transactionId, String paymentDate, PaymentTransactionStatus transactionStatus,
+	private PaymentTransaction checkDatabaseData(String transactionId, String paymentDate, PaymentTransactionStatus transactionStatus,
 								   List<Payment> paymentList) {
+
+		PaymentTransaction paymentTransaction;
 
 		MongoCollection<PaymentTransactionEntity> collection = mongoClient.getDatabase("mil")
 				.getCollection("paymentTransactions", PaymentTransactionEntity.class)
@@ -349,7 +393,7 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 
 			logger.info("Found transaction on DB: {}", paymentTransactionEntity.paymentTransaction);
 
-			PaymentTransaction paymentTransaction = paymentTransactionEntity.paymentTransaction;
+			paymentTransaction = paymentTransactionEntity.paymentTransaction;
 
 			Assertions.assertEquals(transactionId, paymentTransaction.getTransactionId());
 			Assertions.assertEquals(transactionStatus.name(), paymentTransaction.getStatus());
@@ -362,6 +406,8 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 			validateNotices(paymentList, paymentTransaction.getNotices());
 
 		}
+
+		return paymentTransaction;
 	}
 
 	private void validateNotices(List<Payment> nodePayments, List<Notice> returnedNotices) {

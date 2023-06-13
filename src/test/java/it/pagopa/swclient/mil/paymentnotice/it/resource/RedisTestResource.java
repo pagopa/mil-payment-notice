@@ -77,7 +77,7 @@ public class RedisTestResource implements QuarkusTestResourceLifecycleManager, D
                 //.withNetworkMode(devServicesContext.containerNetworkId().get())
                 .waitingFor(Wait.forListeningPort());
 
-        redisContainer.withLogConsumer(new Slf4jLogConsumer(logger));
+        //redisContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
 
         final String password = "wCou42NVkv7H8";
 
