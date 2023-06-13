@@ -1,0 +1,1279 @@
+openapi: 3.0.3
+
+info:
+  title: Payment Notice Microservice
+  version: 13.1.0
+  description: Payment Notice Microservice for Multi-channel Integration Layer of SW Client Project
+  contact:
+    name: Antonio Tarricone
+    email: antonio.tarricone@pagopa.it
+
+servers:
+  - description: DEV
+    url: https://mil-d-apim.azure-api.net/mil-payment-notice
+
+security:
+  - bearerAuth: []
+
+paths:
+  /paymentNotices/{qrCode}:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/AcquirerId'
+      - $ref: '#/components/parameters/Channel'
+      - $ref: '#/components/parameters/MerchantId'
+      - $ref: '#/components/parameters/TerminalId'
+      - name: qrCode
+        description: Base64Url of the string encoded by the QR-code. This is due to a bug of Azure routing system which decodes %2F before routing the request.
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/QrCodeBase64UrlEnc'
+
+    # ------------------------------------------------------
+    # Verifies a payment notice by QR-code
+    # ------------------------------------------------------
+    get:
+      operationId: verifyByQrCode
+      summary: Verifies a payment notice by QR-code
+      responses:
+        "200":
+          $ref: '#/components/responses/VerifyProcessed'
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Payment notice not found
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+    # ------------------------------------------------------
+    # Activates the payment of a notice by QR-code
+    # ------------------------------------------------------
+    patch:
+      operationId: activateByQrCode
+      summary: Activates the payment of a notice by QR-code
+      requestBody:
+        $ref: '#/components/requestBodies/Activate'
+      responses:
+        "200":
+          $ref: '#/components/responses/ActivateProcessed'
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Payment notice not found
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "415":
+          description: Unsupported media type. Did you provide application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+  /paymentNotices/{paTaxCode}/{noticeNumber}:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/AcquirerId'
+      - $ref: '#/components/parameters/Channel'
+      - $ref: '#/components/parameters/MerchantId'
+      - $ref: '#/components/parameters/TerminalId'
+      - name: paTaxCode
+        description: Tax code of the creditor company
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/PaTaxCode'
+      - name: noticeNumber
+        description: Notice number
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/NoticeNumber'
+
+    # ------------------------------------------------------
+    # Verifies a payment notice by PA tax code and notice
+    # number
+    # ------------------------------------------------------
+    get:
+      operationId: verifyByTaxCodeAndNoticeNumber
+      summary: Verifies a payment notice by PA tax code and notice number
+      responses:
+        "200":
+          $ref: '#/components/responses/VerifyProcessed'
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Payment notice not found
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+    # ------------------------------------------------------
+    # Activates the payment of a notice by PA tax code and
+    # notice number
+    # ------------------------------------------------------
+    patch:
+      operationId: activateByTaxCodeAndNoticeNumber
+      summary: Activates the payment of a notice by PA tax code and notice number
+      requestBody:
+        $ref: '#/components/requestBodies/Activate'
+      responses:
+        "200":
+          $ref: '#/components/responses/ActivateProcessed'
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Payment notice not found
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "415":
+          description: Unsupported media type. Did you provide application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+  /payments:
+    parameters:
+      - $ref: '#/components/parameters/RequestId'
+      - $ref: '#/components/parameters/Version'
+      - $ref: '#/components/parameters/AcquirerId'
+      - $ref: '#/components/parameters/Channel'
+      - $ref: '#/components/parameters/MerchantId'
+      - $ref: '#/components/parameters/TerminalId'
+
+    # ------------------------------------------------------
+    # Pre-closes or aborts the payment of a set of notices
+    # ------------------------------------------------------
+    post:
+      operationId: preCloseOrAbort
+      summary: Pre-closes or aborts the payment of a set of notices
+      requestBody:
+        $ref: '#/components/requestBodies/PreCloseOrAbort'
+      responses:
+        "201":
+          $ref: '#/components/responses/PreCloseOrAbortProcessed'
+        "202":
+          description: Only for abort operation.
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "409":
+          description: Transaction ID already exists
+        "415":
+          description: Unsupported media type. Did you provide application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+    # ------------------------------------------------------
+    # Gets last 30 transactions executed by the client in
+    # the last 30 days
+    # ------------------------------------------------------
+    get:
+      operationId: getLastTransactions
+      summary: Gets last 30 transactions executed by the client in the last 30 days
+      responses:
+        "200":
+          $ref: '#/components/responses/Transactions'
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+          
+  /payments/{transactionId}:
+    parameters:
+      - name: transactionId
+        description: Transaction ID
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/TransactionId'
+
+    # ------------------------------------------------------
+    # Comunicates the outcome of the e-money transaction
+    # executed to pay a set of notices
+    # ------------------------------------------------------
+    patch:
+      operationId: close
+      summary: Comunicates the outcome of the e-money transaction executed to pay a set of notices
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/AcquirerId'
+        - $ref: '#/components/parameters/Channel'
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/TerminalId'
+      requestBody:
+        $ref: '#/components/requestBodies/Close'
+      responses:
+        "201":
+          $ref: '#/components/responses/CloseProcessed'
+        "202":
+          description: Only for operation with KO outcome
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "415":
+          description: Unsupported media type. Did you provide application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+    # ------------------------------------------------------
+    # Retrieves the status of the payment of a set of
+    # payment notices
+    # ------------------------------------------------------
+    get:
+      operationId: getPaymentStatus
+      summary: Retrieves the status of the payment of a set of payment notices
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/AcquirerId'
+        - $ref: '#/components/parameters/Channel'
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/TerminalId'
+      responses:
+        "200":
+          $ref: '#/components/responses/PaymentStatus'
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Payment status not found
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+    # ------------------------------------------------------
+    # Receives from the Nodo the result of the payment of a
+    # set of payment notices
+    # ------------------------------------------------------
+    post:
+      operationId: receivePaymentStatus
+      summary: Receives from the Nodo the result of the payment of a set of payment notices. This API is invoked by the Nodo for sendPaymentResult.
+      requestBody:
+        $ref: '#/components/requestBodies/PaymentStatusByNodo'
+      responses:
+        "200":
+          $ref: '#/components/responses/PaymentStatusReceived'
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          $ref: '#/components/responses/TransactionNotFound'
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "415":
+          description: Unsupported media type. Did you provide application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+components:
+  # ========================================================
+  # Schemas
+  # ========================================================
+  schemas:
+    # ------------------------------------------------------
+    # Basic types
+    # ------------------------------------------------------
+    AbortOutcome:
+      description: Constant value (ABORT) outcome
+      type: string
+      enum:
+        - ABORT
+      example: "ABORT"
+    
+    AcquirerId:
+      description: Acquirer ID assigned by PagoPA
+      type: string
+      pattern: "^\\d{1,11}$"
+      example: "4585625"
+
+    AllOrNothingOutcome:
+      description: Dual values (OK or KO) outcome
+      type: string
+      enum:
+        - OK
+        - KO
+      example: "OK"
+    
+    Category:
+      description: Transfer category
+      type: string
+      pattern: "^[ -~]{0,1024}$"
+      example: "KTM"
+    
+    Channel:
+      description: Channel originating the request
+      enum:
+        - ATM
+        - POS
+        - TOTEM
+        - CASH_REGISTER
+        - CSA
+      type: string
+      example: "ATM"
+
+    CloseOutcome:
+      description: Outcome for close operation
+      type: string
+      enum:
+        - CLOSE
+        - ERROR_ON_PAYMENT
+      example: "CLOSE"
+    
+    Company:
+      description: Name of the creditor company
+      type: string
+      pattern: "^[ -~]{1,140}$"
+      example: "ASL Roma"
+    
+    CreditorReferenceId:
+      description: ID for the creditor company
+      type: string
+      pattern: "^[ -~]{1,35}$"
+      example: "4839d50603fssfW5X"
+    
+    Debtor:
+      description: Debtor unstructured data
+      type: string
+      pattern: "^[ -~]{0,1024}$"
+      example: "Mario Rossi"
+    
+    Description:
+      description: Payment notice description
+      type: string
+      pattern: "^[ -~]{1,140}$"
+      example: "Health ticket for chest x-ray"
+    
+    DueDate:
+      description: Expiration date of the payment notice
+      type: string
+      format: date
+      maxLength: 10
+      example: "2022-11-30"
+    
+    Error:
+      description: Error code
+      type: string
+      pattern: "^[A-F0-9]{9}$"
+      example: "001000005"
+    
+    EuroCents:
+      description: Amount in euro cents
+      type: integer
+      format: int64
+      minimum: 1
+      maximum: 99999999999
+      example: 12345
+    
+    IdempotencyKey:
+      description: Idempotency key for activate request
+      type: string
+      pattern: "^[0-9]{11}_[a-zA-Z0-9]{10}$"
+      example: "47583764545_Ahf479elk0"
+    
+    KoOutcome:
+      description: Outcome returned to verify and activate operations when something went wrong
+      type: string
+      enum:
+        - NOTICE_GLITCH               # Spiacenti, c'è un problema tecnico con questo avviso.
+        - WRONG_NOTICE_DATA           # Spiacenti, i dati dell’avviso non sono corretti.
+        - CREDITOR_PROBLEMS           # Spiacenti, l’Ente Creditore sta avendo problemi nella risposta.
+        - PAYMENT_ALREADY_IN_PROGRESS # Il pagamento è già in corso, riprova fra qualche minuto.
+        - EXPIRED_NOTICE              # Spiacenti, l’avviso è scaduto e non è più possibile pagarlo.
+        - REVOKED_NOTICE              # Spiacenti, l’Ente Creditore ha revocato questo avviso.
+        - NOTICE_ALREADY_PAID         # Questo avviso è stato già pagato!
+        - UNKNOWN_NOTICE              # Avviso sconosciuto.
+        - UNEXPECTED_ERROR            # Spiacenti, si è verificato un errore imprevisto.
+      example: "NOTICE_GLITCH"
+    
+    MerchantId:
+      description: Merchant ID. Mandatory when Channel equals POS.
+      type: string
+      pattern: "^[0-9a-zA-Z]{1,15}$"
+      example: "28405fHfk73x88D"
+    
+    Note:
+      description: Payment notice note
+      type: string
+      pattern: "^[ -~]{1,210}$"
+      example: "This is a payment notice"
+    
+    NoticeNumber:
+      description: Notice number
+      type: string
+      pattern: "^[0-9]{18}$"
+      example: "485564829563528563"
+    
+    Office:
+      description: Name of the creditor company office
+      type: string
+      pattern: "^[ -~]{1,140}$"
+      example: "Ufficio di Roma"
+    
+    OkOutcome:
+      description: Constant value (OK) outcome
+      enum:
+        - OK
+      type: string
+      example: "OK"
+    
+    PaTaxCode:
+      description: Tax code of the creditor company
+      type: string
+      pattern: "^[0-9]{11}$"
+      example: "15376371009"
+
+    PaymentMethod:
+      description: Method used to pay notice/s
+      type: string
+      enum:
+        - PAGOBANCOMAT
+        - DEBIT_CARD
+        - CREDIT_CARD
+        - PAYMENT_CARD # To be used only if the client is unable to choose among PAGOBANCOMAT, DEBIT_CARD or CREDIT_CARD.
+        - BANK_ACCOUNT
+        - CASH
+      example: "PAGOBANCOMAT"
+    
+    PaymentToken:
+      description: ID of the payment activation
+      type: string
+      pattern: "^[ -~]{1,35}$"
+      example: "648fhg36s95jfg7DS"
+    
+    PositiveInteger:
+      description: Non negative integer
+      type: integer
+      minimum: 1
+      example: 234
+    
+    PreCloseOutcome:
+      description: Constant value (PRE_CLOSE) outcome
+      type: string
+      enum:
+        - PRE_CLOSE
+      example: "PRE_CLOSE"
+    
+    # QrCode:
+    #   description: String encoded by the QR-code
+    #   type: string
+    #   pattern: "^[ -~]{6}\\|[ -~]{3}\\|[0-9]{18}\\|[0-9]{11}\\|[0-9]{2,11}$"
+    #   example: "PAGOPA|002|000000000000000000|00000000000|9999"
+
+    QrCodeBase64UrlEnc:
+      description: Base64Url of the string encoded by the QR-code. This is due to a bug of Azure routing system which decodes %2F before routing the request.
+      type: string
+      pattern: "^[a-zA-Z0-9_-]{32,128}$"
+      example: "UEFHT1BBfDAwMnwwMDAwMDAwMDAwMDAwMDAwMDB8MDAwMDAwMDAwMDB8OTk5OQ"
+    
+    TerminalId:
+      description: ID of the terminal originating the transaction. It must be unique per acquirer and channel.
+      type: string
+      pattern: "^[0-9a-zA-Z]{1,8}$"
+      example: "0aB9wXyZ"
+
+    TotalAmount:
+      description: Total amount in euro cents without fee
+      type: integer
+      format: int64
+      minimum: 1
+      maximum: 99999999999
+      example: 12345
+    
+    TransactionId:
+      description: Transaction ID
+      type: string
+      pattern: "^[a-zA-Z0-9]{32}$"
+      example: "517a4216840E461fB011036A0fd134E1"
+    
+    TransactionStatus:
+      description: Status of the transaction
+      type: string
+      enum:
+        - PRE_CLOSE
+        - PENDING
+        - ERROR_ON_CLOSE
+        - CLOSED
+        - ERROR_ON_RESULT
+        - ERROR_ON_PAYMENT
+        - ABORTED
+      example: "CLOSED"
+
+    URI:
+      description: URI
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+    
+    UUID:
+      description: UUID
+      type: string
+      format: uuid
+      pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      example: "d0d654e6-97da-4848-b568-99fedccb642b"
+
+    # ------------------------------------------------------
+    # Common complex types
+    # ------------------------------------------------------
+    PaymentStatus:
+      description: Payment status
+      type: object
+      additionalProperties: false
+      properties:
+        transactionId:
+          $ref: '#/components/schemas/TransactionId'
+        acquirerId:
+          $ref: '#/components/schemas/AcquirerId'
+        channel:
+          $ref: '#/components/schemas/Channel'
+        merchantId:
+          $ref: '#/components/schemas/MerchantId'
+        terminalId:
+          $ref: '#/components/schemas/TerminalId'
+        insertTimestamp:
+          description: Record registration timestamp (timestamp of pre-close or abort)
+          type: string
+          format: date-time
+          maxLength: 19
+        notices:
+          description: Details of payment notices
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/PaymentNoticeFullDetails'
+        totalAmount:
+          $ref: '#/components/schemas/TotalAmount'
+        fee:
+          $ref: '#/components/schemas/EuroCents'
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        paymentTimestamp:
+          description: Timestamp of e-money transaction
+          type: string
+          format: date-time
+          maxLength: 19
+        closeTimestamp:
+          description: Timestamp of the confirmation from the Client
+          type: string
+          format: date-time
+          maxLength: 19
+        paymentDate:
+          description: Notification timestamp
+          type: string
+          format: date-time
+          maxLength: 19
+        callbackTimestamp:
+          description: Timestamp of the callback (sendPaymentResult) from the Nodo.
+          type: string
+          format: date-time
+          maxLength: 19
+      required:
+        - transactionId
+        - acquirerId
+        - channel
+        - terminalId
+        - insertTimestamp
+        - notices
+        - totalAmount
+        - status
+      example:
+        transactionId: "517a4216840E461fB011036A0fd134E1"
+        acquirerId: "4585625"
+        channel: "POS"
+        merchantId: "28405fHfk73x88D"
+        terminalId: "0aB9wXyZ"
+        insertTimestamp: "2023-04-11T16:20:34"
+        notices:
+          - paymentToken: "648fhg36s95jfg7DS"
+            paTaxCode: "15376371009"
+            noticeNumber: "485564829563528563"
+            amount: 12345
+            description: "Health ticket for chest x-ray"
+            company: "ASL Roma"
+            office: "Ufficio di Roma"
+        totalAmount: 12395
+        fee: 50
+        status: "PRE_CLOSE"
+    
+    PaymentNoticeFullDetails:
+      description: Full details of the payment notice
+      type: object
+      additionalProperties: false
+      properties:
+        paymentToken:
+          $ref: '#/components/schemas/PaymentToken'
+        paTaxCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        description:
+          $ref: '#/components/schemas/Description'
+        company:
+          $ref: '#/components/schemas/Company'
+        office:
+          $ref: '#/components/schemas/Office'
+        creditorReferenceId:
+          $ref: '#/components/schemas/CreditorReferenceId'
+        debtor:
+          $ref: '#/components/schemas/Debtor' 
+      required:
+        - paymentToken
+        - paTaxCode
+        - noticeNumber
+      example:
+        paymentToken: "648fhg36s95jfg7DS"
+        paTaxCode: "15376371009"
+        noticeNumber: "485564829563528563"
+        amount: 12345
+        description: "Health ticket for chest x-ray"
+        company: "ASL Roma"
+        office: "Ufficio di Roma"
+        creditorReferenceId: "4839d50603fssfW5X"
+        debtor: "Mario Rossi"        
+      
+    Transactions:
+      description: Details of transactions
+      type: object
+      additionalProperties: false
+      properties:
+        transactions:
+          type: array
+          maxItems: 30
+          items:
+            $ref: '#/components/schemas/PaymentStatus'
+      example:
+        transactions:
+          - transactionId: "517a4216840E461fB011036A0fd134E1"
+            acquirerId: "4585625"
+            channel: "POS"
+            merchantId: "28405fHfk73x88D"
+            terminalId: "0aB9wXyZ"
+            insertTimestamp: "2023-04-11T16:20:34"
+            notices:
+              - paymentToken: "648fhg36s95jfg7DS"
+                paTaxCode: "15376371009"
+                noticeNumber: "485564829563528563"
+                amount: 12345
+                description: "Health ticket for chest x-ray"
+                company: "ASL Roma"
+                office: "Ufficio di Roma"
+            totalAmount: 12395
+            fee: 50
+            status: "PRE_CLOSE"
+        
+    PaymentStatusByNodo:
+      description: Payment status communicated by the Nodo
+      type: object
+      additionalProperties: false
+      properties:
+        outcome:
+          $ref: '#/components/schemas/AllOrNothingOutcome'
+        paymentDate:
+          description: Notification timestamp
+          type: string
+          format: date-time
+          maxLength: 19
+        payments:
+          description: Details of payment notices
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/PaymentDetailsByNodo'
+      required:
+        - outcome
+        - paymentDate
+        - payments
+      example:
+        outcome: "OK"
+        paymentDate: "2022-11-12T08:53:55"
+        payments:
+          - paymentToken: "648fhg36s95jfg7DS"
+            description: "Health ticket for chest x-ray"
+            creditorReferenceId: "4839d50603fssfW5X"
+            fiscalCode: "15376371009"
+            company: "ASL Roma"
+            office: "Ufficio di Roma"
+            debtor: "Mario Rossi"
+            
+    PaymentDetailsByNodo:
+      description: Details of a payment notice communicated by the Nodo
+      type: object
+      additionalProperties: false
+      properties:
+        paymentToken:
+          $ref: '#/components/schemas/PaymentToken'
+        description:
+          $ref: '#/components/schemas/Description'
+        creditorReferenceId:
+          $ref: '#/components/schemas/CreditorReferenceId'
+        fiscalCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        company:
+          $ref: '#/components/schemas/Company'
+        office:
+          $ref: '#/components/schemas/Office'
+        debtor:
+          $ref: '#/components/schemas/Debtor'
+      example:
+        paymentToken: "648fhg36s95jfg7DS"
+        description: "Health ticket for chest x-ray"
+        creditorReferenceId: "4839d50603fssfW5X"
+        fiscalCode: "15376371009"
+        company: "ASL Roma"
+        office: "Ufficio di Roma"
+        debtor: "Mario Rossi"
+        
+    TrxNotFoundOutcome:
+      description: Constant value (PAYMENT_NOT_FOUND) outcome
+      type: string
+      enum:
+        - PAYMENT_NOT_FOUND
+      example: "PAYMENT_NOT_FOUND"
+    
+    VerifyOrActivateKo:
+      description: Response to verify or activate payment notice when something went wrong
+      type: object
+      additionalProperties: true
+      properties:
+        outcome:
+          $ref: '#/components/schemas/KoOutcome'
+      required:
+        - outcome
+      example:
+        outcome: "NOTICE_GLITCH"
+
+    # ------------------------------------------------------
+    # Complex types for verifyByQrCode and
+    # verifyByTaxCodeAndNoticeNumber
+    # ------------------------------------------------------
+    VerifyOk:
+      description: Response to verify payment notice when all went ok
+      type: object
+      additionalProperties: true
+      properties:
+        outcome:
+          $ref: '#/components/schemas/OkOutcome'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        dueDate:
+          $ref: '#/components/schemas/DueDate'
+        note:
+          $ref: '#/components/schemas/Note'
+        description:
+          $ref: '#/components/schemas/Description'
+        company:
+          $ref: '#/components/schemas/Company'
+        office:
+          $ref: '#/components/schemas/Office'
+        paTaxCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
+      required:
+        - outcome
+        - amount
+        - paTaxCode
+        - noticeNumber
+      example:
+        outcome: "OK"
+        amount: 12345
+        paTaxCode: "15376371009"
+        noticeNumber: "485564829563528563"
+
+    # ------------------------------------------------------
+    # Complex types for activateByQrCode and
+    # activateByTaxCodeAndNoticeNumber
+    # ------------------------------------------------------
+    ActivateOk:
+      description: Response to activate payment notice when all went ok
+      type: object
+      additionalProperties: true
+      properties:
+        outcome:
+          $ref: '#/components/schemas/OkOutcome'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        paTaxCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        paymentToken:
+          $ref: '#/components/schemas/PaymentToken'
+        transfers:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/Transfer'
+      required:
+        - paymentToken
+      example:
+        outcome: "OK"
+        amount: 12345
+        paTaxCode: "15376371009"
+        paymentToken: "648fhg36s95jfg7DS"
+        transfers:
+          - paTaxCode: "15376371009"
+            category: "KTM"
+
+    # ------------------------------------------------------
+    # Complex types for preCloseOrAbort
+    # ------------------------------------------------------
+    PreClose:
+      description: Request to pre-close the payment of a set of payment notices
+      type: object
+      additionalProperties: true
+      properties:
+        outcome:
+          $ref: '#/components/schemas/PreCloseOutcome'
+        paymentTokens:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/PaymentToken'
+        transactionId:
+          $ref: '#/components/schemas/TransactionId'
+        totalAmount:
+          $ref: '#/components/schemas/TotalAmount'
+        fee:
+          $ref: '#/components/schemas/EuroCents'
+      required:
+        - outcome
+        - paymentTokens
+        - transactionId
+        - totalAmount
+        - fee
+      example:
+        outcome: "PRE_CLOSE"
+        paymentTokens:
+          - "648fhg36s95jfg7DS"
+        transactionId: "517a4216840E461fB011036A0fd134E1"
+        totalAmount: 10000
+        fee: 50
+    
+    Abort:
+      description: Request to abort the payment of a set of payment notices
+      type: object
+      additionalProperties: true
+      properties:
+        outcome:
+          $ref: '#/components/schemas/AbortOutcome'
+        presetId:
+          $ref: '#/components/schemas/UUID'
+        paymentTokens:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/PaymentToken'
+      required:
+        - outcome
+        - paymentTokens
+      example:
+        outcome: "ABORT"
+        paymentTokens:
+          - "648fhg36s95jfg7DS"
+
+    Errors:
+      description: List of errors
+      type: object
+      additionalProperties: false
+      properties:
+        errors:
+          type: array
+          maxItems: 32
+          items:
+            $ref: '#/components/schemas/Error'
+      required:
+        - errors
+      example:
+        errors:
+          - "00000000A"
+          - "001000001"
+
+    Transfer:
+      description: Transfer essential data
+      type: object
+      additionalProperties: false
+      properties:
+        paTaxCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        category:
+          $ref: '#/components/schemas/Category'
+      required:
+        - paTaxCode
+        - category
+      example:
+        paTaxCode: "15376371009"
+        category: "KTM"
+
+  # ========================================================
+  # Request bodies
+  # ========================================================
+  requestBodies:
+    # ------------------------------------------------------
+    # For activateByQrCode and
+    # activateByTaxCodeAndNoticeNumber
+    # ------------------------------------------------------
+    Activate:
+      description: Request to activate payment notice
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              idempotencyKey:
+                $ref: '#/components/schemas/IdempotencyKey'
+              amount:
+                $ref: '#/components/schemas/EuroCents'
+            required:
+              - idempotencyKey
+              - amount
+            example:
+              idempotencyKey: "47583764545_Ahf479elk0"
+              amount: 12345
+
+    # ------------------------------------------------------
+    # For preCloseOrAbort
+    # ------------------------------------------------------
+    PreCloseOrAbort:
+      description: Request to pre-close or abort a transaction
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/PreClose'
+              - $ref: '#/components/schemas/Abort'       
+    
+    # ------------------------------------------------------
+    # For close
+    # ------------------------------------------------------
+    Close:
+      description: Request to close a transaction
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              outcome:
+                $ref: '#/components/schemas/CloseOutcome'
+              paymentMethod:
+                $ref: '#/components/schemas/PaymentMethod'
+              paymentTimestamp:
+                description: Timestamp of e-money transaction
+                type: string
+                format: date-time
+                maxLength: 19
+              presetId:
+                $ref: '#/components/schemas/UUID'
+            required:
+              - outcome
+              - paymentMethod
+              - paymentTimestamp
+            example:
+              outcome: "CLOSE"
+              paymentMethod: "PAGOBANCOMAT"
+              paymentTimestamp: "2022-11-12T08:53:55"
+
+    # ------------------------------------------------------
+    # For receivePaymentStatus
+    # ------------------------------------------------------
+    PaymentStatusByNodo:
+      description: Payment status communicated by the Nodo
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaymentStatusByNodo'
+
+  # ========================================================
+  # Parameters
+  # ========================================================
+  parameters:
+    Version:
+      name: Version
+      in: header
+      description: Version of the required API
+      required: false
+      schema:
+        type: string
+        pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+        maxLength: 64
+        example: "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay"
+
+    AcquirerId:
+      name: AcquirerId
+      in: header
+      description: Acquirer ID assigned by PagoPA
+      required: true
+      schema:
+        $ref: '#/components/schemas/AcquirerId'
+
+    Channel:
+      name: Channel
+      in: header
+      description: Channel originating the request
+      required: true
+      schema:
+        $ref: '#/components/schemas/Channel'
+
+    MerchantId:
+      name: MerchantId
+      description: Merchant ID. Mandatory when Channel equals POS.
+      in: header
+      required: false
+      schema:
+        $ref: '#/components/schemas/MerchantId'
+    
+    RequestId:
+      name: RequestId
+      in: header
+      description: Request Id that will be logged by services
+      required: true
+      schema:
+        $ref: '#/components/schemas/UUID'
+
+    TerminalId:
+      name: TerminalId
+      in: header
+      description: ID of the terminal originating the transaction. It must be unique per acquirer and channel.
+      required: true
+      schema:
+        $ref: '#/components/schemas/TerminalId'
+
+  # ========================================================
+  # Responses
+  # ========================================================
+  responses:
+    Error:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+
+    # ------------------------------------------------------
+    # For verifyByQrCode and verifyByTaxCodeAndNoticeNumber
+    # ------------------------------------------------------
+    VerifyProcessed:
+      description: Verify processed
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/VerifyOk'
+              - $ref: '#/components/schemas/VerifyOrActivateKo'
+
+    # ------------------------------------------------------
+    # For activateByQrCode and
+    # activateByTaxCodeAndNoticeNumber
+    # ------------------------------------------------------
+    ActivateProcessed:
+      description: Activate processed
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/ActivateOk'
+              - $ref: '#/components/schemas/VerifyOrActivateKo'
+
+    # ------------------------------------------------------
+    # For preCloseOrAbort
+    # ------------------------------------------------------
+    PreCloseOrAbortProcessed:
+      description: Response to pre-close or abort successfully processed
+      headers:
+        Location:
+          description: URL to get the status of the transaction (only for pre-close operation)
+          required: false
+          schema:
+            $ref: '#/components/schemas/URI'
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              outcome:
+                $ref: '#/components/schemas/OkOutcome'
+            required:
+              - outcome
+            example:
+              outcome: "OK"
+    
+    # ------------------------------------------------------
+    # For close
+    # ------------------------------------------------------
+    CloseProcessed:
+      description: Response to close successfully processed
+      headers:
+        Location:
+          description: URL to check the status of payment confirmation. If outcome = OK the field is present.
+          required: false
+          schema:
+            $ref: '#/components/schemas/URI'
+        Retry-After:
+          description: Number of seconds after which to check the status of payment confirmation. If outcome = OK the field is present.
+          required: false
+          schema:
+            $ref: '#/components/schemas/PositiveInteger'
+        Max-Retries:
+          description: Max number of retries to check the status of payment confirmation. If outcome = OK the field is present.
+          required: false
+          schema:
+            $ref: '#/components/schemas/PositiveInteger'
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              outcome:
+                $ref: '#/components/schemas/AllOrNothingOutcome'
+            required:
+              - outcome
+            example:
+              outcome: "OK"
+
+    # ------------------------------------------------------
+    # For getPaymentStatus
+    # ------------------------------------------------------
+    PaymentStatus:
+      description: Payment status received
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+
+    # ------------------------------------------------------
+    # For receivePaymentStatus
+    # ------------------------------------------------------
+    PaymentStatusReceived:
+      description: Payment status received
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              outcome:
+                $ref: '#/components/schemas/OkOutcome'
+            required:
+              - outcome
+            example:
+              outcome: "OK"
+
+    TransactionNotFound:
+      description: Transaction not found
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              outcome:
+                $ref: '#/components/schemas/TrxNotFoundOutcome'
+            required:
+              - outcome
+            example:
+              outcome: "PAYMENT_NOT_FOUND"
+
+    # ------------------------------------------------------
+    # For getLastTransactions
+    # ------------------------------------------------------
+    Transactions:
+      description: Details of transactions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Transactions'
+
+  # ========================================================
+  # Security schemes
+  # ========================================================
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
