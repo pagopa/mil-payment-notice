@@ -20,8 +20,8 @@
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
 		<quarkus.platform.version>3.1.1.Final</quarkus.platform.version>
 		<skipITs>true</skipITs>
+		<depcheck-plugin.version>1.1.1</depcheck-plugin.version>
 		<common.version>2.0.2</common.version>
-		
 		<sonar.host.url>https://sonarcloud.io:443/</sonar.host.url>
 		<sonar.organization>pagopa</sonar.organization>
 		<sonar.projectKey>pagopa_mil-payment-notice</sonar.projectKey>
@@ -178,6 +178,12 @@
 			<url>https://maven.pkg.github.com/pagopa/mil-common</url>
 		</repository>
 	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/pagopa/depcheck</url>
+		</pluginRepository>
+	</pluginRepositories>
 	<build>
 		<plugins>
 			<plugin>
@@ -262,6 +268,24 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>it.pagopa.maven</groupId>
+				<artifactId>depcheck</artifactId>
+				<version>${depcheck-plugin.version}</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<fileName>dep-sha256.json</fileName>
+					<includePlugins>false</includePlugins>
+					<includeParent>false</includeParent>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
