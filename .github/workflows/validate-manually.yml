@@ -19,9 +19,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-
-      - name: Build dependencies with Maven
-        run: mvn clean validate -Pbootstrap --no-transfer-progress
       
       - name: SCA with Sonar
         env:
