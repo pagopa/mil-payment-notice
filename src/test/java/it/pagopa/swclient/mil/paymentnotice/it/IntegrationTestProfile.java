@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 
 import io.quarkus.test.junit.QuarkusTestProfile;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.IDPTestResource;
 import it.pagopa.swclient.mil.paymentnotice.it.resource.KafkaTestResource;
 import it.pagopa.swclient.mil.paymentnotice.it.resource.MongoTestResource;
 import it.pagopa.swclient.mil.paymentnotice.it.resource.RedisTestResource;
@@ -40,6 +41,7 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
     @Override
     public List<TestResourceEntry> testResources() {
         return ImmutableList.of(
+                new TestResourceEntry(IDPTestResource.class),
                 new TestResourceEntry(WiremockTestResource.class),
                 new TestResourceEntry(RedisTestResource.class),
                 new TestResourceEntry(MongoTestResource.class),

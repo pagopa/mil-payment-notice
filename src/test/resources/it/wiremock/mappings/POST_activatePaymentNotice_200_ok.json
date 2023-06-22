@@ -21,7 +21,7 @@
             "sessionId": "27782811-b467-48c9-b6f5-621083cea190",
             "Request-Context": "appId=cid-v1:58b37248-3089-47ba-aa07-a2844fabe46a"
         },
-        "bodyFileName": "activatePaymentNotice_ok.xml",
+        "bodyFileName": "nodo/activatePaymentNotice_ok.xml",
         "transformers": ["response-template"]
     }
 }

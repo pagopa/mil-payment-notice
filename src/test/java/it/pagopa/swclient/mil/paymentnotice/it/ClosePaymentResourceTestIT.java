@@ -18,12 +18,15 @@ import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.Preset;
+import it.pagopa.swclient.mil.paymentnotice.bean.Role;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 import it.pagopa.swclient.mil.paymentnotice.util.KafkaUtils;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
+import it.pagopa.swclient.mil.paymentnotice.util.TokenGenerator;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -62,6 +65,9 @@ import static io.restassured.RestAssured.given;
 class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 
 	static final Logger logger = LoggerFactory.getLogger(ClosePaymentResourceTestIT.class);
+
+	@InjectTokenGenerator
+	TokenGenerator tokenGenerator;
 
 	DevServicesContext devServicesContext;
 
@@ -164,6 +170,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("transactionId", PaymentTestData.PAY_TID_NODE_OK)
 				.and()
 				.body(getClosePaymentRequest(PaymentTransactionOutcome.CLOSE))
@@ -206,6 +215,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("transactionId", PaymentTestData.PAY_TID_NODE_KO)
 				.and()
 				.body(getClosePaymentRequest(PaymentTransactionOutcome.CLOSE))
@@ -237,6 +249,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("transactionId", paymentTransactionId)
 				.and()
@@ -272,6 +287,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("transactionId", paymentTransactionId)
 				.and()
 				.body(getClosePaymentRequest(PaymentTransactionOutcome.CLOSE))
@@ -300,6 +318,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("transactionId", PaymentTestData.PAY_TID_NODE_TIMEOUT)
 				.and()
@@ -330,6 +351,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("transactionId", unknownTransactionId)
 				.and()
 				.body(getClosePaymentRequest(PaymentTransactionOutcome.CLOSE))
@@ -354,6 +378,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(invalidClientHeaderMap)
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("transactionId",PaymentTestData.PAY_TID_NODE_OK)
 				.and()
 				.body(getClosePaymentRequest(PaymentTransactionOutcome.CLOSE))
@@ -375,6 +402,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, false))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("transactionId",PaymentTestData.PAY_TID_NODE_OK)
 				.and()
@@ -398,6 +428,9 @@ class ClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("transactionId", PaymentTestData.PAY_TID_NODE_TIMEOUT)
 				.and()

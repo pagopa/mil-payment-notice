@@ -14,7 +14,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import it.pagopa.swclient.mil.paymentnotice.bean.Role;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.paymentnotice.util.KafkaUtils;
+import it.pagopa.swclient.mil.paymentnotice.util.TokenGenerator;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +66,9 @@ import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 
 	static final Logger logger = LoggerFactory.getLogger(ManagePaymentResultTestIT.class);
+
+	@InjectTokenGenerator
+	TokenGenerator tokenGenerator;
 
 	DevServicesContext devServicesContext;
 
@@ -184,6 +190,9 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 
 		Response response = given()
 				.headers(milHeadersGetTransactions)
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.when()
 				.get("/")
 				.then()
@@ -204,6 +213,9 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(milHeaders)
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("transactionId", closedTransactionId)
 				.when()
 				.get("/{transactionId}")
@@ -222,6 +234,9 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(milHeaders)
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("transactionId", UUID.randomUUID().toString().replaceAll("-", ""))
 				.when()
@@ -244,6 +259,9 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(invalidClientHeaderMap)
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("transactionId", UUID.randomUUID().toString().replaceAll("-", ""))
 				.when()
@@ -271,6 +289,9 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(milHeaders)
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NODO))
 				.and()
 				.pathParam("transactionId", pendingTransactionIdOK)
 				.body(paymentStatusRequest)
@@ -316,6 +337,9 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(milHeaders)
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NODO))
+				.and()
 				.pathParam("transactionId", pendingTransactionIdKO)
 				.body(paymentStatusRequest)
 				.when()
@@ -360,6 +384,9 @@ class ManagePaymentResultTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(milHeaders)
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NODO))
 				.and()
 				.pathParam("transactionId", UUID.randomUUID().toString().replaceAll("-", ""))
 				.body(paymentStatusRequest)

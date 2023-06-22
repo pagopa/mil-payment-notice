@@ -20,13 +20,16 @@ import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
+import it.pagopa.swclient.mil.paymentnotice.bean.Role;
 import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.paymentnotice.resource.PaymentResource;
 import it.pagopa.swclient.mil.paymentnotice.util.KafkaUtils;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
+import it.pagopa.swclient.mil.paymentnotice.util.TokenGenerator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -65,6 +68,9 @@ import static io.restassured.RestAssured.given;
 class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 
 	static final Logger logger = LoggerFactory.getLogger(PreClosePaymentResourceTestIT.class);
+
+	@InjectTokenGenerator
+	TokenGenerator tokenGenerator;
 
 	DevServicesContext devServicesContext;
 
@@ -202,6 +208,9 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(validMilHeaders)
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount, true))
 				.when()
 				.post("/")
@@ -299,6 +308,9 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount-10, false))
 				.when()
 				.post("/")
@@ -321,6 +333,9 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.PRE_CLOSE, List.of(transactionId), totalAmount, false))
 				.when()
 				.post("/")
@@ -340,6 +355,9 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.body(getPreCloseRequest(existingTransactionId, PaymentTransactionOutcome.PRE_CLOSE, paymentTokens, totalAmount, false))
 				.when()
@@ -362,6 +380,9 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount, false))
 				.when()
@@ -386,6 +407,9 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount, false))
 				.when()
 				.post("/")
@@ -405,6 +429,9 @@ class PreClosePaymentResourceTestIT implements DevServicesContext.ContextAware {
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(PaymentTestData.getMilHeaders(true, false))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.body(getPreCloseRequest(transactionId, PaymentTransactionOutcome.ABORT, paymentTokens, totalAmount, false))
 				.when()

@@ -13,8 +13,11 @@ import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.pagopa.swclient.mil.paymentnotice.bean.Role;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.paymentnotice.resource.VerifyPaymentNoticeResource;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
+import it.pagopa.swclient.mil.paymentnotice.util.TokenGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -45,6 +48,9 @@ import static io.restassured.RestAssured.given;
 class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAware {
 
 	static final Logger logger = LoggerFactory.getLogger(VerifyPaymentNoticeResourceTestIT.class);
+
+	@InjectTokenGenerator
+	TokenGenerator tokenGenerator;
 
 	VerifyPaymentNoticeRes verifyPaymentNoticeResOk;
 
@@ -149,66 +155,15 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
-	@Test
-	void testVerifyByQrCode_400() {
-
-		Response response = given()
-				.headers(PaymentTestData.getMilHeaders(true, true))
-				.and()
-				.pathParam("qrCode", "PAGOPA|100000000000000000|20000000000|9999")
-				.when()
-				.get("/{qrCode}")
-				.then()
-				.extract()
-				.response();
-
-		Assertions.assertEquals(400, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ENCODED_QRCODE_MUST_MATCH_REGEXP));
-		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
-
-	}
-
-	@Test
-	void testVerifyByTaxCodeAndNoticeNumber_400() {
-
-		Response response = given()
-				.headers(PaymentTestData.getMilHeaders(true, true))
-				.and()
-				.pathParam("paTaxCode", "2000000")
-				.pathParam("noticeNumber", "10000000000")
-				.when()
-				.get("/{paTaxCode}/{noticeNumber}")
-				.then()
-				.extract()
-				.response();
-
-		Assertions.assertEquals(400, response.statusCode());
-		Assertions.assertEquals(2, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP));
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.NOTICE_NUMBER_MUST_MATCH_REGEXP));
-		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
-		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
-
-	}
-
 
 	@Test
 	void testVerifyByQrCode_200_nodeOk() {
 
 		Response response = given()
 				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("qrCode", generateB64UrlEncodedQrCode("77777777777"))
 				.when()
@@ -236,6 +191,9 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 		Response response = given()
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("qrCode", generateB64UrlEncodedQrCode("20000000000"))
 				.when()
 				.get("/{qrCode}")
@@ -255,12 +213,65 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 
 	}
 
+	@Test
+	void testVerifyByQrCode_400() {
+
+		Response response = given()
+				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
+				.pathParam("qrCode", "PAGOPA|100000000000000000|20000000000|9999")
+				.when()
+				.get("/{qrCode}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ENCODED_QRCODE_MUST_MATCH_REGEXP));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+
+	}
+
+	@Test
+	void testVerifyByQrCode_403_unauthorized() {
+
+		Response response = given()
+				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NODO))
+				.and()
+				.pathParam("qrCode", generateB64UrlEncodedQrCode("77777777777"))
+				.when()
+				.get("/{qrCode}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(403, response.statusCode());
+		Assertions.assertEquals(0, response.body().asString().length());
+
+	}
+
 	@ParameterizedTest
 	@ValueSource(strings = {"88888888888", "99999999999", "66666666666"})
 	void testVerifyByQrCode_500_nodeError(String paTaxCode) {
 
 		Response response = given()
 				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("qrCode", generateB64UrlEncodedQrCode(paTaxCode))
 				.when()
@@ -288,6 +299,9 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 		Response response = given()
 				.headers(PaymentTestData.getMilHeaders(true, false))
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("qrCode", generateB64UrlEncodedQrCode("77777777777"))
 				.when()
 				.get("/{qrCode}")
@@ -313,6 +327,9 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 
 		Response response = given()
 				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("paTaxCode", "77777777777")
 				.pathParam("noticeNumber", noticeNumber)
@@ -343,6 +360,9 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 		Response response = given()
 				.headers(PaymentTestData.getMilHeaders(true, true))
 				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
 				.pathParam("paTaxCode", "20000000000")
 				.pathParam("noticeNumber", noticeNumber)
 				.when()
@@ -363,6 +383,58 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 
 	}
 
+	@Test
+	void testVerifyByTaxCodeAndNoticeNumber_400() {
+
+		Response response = given()
+				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+				.and()
+				.pathParam("paTaxCode", "2000000")
+				.pathParam("noticeNumber", "10000000000")
+				.when()
+				.get("/{paTaxCode}/{noticeNumber}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(2, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP));
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.NOTICE_NUMBER_MUST_MATCH_REGEXP));
+		Assertions.assertNull(response.jsonPath().getJsonObject("outcome"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("amount"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("dueDate"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("note"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("description"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("company"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("office"));
+
+	}
+
+	@Test
+	void testVerifyByTaxCodeAndNoticeNumber_403_unauthorized() {
+
+		Response response = given()
+				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NODO))
+				.and()
+				.pathParam("paTaxCode", "77777777777")
+				.pathParam("noticeNumber", noticeNumber)
+				.when()
+				.get("/{paTaxCode}/{noticeNumber}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(403, response.statusCode());
+		Assertions.assertEquals(0, response.body().asString().length());
+
+	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"88888888888", "99999999999", "66666666666"})
@@ -370,6 +442,9 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 
 		Response response = given()
 				.headers(PaymentTestData.getMilHeaders(true, true))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("paTaxCode", paTaxCode)
 				.pathParam("noticeNumber", noticeNumber)
@@ -397,6 +472,9 @@ class VerifyPaymentNoticeResourceTestIT implements DevServicesContext.ContextAwa
 
 		Response response = given()
 				.headers(PaymentTestData.getMilHeaders(true, false))
+				.and()
+				.auth()
+				.oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
 				.and()
 				.pathParam("paTaxCode", "20000000000")
 				.pathParam("noticeNumber", noticeNumber)

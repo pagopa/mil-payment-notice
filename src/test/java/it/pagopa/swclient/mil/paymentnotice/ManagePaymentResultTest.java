@@ -14,6 +14,7 @@ import java.util.Map;
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.test.junit.TestProfile;
+import io.quarkus.test.security.TestSecurity;
 import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.memory.InMemorySink;
 import it.pagopa.swclient.mil.paymentnotice.bean.Payment;
@@ -132,6 +133,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPayments_200() {
 
 		ReactivePanacheQuery<PaymentTransactionEntity> reactivePanacheQuery = Mockito.mock(ReactivePanacheQuery.class);
@@ -161,6 +163,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPayments_200_empty() {
 
 		ReactivePanacheQuery<PaymentTransactionEntity> reactivePanacheQuery = Mockito.mock(ReactivePanacheQuery.class);
@@ -188,6 +191,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPayments_500_db_errorRead() {
 
 		ReactivePanacheQuery<PaymentTransactionEntity> reactivePanacheQuery = Mockito.mock(ReactivePanacheQuery.class);
@@ -216,6 +220,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPaymentStatus_200() {
 
 		Mockito
@@ -257,6 +262,7 @@ class ManagePaymentResultTest {
 
 	@ParameterizedTest
 	@MethodSource("it.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideHeaderValidationErrorCases")
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPaymentStatus_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode)  {
 
 		Response response = given()
@@ -277,6 +283,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPaymentStatus_400_invalidPathParam()  {
 
 		Response response = given()
@@ -297,6 +304,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPaymentStatus_404_transactionNotFound()  {
 
 		Mockito
@@ -320,6 +328,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPaymentStatus_404_transactionMismatch()  {
 
 		Mockito
@@ -347,6 +356,7 @@ class ManagePaymentResultTest {
 
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testGetPaymentResult_500_db_errorRead() {
 
 		Mockito
@@ -370,6 +380,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
 	void testReceivePaymentStatusOK_200() {
 
 		Mockito
@@ -415,6 +426,8 @@ class ManagePaymentResultTest {
 		}
 	}
 
+	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
 	void testReceivePaymentStatusOK_200_preset() {
 
 		Mockito
@@ -459,6 +472,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
 	void testReceivePaymentStatusKO_200() {
 
 		Mockito
@@ -505,6 +519,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
 	void testReceivePaymentStatusKO_200_preset() {
 
 		Mockito
@@ -549,6 +564,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
 	void testReceivePaymentStatus_404() {
 
 		Mockito
@@ -572,6 +588,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
 	void testReceivePaymentResult_500_db_errorRead() {
 
 		Mockito
@@ -598,6 +615,7 @@ class ManagePaymentResultTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
 	void testReceivePaymentResult_500_db_errorWrite() {
 
 		Mockito

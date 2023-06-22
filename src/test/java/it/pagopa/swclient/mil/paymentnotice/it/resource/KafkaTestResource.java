@@ -36,6 +36,11 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager, D
     }
 
     @Override
+    public int order() {
+        return 1;
+    }
+
+    @Override
     public Map<String, String> start() {
 
         try {

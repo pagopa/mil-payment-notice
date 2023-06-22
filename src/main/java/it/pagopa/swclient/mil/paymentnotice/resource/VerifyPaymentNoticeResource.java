@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
+import it.pagopa.swclient.mil.paymentnotice.bean.Role;
 import it.pagopa.swclient.mil.paymentnotice.bean.VerifyPaymentNoticeResponse;
 import it.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -51,6 +53,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 	@GET
 	@Path("/{qrCode}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed({"NoticePayer", "SlavePos"})
 	public Uni<Response> verifyByQrCode(@Valid @BeanParam CommonHeader headers,
 			@Pattern(regexp = PaymentNoticeConstants.ENCODED_QRCODE_REGEX, message = "[" + ErrorCode.ENCODED_QRCODE_MUST_MATCH_REGEXP + "] qrCode must match \"{regexp}\"")
 			@PathParam(value = "qrCode") String b64UrlQrCode) {
@@ -78,6 +81,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 	@GET
 	@Path("/{paTaxCode}/{noticeNumber}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed({"NoticePayer", "SlavePos"})
 	public Uni<Response> verifyByTaxCodeAndNoticeNumber(@Valid @BeanParam CommonHeader headers,
 			
 			@Pattern(regexp = PaymentNoticeConstants.PA_TAX_CODE_REGEX, message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")

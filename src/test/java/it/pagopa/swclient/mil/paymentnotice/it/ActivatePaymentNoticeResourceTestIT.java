@@ -17,10 +17,13 @@ import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.pagopa.swclient.mil.paymentnotice.bean.Role;
 import it.pagopa.swclient.mil.paymentnotice.bean.Transfer;
 import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
+import it.pagopa.swclient.mil.paymentnotice.it.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.paymentnotice.resource.ActivatePaymentNoticeResource;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
+import it.pagopa.swclient.mil.paymentnotice.util.TokenGenerator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -52,6 +55,9 @@ import static io.restassured.RestAssured.given;
 class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextAware {
 
     static final Logger logger = LoggerFactory.getLogger(VerifyPaymentNoticeResourceTestIT.class);
+
+    @InjectTokenGenerator
+    TokenGenerator tokenGenerator;
 
     ActivatePaymentNoticeV2Response nodeActivateResponseOk;
 
@@ -198,6 +204,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
                 .contentType(ContentType.JSON)
                 .headers(PaymentTestData.getMilHeaders(true, true))
                 .and()
+                .auth()
+                .oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+                .and()
                 .pathParam("qrCode", generateB64UrlEncodedQrCode("77777777777"))
                 .body(activateRequest)
                 .when()
@@ -252,6 +261,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
                 .contentType(ContentType.JSON)
                 .headers(PaymentTestData.getMilHeaders(true, true))
                 .and()
+                .auth()
+                .oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+                .and()
                 .pathParam("qrCode", generateB64UrlEncodedQrCode("20000000000"))
                 .body(activateRequest)
                 .when()
@@ -280,6 +292,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
         Response response = given()
                 .contentType(ContentType.JSON)
                 .headers(PaymentTestData.getMilHeaders(true, true))
+                .and()
+                .auth()
+                .oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
                 .and()
                 .pathParam("qrCode", generateB64UrlEncodedQrCode(paTaxCode))
                 .body(activateRequest)
@@ -310,6 +325,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
                 .contentType(ContentType.JSON)
                 .headers(PaymentTestData.getMilHeaders(true, false))
                 .and()
+                .auth()
+                .oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+                .and()
                 .pathParam("qrCode", generateB64UrlEncodedQrCode("77777777777"))
                 .body(activateRequest)
                 .when()
@@ -338,6 +356,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
         Response response = given()
                 .contentType(ContentType.JSON)
                 .headers(PaymentTestData.getMilHeaders(true, true))
+                .and()
+                .auth()
+                .oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
                 .and()
                 .pathParam("paTaxCode", "77777777777")
                 .pathParam("noticeNumber", "100000000000000000")
@@ -394,6 +415,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
                 .contentType(ContentType.JSON)
                 .headers(PaymentTestData.getMilHeaders(true, true))
                 .and()
+                .auth()
+                .oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
+                .and()
                 .pathParam("paTaxCode", "20000000000")
                 .pathParam("noticeNumber", "100000000000000000")
                 .body(activateRequest)
@@ -423,6 +447,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
         Response response = given()
                 .contentType(ContentType.JSON)
                 .headers(PaymentTestData.getMilHeaders(true, true))
+                .and()
+                .auth()
+                .oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
                 .and()
                 .pathParam("paTaxCode", paTaxCode)
                 .pathParam("noticeNumber", "100000000000000000")
@@ -454,6 +481,9 @@ class ActivatePaymentNoticeResourceTestIT implements DevServicesContext.ContextA
         Response response = given()
                 .contentType(ContentType.JSON)
                 .headers(PaymentTestData.getMilHeaders(true, false))
+                .and()
+                .auth()
+                .oauth2(tokenGenerator.getToken(Role.NOTICE_PAYER))
                 .and()
                 .pathParam("paTaxCode", "20000000000")
                 .pathParam("noticeNumber", "100000000000000000")
