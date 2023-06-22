@@ -86,6 +86,8 @@ public final class ErrorCode {
 	public static final String PRESET_ID_MUST_NOT_BE_NULL									= MODULE_ID + "000037";
 	public static final String PRESET_ID_MUST_MATCH_REGEXP 									= MODULE_ID + "000038";
 
+	public static final String AUTHENTICATION_ERROR											= MODULE_ID + "000039";
+
 	private ErrorCode() {
 	}
 }
