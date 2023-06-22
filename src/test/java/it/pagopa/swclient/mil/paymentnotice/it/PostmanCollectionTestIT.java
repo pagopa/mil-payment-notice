@@ -20,7 +20,11 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.startupcheck.IndefiniteWaitOneShotStartupCheckStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 @QuarkusIntegrationTest
@@ -42,31 +46,42 @@ class PostmanCollectionTestIT implements DevServicesContext.ContextAware {
     @BeforeAll
     void startNewmanContainer() {
 
-        //newmanContainer = new GenericContainer<>(DockerImageName.parse("postman/newman:alpine"))
         newmanContainer = new GenericContainer<>(DockerImageName.parse("dannydainton/htmlextra"))
-                //.withNetwork(getNetwork())
-                //.withNetworkMode(devServicesContext.containerNetworkId().get())
                 .waitingFor(Wait.forListeningPort())
                 .withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy());
 
         newmanContainer.withLogConsumer(new Slf4jLogConsumer(logger));
+
+        String exposedPort = devServicesContext.devServicesProperties().get("test.wiremock.exposed-port");
+
+        try {
+            Files.createDirectories(Path.of("./target/newman-report"));
+        } catch (IOException e) {
+            logger.error("Error while create report directory", e);
+        }
+
         newmanContainer.setCommand(
                 "run",
                 "Payment_Notice_Service.postman_collection.json",
                 "--disable-unicode",
                 "-k",
-                "--environment=Local_IT.postman_environment.json",
-                "--reporters=htmlextra",
-                "--reporter-htmlextra-export=reports/Payment_Notice_Service_Tests.html");
+                "--environment", "Local_IT.postman_environment.json",
+                "--env-var", "MIL_IDP_BASE_URL=http://host.testcontainers.internal:" + exposedPort,
+                "--env-var", "idp_token_pos_username=NoticePayer",
+                "--reporters", "htmlextra",
+                "--reporter-htmlextra-export", "reports/Payment_Notice_Service_Tests.html");
 
-        newmanContainer.withFileSystemBind("./src/test/postman", "/etc/newman");
+        newmanContainer.withFileSystemBind("./target/newman-report/", "/etc/newman/reports");
+        newmanContainer.withCopyToContainer(MountableFile.forHostPath(Path.of("./src/test/postman/Payment_Notice_Service.postman_collection.json")), "/etc/newman/Payment_Notice_Service.postman_collection.json");
+        newmanContainer.withCopyToContainer(MountableFile.forHostPath(Path.of("./src/test/postman/Local_IT.postman_environment.json")), "/etc/newman/Local_IT.postman_environment.json");
 
         // exposing port to newman container
         Config config = ConfigProvider.getConfig();
         Optional<Integer> testPort = config.getOptionalValue("quarkus.http.test-port", Integer.class);
         logger.info("quarkus.http.test-port -> {}", testPort);
-        Testcontainers.exposeHostPorts(testPort.orElse(8081));
 
+        Testcontainers.exposeHostPorts(testPort.orElse(8081));
+        Testcontainers.exposeHostPorts(Integer.parseInt(exposedPort));
 
     }
 

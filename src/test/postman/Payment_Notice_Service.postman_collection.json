@@ -11,6 +11,224 @@
 			"name": "1. Validazione dati",
 			"item": [
 				{
+					"name": "0. retrieveAccessToken",
+					"item": [
+						{
+							"name": "getPosAccessToken",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Body matches string\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"refresh_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"token_type\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"expires_in\");\r",
+											"\r",
+											"    pm.test(\"Token type\", function () {\r",
+											"        var jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData.token_type).to.eql(\"Bearer\");\r",
+											"        pm.environment.set(\"access_token_pos\", jsonData.access_token);\r",
+											"    });\r",
+											"\r",
+											"   \r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_idp_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "{{idp_token_pos_username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{idp_token_pos_password}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "offline_access",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{idp_token_pos_client_id}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{MIL_IDP_BASE_URL}}/token",
+									"host": [
+										"{{MIL_IDP_BASE_URL}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getNodoAccessToken",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"pm.test(\"Body matches string\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"token_type\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"expires_in\");\r",
+											"\r",
+											"    pm.test(\"Token type\", function () {\r",
+											"        var jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData.token_type).to.eql(\"Bearer\");\r",
+											"         pm.environment.set(\"access_token_nodo\", jsonData.access_token);\r",
+											"\r",
+											"    });\r",
+											"\r",
+											"   \r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_idp_api_version}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{idp_token_nodo_client_id}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{idp_token_nodo_client_secret}}",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{MIL_IDP_BASE_URL}}/token",
+									"host": [
+										"{{MIL_IDP_BASE_URL}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "1. verifyByQrCode",
 					"item": [
 						{
@@ -1043,7 +1261,26 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									""
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
 								]
 							}
 						}
@@ -2675,6 +2912,45 @@
 							},
 							"response": []
 						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
+								]
+							}
+						}
 					]
 				},
 				{
@@ -3710,6 +3986,45 @@
 								}
 							},
 							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
+								]
+							}
 						}
 					]
 				},
@@ -5525,6 +5840,45 @@
 								}
 							},
 							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
+								]
+							}
 						}
 					]
 				},
@@ -7455,6 +7809,45 @@
 							},
 							"response": []
 						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
+								]
+							}
+						}
 					]
 				},
 				{
@@ -9098,6 +9491,45 @@
 							},
 							"response": []
 						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
+								]
+							}
+						}
 					]
 				},
 				{
@@ -10195,6 +10627,55 @@
 							},
 							"response": []
 						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{access_token_nodo}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
+								]
+							}
+						}
 					]
 				},
 				{
@@ -11175,6 +11656,45 @@
 							},
 							"response": []
 						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
+								]
+							}
+						}
 					]
 				},
 				{
@@ -12002,9 +12522,58 @@
 								}
 							]
 						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const schema = {",
+									"  \"properties\": {",
+									"    \"errors\": {",
+									"      \"type\": \"array\"",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"pm.test('Schema is valid', function() {",
+									"  pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"errors containes only one element\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.have.length(1);",
+									"});"
+								]
+							}
+						}
 					]
 				}
 			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token_pos}}",
+						"type": "string"
+					}
+				]
+			},
 			"event": [
 				{
 					"listen": "prerequest",
@@ -12020,26 +12589,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.test(\"Status code is 400\", function () {",
-							"    pm.response.to.have.status(400);",
-							"});",
-							"",
-							"const schema = {",
-							"  \"properties\": {",
-							"    \"errors\": {",
-							"      \"type\": \"array\"",
-							"    }",
-							"  }",
-							"};",
-							"",
-							"pm.test('Schema is valid', function() {",
-							"  pm.response.to.have.jsonSchema(schema);",
-							"});",
-							"",
-							"pm.test(\"errors containes only one element\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.errors).to.have.length(1);",
-							"});"
+							""
 						]
 					}
 				}
@@ -12055,6 +12605,219 @@
 				{
 					"name": "1. Scan QR code",
 					"item": [
+						{
+							"name": "0a. Recupero token POS",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"pm.test(\"Body matches string\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"refresh_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"token_type\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"expires_in\");\r",
+											"\r",
+											"    pm.test(\"Token type\", function () {\r",
+											"        var jsonData = pm.response.json();\r",
+											"        console.log(\"JKW \" + jsonData);\r",
+											"        pm.expect(jsonData.token_type).to.eql(\"Bearer\");\r",
+											"         pm.environment.set(\"access_token_pos\", jsonData.access_token);\r",
+											"    });\r",
+											"\r",
+											"   \r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_idp_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "{{idp_token_pos_username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{idp_token_pos_password}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "offline_access",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{idp_token_pos_client_id}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{MIL_IDP_BASE_URL}}/token",
+									"host": [
+										"{{MIL_IDP_BASE_URL}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "0b. Recupero token nodo",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"pm.test(\"Body matches string\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"token_type\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"expires_in\");\r",
+											"\r",
+											"    pm.test(\"Token type\", function () {\r",
+											"        var jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData.token_type).to.eql(\"Bearer\");\r",
+											"         pm.environment.set(\"access_token_nodo\", jsonData.access_token);\r",
+											"\r",
+											"    });\r",
+											"\r",
+											"   \r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_idp_api_version}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{idp_token_nodo_client_id}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{idp_token_nodo_client_secret}}",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{MIL_IDP_BASE_URL}}/token",
+									"host": [
+										"{{MIL_IDP_BASE_URL}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
 						{
 							"name": "1. Verifica Avviso",
 							"event": [
@@ -12726,7 +13489,7 @@
 											"});\r",
 											"\r",
 											"pm.test(\"merchantId matches value\", function () {\r",
-											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.environment.get(\"merchant_id\"));\r",
 											"});\r",
 											"\r",
 											"pm.test(\"terminalId matches value\", function () {\r",
@@ -12961,7 +13724,7 @@
 											"});\r",
 											"\r",
 											"pm.test(\"merchantId matches value\", function () {\r",
-											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.environment.get(\"merchant_id\"));\r",
 											"});\r",
 											"\r",
 											"pm.test(\"terminalId matches value\", function () {\r",
@@ -13161,6 +13924,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token_nodo}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [
 									{
@@ -13246,7 +14019,7 @@
 											"});\r",
 											"\r",
 											"pm.test(\"merchantId matches value\", function () {\r",
-											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.environment.get(\"merchant_id\"));\r",
 											"});\r",
 											"\r",
 											"pm.test(\"terminalId matches value\", function () {\r",
@@ -13411,6 +14184,221 @@
 				{
 					"name": "2. Inserimento dati manuale",
 					"item": [
+						{
+							"name": "0a. Recupero token POS Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"pm.test(\"Body matches string\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"refresh_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"token_type\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"expires_in\");\r",
+											"\r",
+											"    pm.test(\"Token type\", function () {\r",
+											"        var jsonData = pm.response.json();\r",
+											"        console.log(\"JKW \" + jsonData);\r",
+											"        pm.expect(jsonData.token_type).to.eql(\"Bearer\");\r",
+											"         pm.environment.set(\"access_token_pos\", jsonData.access_token);\r",
+											"    });\r",
+											"\r",
+											"   \r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_idp_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "{{idp_token_pos_username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{idp_token_pos_password}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "offline_access",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{idp_token_pos_client_id}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{MIL_IDP_BASE_URL}}/token",
+									"host": [
+										"{{MIL_IDP_BASE_URL}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "0b. Recupero token nodo Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"pm.test(\"Body matches string\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"token_type\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"expires_in\");\r",
+											"\r",
+											"    pm.test(\"Token type\", function () {\r",
+											"        var jsonData = pm.response.json();\r",
+											"        pm.expect(jsonData.token_type).to.eql(\"Bearer\");\r",
+											"         pm.environment.set(\"access_token_nodo\", jsonData.access_token);\r",
+											"\r",
+											"    });\r",
+											"\r",
+											"   \r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_idp_api_version}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{idp_token_nodo_client_id}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{idp_token_nodo_client_secret}}",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{MIL_IDP_BASE_URL}}/token",
+									"host": [
+										"{{MIL_IDP_BASE_URL}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
 						{
 							"name": "1. Verifica Avviso",
 							"event": [
@@ -13878,7 +14866,7 @@
 											"});\r",
 											"\r",
 											"pm.test(\"merchantId matches value\", function () {\r",
-											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.environment.get(\"merchant_id\"));\r",
 											"});\r",
 											"\r",
 											"pm.test(\"terminalId matches value\", function () {\r",
@@ -14010,6 +14998,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token_nodo}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [
 									{
@@ -14090,7 +15088,7 @@
 											"});\r",
 											"\r",
 											"pm.test(\"merchantId matches value\", function () {\r",
-											"    pm.expect(pm.response.json().merchantId).to.eq(pm.collectionVariables.get(\"merchant_id\"));\r",
+											"    pm.expect(pm.response.json().merchantId).to.eq(pm.environment.get(\"merchant_id\"));\r",
 											"});\r",
 											"\r",
 											"pm.test(\"terminalId matches value\", function () {\r",
@@ -14188,8 +15186,100 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "8. Recupera lista pagamenti",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "RequestId",
+										"value": "{{$guid}}",
+										"type": "text"
+									},
+									{
+										"key": "Version",
+										"value": "{{mil_payment_notice_api_version}}",
+										"type": "text"
+									},
+									{
+										"key": "AcquirerId",
+										"value": "{{acquirer_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Channel",
+										"value": "{{channel}}",
+										"type": "text"
+									},
+									{
+										"key": "TerminalId",
+										"value": "{{terminal_id}}",
+										"type": "text"
+									},
+									{
+										"key": "MerchantId",
+										"value": "{{merchant_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{MIL_PAYMENT_NOTICE_BASE_URL}}/payments",
+									"host": [
+										"{{MIL_PAYMENT_NOTICE_BASE_URL}}"
+									],
+									"path": [
+										"payments"
+									]
+								}
+							},
+							"response": []
 						}
 					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token_pos}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		}
@@ -14236,9 +15326,20 @@
 			"type": "string"
 		},
 		{
+			"key": "mil_idp_api_version",
+			"value": "1.0.0",
+			"type": "string"
+		},
+		{
 			"key": "channel",
 			"value": "POS",
 			"type": "string"
+		},
+		{
+			"key": "pa_tax_code",
+			"value": "00000000201",
+			"type": "string",
+			"disabled": true
 		},
 		{
 			"key": "pa_tax_code",
@@ -14253,11 +15354,6 @@
 		{
 			"key": "terminal_id",
 			"value": "0aB9wXyZ",
-			"type": "string"
-		},
-		{
-			"key": "merchant_id",
-			"value": "28405fHfk73x88D",
 			"type": "string"
 		},
 		{

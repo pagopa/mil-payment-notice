@@ -4,7 +4,7 @@
     "urlPattern": "/token",
     "bodyPatterns": [
       {
-        "contains": "grant_type=password"
+        "contains": "grant_type=client_credentials"
       }
     ]
   },
@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "idp/SlavePos.json"
+    "bodyFileName": "idp/Nodo.json"
   }
 }
