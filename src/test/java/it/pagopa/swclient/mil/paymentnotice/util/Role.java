@@ -1,4 +1,4 @@
-package it.pagopa.swclient.mil.paymentnotice.bean;
+package it.pagopa.swclient.mil.paymentnotice.util;
 
 public enum Role {
 

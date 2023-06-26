@@ -20,7 +20,7 @@ import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
-import it.pagopa.swclient.mil.paymentnotice.bean.Role;
+import it.pagopa.swclient.mil.paymentnotice.util.Role;
 import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;

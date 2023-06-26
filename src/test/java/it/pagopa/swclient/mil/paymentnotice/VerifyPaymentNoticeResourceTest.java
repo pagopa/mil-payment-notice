@@ -13,7 +13,6 @@ import java.util.Map;
 
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.security.TestSecurity;
-import it.pagopa.swclient.mil.paymentnotice.bean.Role;
 import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
 import jakarta.inject.Inject;
 import javax.xml.datatype.DatatypeConfigurationException;

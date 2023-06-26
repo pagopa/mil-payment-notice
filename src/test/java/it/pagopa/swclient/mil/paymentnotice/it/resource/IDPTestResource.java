@@ -7,7 +7,7 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import io.quarkus.test.common.DevServicesContext;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
-import it.pagopa.swclient.mil.paymentnotice.bean.Role;
+import it.pagopa.swclient.mil.paymentnotice.util.Role;
 import it.pagopa.swclient.mil.paymentnotice.util.AccessToken;
 import it.pagopa.swclient.mil.paymentnotice.util.TokenGenerator;
 import org.slf4j.Logger;

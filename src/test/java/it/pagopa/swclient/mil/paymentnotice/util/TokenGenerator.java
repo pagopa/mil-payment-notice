@@ -5,7 +5,6 @@ package it.pagopa.swclient.mil.paymentnotice.util;
 
 import io.smallrye.jwt.build.Jwt;
 import io.smallrye.jwt.build.JwtSignatureException;
-import it.pagopa.swclient.mil.paymentnotice.bean.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -13,7 +13,7 @@ import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.CtFaultBean;
 import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
-import it.pagopa.swclient.mil.paymentnotice.bean.Role;
+import it.pagopa.swclient.mil.paymentnotice.util.Role;
 import it.pagopa.swclient.mil.paymentnotice.it.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.paymentnotice.resource.VerifyPaymentNoticeResource;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;

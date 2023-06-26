@@ -18,7 +18,7 @@ import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.Preset;
-import it.pagopa.swclient.mil.paymentnotice.bean.Role;
+import it.pagopa.swclient.mil.paymentnotice.util.Role;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionEntity;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransactionStatus;

@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import it.pagopa.swclient.mil.paymentnotice.bean.Role;
+import it.pagopa.swclient.mil.paymentnotice.util.Role;
 import it.pagopa.swclient.mil.paymentnotice.it.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.paymentnotice.util.KafkaUtils;
 import it.pagopa.swclient.mil.paymentnotice.util.TokenGenerator;
