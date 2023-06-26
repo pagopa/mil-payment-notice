@@ -12879,7 +12879,7 @@
 											"pm.collectionVariables.set(\"notice_number_pay\", noticeNumber);\r",
 											"console.log(\"noticeNumber -> \" + noticeNumber);\r",
 											"\r",
-											"var paTaxCode = pm.collectionVariables.get(\"pa_tax_code\");\r",
+											"var paTaxCode = pm.environment.get(\"pa_tax_code\");\r",
 											"\r",
 											"var qrCode = \"PAGOPA|002|\" + noticeNumber + \"|\" + paTaxCode + \"|\" + 10000;\r",
 											"console.log(\"qrCode -> \" + qrCode);\r",
@@ -13019,7 +13019,8 @@
 											"console.log(\"transactionId ->\" + transactionId);\r",
 											"pm.collectionVariables.set(\"transactionId\", transactionId);\r",
 											"\r",
-											"var paTaxCode = pm.collectionVariables.get(\"pa_tax_code\");\r",
+											"var paTaxCode = pm.environment.get(\"pa_tax_code\");\r",
+											"console.log(\"paTaxCode -> \" + paTaxCode);\r",
 											"var idempotencyKey = paTaxCode + \"_\" + randomString(10);\r",
 											"console.log(\"idempotencyKey ->\" + idempotencyKey);\r",
 											"pm.collectionVariables.set(\"idempotency_key_pay\", idempotencyKey);"
@@ -13083,7 +13084,7 @@
 									"variable": [
 										{
 											"key": "qrCode",
-											"value": "{{qr_code}}"
+											"value": "{{qr_code_pay}}"
 										}
 									]
 								}
@@ -13701,7 +13702,7 @@
 							"response": []
 						},
 						{
-							"name": "6. Recupera stato pagamento (Pending)",
+							"name": "6a. Recupera stato pagamento",
 							"event": [
 								{
 									"listen": "test",
@@ -13745,29 +13746,37 @@
 											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
 											"});\r",
 											"\r",
-											"pm.test(\"status matches PENDING\", function () {\r",
-											"    pm.expect(pm.response.json().status).to.eq(\"PENDING\");\r",
-											"});\r",
+											"var mockEnabled = pm.environment.get(\"apim_mock_enabled\");\r",
+											"if (mockEnabled == \"true\") {\r",
+											"    console.log(\"API management mock is enabled, skipping checks\");\r",
+											"}\r",
+											"else {\r",
+											"    console.log(\"API management mock is not enabled\");\r",
+											"    pm.test(\"status matches PENDING\", function () {\r",
+											"        pm.expect(pm.response.json().status).to.eq(\"PENDING\");\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentMethod matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
-											"});\r",
+											"    pm.test(\"paymentMethod matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentTimestamp matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
-											"});\r",
+											"    pm.test(\"paymentTimestamp matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"closeTimestamp is not null\", function () {\r",
-											"    pm.expect(pm.response.json().closeTimestamp).to.be.not.null;\r",
-											"});\r",
+											"    pm.test(\"closeTimestamp is not null\", function () {\r",
+											"        pm.expect(pm.response.json().closeTimestamp).to.be.not.null;\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentDate is null\", function () {\r",
-											"    pm.expect(pm.response.json().paymentDate).to.be.null;\r",
-											"});\r",
+											"    pm.test(\"paymentDate is null\", function () {\r",
+											"        pm.expect(pm.response.json().paymentDate).to.be.null;\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"callbackTimestamp is null\", function () {\r",
-											"    pm.expect(pm.response.json().callbackTimestamp).to.be.null;\r",
-											"});\r",
+											"    pm.test(\"callbackTimestamp is null\", function () {\r",
+											"        pm.expect(pm.response.json().callbackTimestamp).to.be.null;\r",
+											"    });\r",
+											"}\r",
+											"\r",
 											""
 										],
 										"type": "text/javascript"
@@ -13828,7 +13837,7 @@
 							"response": []
 						},
 						{
-							"name": "6a. Recupera stato pagamento (Transaction Id non presente)",
+							"name": "6b. Recupera stato pagamento (Transaction Id non presente)",
 							"event": [
 								{
 									"listen": "test",
@@ -14040,26 +14049,32 @@
 											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
 											"});\r",
 											"\r",
-											"pm.test(\"status matches CLOSED\", function () {\r",
-											"    pm.expect(pm.response.json().status).to.eq(\"CLOSED\");\r",
-											"});\r",
+											"var mockEnabled = pm.environment.get(\"apim_mock_enabled\");\r",
+											"if (mockEnabled == \"true\") {\r",
+											"    console.log(\"API management mock is enabled, skipping checks\");\r",
+											"}\r",
+											"else {\r",
+											"    console.log(\"API management mock is not enabled\");\r",
+											"    pm.test(\"status matches CLOSED\", function () {\r",
+											"        pm.expect(pm.response.json().status).to.eq(\"CLOSED\");\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentMethod matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
-											"});\r",
+											"    pm.test(\"paymentMethod matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentTimestamp matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
-											"});\r",
+											"    pm.test(\"paymentTimestamp matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentDate matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentDate).to.eq(pm.collectionVariables.get(\"paymentDate\"));\r",
-											"});\r",
+											"    pm.test(\"paymentDate matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentDate).to.eq(pm.collectionVariables.get(\"paymentDate\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"callbackTimestamp is not null\", function () {\r",
-											"    pm.expect(pm.response.json().callbackTimestamp).to.be.not.null;\r",
-											"});\r",
-											""
+											"    pm.test(\"callbackTimestamp is not null\", function () {\r",
+											"        pm.expect(pm.response.json().callbackTimestamp).to.be.not.null;\r",
+											"    });\r",
+											"}"
 										],
 										"type": "text/javascript"
 									}
@@ -14185,7 +14200,7 @@
 					"name": "2. Inserimento dati manuale",
 					"item": [
 						{
-							"name": "0a. Recupero token POS Copy",
+							"name": "0a. Recupero token POS",
 							"event": [
 								{
 									"listen": "test",
@@ -14307,7 +14322,7 @@
 							"response": []
 						},
 						{
-							"name": "0b. Recupero token nodo Copy",
+							"name": "0b. Recupero token nodo",
 							"event": [
 								{
 									"listen": "test",
@@ -14346,9 +14361,7 @@
 								}
 							],
 							"protocolProfileBehavior": {
-								"disabledSystemHeaders": {
-									"content-type": true
-								}
+								"disabledSystemHeaders": {}
 							},
 							"request": {
 								"auth": {
@@ -14843,7 +14856,7 @@
 							"response": []
 						},
 						{
-							"name": "5. Recupera stato pagamento (Pending)",
+							"name": "5. Recupera stato pagamento",
 							"event": [
 								{
 									"listen": "test",
@@ -14887,30 +14900,36 @@
 											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
 											"});\r",
 											"\r",
-											"pm.test(\"status matches PENDING\", function () {\r",
-											"    pm.expect(pm.response.json().status).to.eq(\"PENDING\");\r",
-											"});\r",
+											"var mockEnabled = pm.environment.get(\"apim_mock_enabled\");\r",
+											"if (mockEnabled == \"true\") {\r",
+											"    console.log(\"API management mock is enabled, skipping checks\");\r",
+											"}\r",
+											"else {\r",
+											"    console.log(\"API managament mock is not enabled\");\r",
+											"    pm.test(\"status matches PENDING\", function () {\r",
+											"        pm.expect(pm.response.json().status).to.eq(\"PENDING\");\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentMethod matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
-											"});\r",
+											"    pm.test(\"paymentMethod matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentTimestamp matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
-											"});\r",
+											"    pm.test(\"paymentTimestamp matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"closeTimestamp is not null\", function () {\r",
-											"    pm.expect(pm.response.json().closeTimestamp).to.be.not.null;\r",
-											"});\r",
+											"    pm.test(\"closeTimestamp is not null\", function () {\r",
+											"        pm.expect(pm.response.json().closeTimestamp).to.be.not.null;\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentDate is null\", function () {\r",
-											"    pm.expect(pm.response.json().paymentDate).to.be.null;\r",
-											"});\r",
+											"    pm.test(\"paymentDate is null\", function () {\r",
+											"        pm.expect(pm.response.json().paymentDate).to.be.null;\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"callbackTimestamp is null\", function () {\r",
-											"    pm.expect(pm.response.json().callbackTimestamp).to.be.null;\r",
-											"});\r",
-											""
+											"    pm.test(\"callbackTimestamp is null\", function () {\r",
+											"        pm.expect(pm.response.json().callbackTimestamp).to.be.null;\r",
+											"    });\r",
+											"}"
 										],
 										"type": "text/javascript"
 									}
@@ -15109,25 +15128,32 @@
 											"    pm.expect(pm.response.json().fee).to.eq(parseInt(pm.collectionVariables.get(\"fee\")));\r",
 											"});\r",
 											"\r",
-											"pm.test(\"status matches CLOSED\", function () {\r",
-											"    pm.expect(pm.response.json().status).to.eq(\"CLOSED\");\r",
-											"});\r",
+											"var mockEnabled = pm.environment.get(\"apim_mock_enabled\");\r",
+											"if (mockEnabled == \"true\") {\r",
+											"    console.log(\"API management mock is enabled, skipping checks\");\r",
+											"}\r",
+											"else {\r",
+											"    console.log(\"API management mock is not enabled\");\r",
+											"    pm.test(\"status matches CLOSED\", function () {\r",
+											"        pm.expect(pm.response.json().status).to.eq(\"CLOSED\");\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentMethod matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
-											"});\r",
+											"    pm.test(\"paymentMethod matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentMethod).to.eq(pm.collectionVariables.get(\"paymentMethod\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentTimestamp matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
-											"});\r",
+											"    pm.test(\"paymentTimestamp matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentTimestamp).to.eq(pm.collectionVariables.get(\"paymentTimestamp\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"paymentDate matches value\", function () {\r",
-											"    pm.expect(pm.response.json().paymentDate).to.eq(pm.collectionVariables.get(\"paymentDate\"));\r",
-											"});\r",
+											"    pm.test(\"paymentDate matches value\", function () {\r",
+											"        pm.expect(pm.response.json().paymentDate).to.eq(pm.collectionVariables.get(\"paymentDate\"));\r",
+											"    });\r",
 											"\r",
-											"pm.test(\"callbackTimestamp is not null\", function () {\r",
-											"    pm.expect(pm.response.json().callbackTimestamp).to.be.not.null;\r",
-											"});\r",
+											"    pm.test(\"callbackTimestamp is not null\", function () {\r",
+											"        pm.expect(pm.response.json().callbackTimestamp).to.be.not.null;\r",
+											"    });\r",
+											"}\r",
 											""
 										],
 										"type": "text/javascript"
@@ -15336,24 +15362,13 @@
 			"type": "string"
 		},
 		{
-			"key": "pa_tax_code",
-			"value": "00000000201",
-			"type": "string",
-			"disabled": true
-		},
-		{
-			"key": "pa_tax_code",
-			"value": "77777777777",
-			"type": "string"
-		},
-		{
 			"key": "notice_number",
 			"value": "302051234567890124",
 			"type": "string"
 		},
 		{
 			"key": "terminal_id",
-			"value": "0aB9wXyZ",
+			"value": "Test001",
 			"type": "string"
 		},
 		{

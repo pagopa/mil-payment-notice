@@ -68,6 +68,7 @@ class PostmanCollectionTestIT implements DevServicesContext.ContextAware {
                 "--environment", "Local_IT.postman_environment.json",
                 "--env-var", "MIL_IDP_BASE_URL=http://host.testcontainers.internal:" + exposedPort,
                 "--env-var", "idp_token_pos_username=NoticePayer",
+                "--env-var", "pa_tax_code=77777777777",
                 "--reporters", "htmlextra",
                 "--reporter-htmlextra-export", "reports/Payment_Notice_Service_Tests.html");
 
