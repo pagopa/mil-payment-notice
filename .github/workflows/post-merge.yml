@@ -101,7 +101,7 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true' && steps.cache-maven.outputs.cache-hit != 'true'
         run: |
           echo "809ef3220c6d179195c06c324cb9a6d34d8ecba566c5cfd8eb83167bc034117d  ${{ runner.temp }}/maven_setup.tar.gz" >> ${{ runner.temp }}/maven_setup.sha256
-          curl -L "https://dlcdn.apache.org/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz" -o "${{ runner.temp }}/maven_setup.tar.gz"
+          curl -L "https://archive.apache.org/dist/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz" -o "${{ runner.temp }}/maven_setup.tar.gz"
           sha256sum --check --status "${{ runner.temp }}/maven_setup.sha256"
 
       #
