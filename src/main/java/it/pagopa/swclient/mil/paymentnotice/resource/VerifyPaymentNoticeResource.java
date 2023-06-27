@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
-import it.pagopa.swclient.mil.paymentnotice.bean.Role;
 import it.pagopa.swclient.mil.paymentnotice.bean.VerifyPaymentNoticeResponse;
 import it.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
 import jakarta.annotation.security.RolesAllowed;
