@@ -21,7 +21,7 @@ public class PreCloseRequest {
 	 * Operation to perform in the preClose step
 	 */
 	@NotNull(message = "[" + ErrorCode.ERROR_OUTCOME_MUST_NOT_BE_NULL + "] outcome must not be null")
-	@Pattern(regexp = "PRE_CLOSE|ABORT", message = "[" + ErrorCode.ERROR_OUTCOME_MUST_MATCH_MATCH_REGEXP + "] idempotencyKey must match \"{regexp}\"")
+	@Pattern(regexp = "PRE_CLOSE|ABORT", message = "[" + ErrorCode.ERROR_OUTCOME_MUST_MATCH_MATCH_REGEXP + "] outcome must match \"{regexp}\"")
 	private String outcome;
 
 	/**

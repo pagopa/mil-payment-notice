@@ -35,10 +35,10 @@ public final class ErrorCode {
 	public static final String ERROR_PAYMENTS_MUST_NOT_BE_NULL 								= MODULE_ID + "00001C";
 	public static final String ERROR_PAYMENTS_MUST_HAVE_AT_MOST_ELEMENTS 					= MODULE_ID + "00001D";
 	public static final String ERROR_DESCRIPTION_MUST_MATCH_REGEXP 							= MODULE_ID + "00001E";
-	public static final String ERROR_CREDITOR_ID_REFERENCE_MUST_MATCH_REGEXP 				= MODULE_ID + "00001F";
-	public static final String ERROR_FISCAL_CODE_ID_MUST_MATCH_REGEXP 						= MODULE_ID + "000020";
-	public static final String ERROR_COMPANY_ID_MUST_MATCH_REGEXP							= MODULE_ID + "000021";
-	public static final String ERROR_OFFICE_ID_MUST_MATCH_REGEXP 							= MODULE_ID + "000022";
+	public static final String ERROR_CREDITOR_REFERENCE_ID_MUST_MATCH_REGEXP 				= MODULE_ID + "00001F";
+	public static final String ERROR_FISCAL_CODE_MUST_MATCH_REGEXP 							= MODULE_ID + "000020";
+	public static final String ERROR_COMPANY_MUST_MATCH_REGEXP 								= MODULE_ID + "000021";
+	public static final String ERROR_OFFICE_MUST_MATCH_REGEXP 								= MODULE_ID + "000022";
 	public static final String ERROR_DEBTOR_MUST_MATCH_REGEXP 								= MODULE_ID + "000023";
 
 
@@ -80,7 +80,7 @@ public final class ErrorCode {
 	
 	public static final String PA_TAX_CODE_MUST_NOT_BE_NULL									 = MODULE_ID + "000034";
 	
-	public static final String SUBSCRIBER_ID_CODE_MUST_NOT_BE_NULL 							= MODULE_ID + "000035";
+	public static final String SUBSCRIBER_ID_MUST_NOT_BE_NULL 								= MODULE_ID + "000035";
 	public static final String SUBSCRIBER_ID_MUST_MATCH_REGEXP 								= MODULE_ID + "000036";
 	
 	public static final String PRESET_ID_MUST_NOT_BE_NULL									= MODULE_ID + "000037";

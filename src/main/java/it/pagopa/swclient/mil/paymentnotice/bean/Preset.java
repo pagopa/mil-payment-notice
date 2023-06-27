@@ -26,7 +26,7 @@ public class Preset implements Serializable{
 	/*
 	 * Subscriber ID
 	 */
-	@NotNull(message = "[" + ErrorCode.SUBSCRIBER_ID_CODE_MUST_NOT_BE_NULL + "] paTaxCode must not be null")
+	@NotNull(message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_NOT_BE_NULL + "] subscriberId must not be null")
 	@Pattern(regexp = "^[0-9a-z]{6}$", message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_MATCH_REGEXP + "] subscriberId must match \"{regexp}\"")
 	private String subscriberId;
 	
