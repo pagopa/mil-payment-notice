@@ -10,6 +10,7 @@ import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
 import it.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
 import it.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
 import it.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -72,6 +73,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 	@Path("/{qrCode}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed({"NoticePayer", "SlavePos"})
 	public Uni<Response> activateByQrCode(
 			@Valid @BeanParam CommonHeader headers,
 
@@ -109,6 +111,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 	@Path("/{paTaxCode}/{noticeNumber}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed({"NoticePayer", "SlavePos"})
 	public Uni<Response> activateByTaxCodeAndNoticeNumber(
 			@Valid @BeanParam CommonHeader headers,
 			

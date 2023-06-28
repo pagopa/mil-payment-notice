@@ -23,25 +23,25 @@ public class Payment {
 	/**
 	 * ID for the creditor company
 	 */
-	@Pattern(regexp = "^[ -~]{1,35}$", message = "[" + ErrorCode.ERROR_CREDITOR_ID_REFERENCE_MUST_MATCH_REGEXP + "] creditorReferenceId must match \"{regexp}\"")
+	@Pattern(regexp = "^[ -~]{1,35}$", message = "[" + ErrorCode.ERROR_CREDITOR_REFERENCE_ID_MUST_MATCH_REGEXP + "] creditorReferenceId must match \"{regexp}\"")
 	private String creditorReferenceId;
 
 	/**
 	 * Tax code of the creditor company
 	 */
-	@Pattern(regexp = "^\\d{11}$", message = "[" + ErrorCode.ERROR_FISCAL_CODE_ID_MUST_MATCH_REGEXP + "] fiscalCode must match \"{regexp}\"")
+	@Pattern(regexp = "^\\d{11}$", message = "[" + ErrorCode.ERROR_FISCAL_CODE_MUST_MATCH_REGEXP + "] fiscalCode must match \"{regexp}\"")
 	private String fiscalCode;
 
 	/**
 	 * Name of the creditor company
 	 */
-	@Pattern(regexp = "^[ -~]{1,140}$", message = "[" + ErrorCode.ERROR_COMPANY_ID_MUST_MATCH_REGEXP + "] company must match \"{regexp}\"")
+	@Pattern(regexp = "^[ -~]{1,140}$", message = "[" + ErrorCode.ERROR_COMPANY_MUST_MATCH_REGEXP + "] company must match \"{regexp}\"")
 	private String company;
 
 	/**
 	 * Name of the creditor company office
 	 */
-	@Pattern(regexp = "^[ -~]{1,140}$", message = "[" + ErrorCode.ERROR_OFFICE_ID_MUST_MATCH_REGEXP + "] office must match \"{regexp}\"")
+	@Pattern(regexp = "^[ -~]{1,140}$", message = "[" + ErrorCode.ERROR_OFFICE_MUST_MATCH_REGEXP + "] office must match \"{regexp}\"")
 	private String office;
 
 	/**

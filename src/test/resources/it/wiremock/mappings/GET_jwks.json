@@ -1,0 +1,14 @@
+{
+  "priority": 100,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/jwks.json"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "idp/jwks.json"
+  }
+}

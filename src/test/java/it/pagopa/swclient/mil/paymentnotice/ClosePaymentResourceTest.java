@@ -4,6 +4,7 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.smallrye.mutiny.Uni;
@@ -125,6 +126,7 @@ class ClosePaymentResourceTest {
 
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_node200_OK() {
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
@@ -217,6 +219,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "SlavePos" })
 	void testClosePayment_200_node200_OK_preset() {
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
@@ -279,6 +282,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_node200_KO() {
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
@@ -330,6 +334,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "SlavePos" })
 	void testClosePayment_200_node200_KO_preset() {
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
@@ -392,6 +397,7 @@ class ClosePaymentResourceTest {
 
 	@ParameterizedTest
 	@ValueSource(ints = {400, 404})
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_nodeError_KO(int statusCode) {
 
 		Mockito
@@ -442,6 +448,7 @@ class ClosePaymentResourceTest {
 
 	@ParameterizedTest
 	@ValueSource(ints = {408, 422, 500})
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_nodeError_OK(int statusCode) {
 
 		Mockito
@@ -491,6 +498,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_nodeUnparsable() {
 
 		Mockito
@@ -542,6 +550,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_nodeTimeout() {
 
 		Mockito
@@ -594,6 +603,7 @@ class ClosePaymentResourceTest {
 
 	@ParameterizedTest
 	@MethodSource("it.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideHeaderValidationErrorCases")
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode) {
 
 		Response response = given()
@@ -619,6 +629,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_400_invalidPathParam()  {
 
 		Response response = given()
@@ -646,6 +657,7 @@ class ClosePaymentResourceTest {
 
 	@ParameterizedTest
 	@MethodSource("it.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideCloseRequestValidationErrorCases")
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_400_invalidRequest(ClosePaymentRequest closePaymentRequest, String errorCode) {
 
 		Response response = given()
@@ -671,6 +683,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_400_emptyRequest() {
 
 		Response response = given()
@@ -694,6 +707,29 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
+	void testClosePayment_403_unauthorized() {
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(commonHeaders)
+				.and()
+				.pathParam("transactionId", transactionId)
+				.and()
+				.body(closePaymentRequestOK)
+				.when()
+				.patch("/{transactionId}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(403, response.statusCode());
+		Assertions.assertEquals(0, response.body().asString().length());
+
+	}
+
+	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_404_transactionNotFound() {
 
 		Mockito
@@ -725,6 +761,7 @@ class ClosePaymentResourceTest {
 
 	@ParameterizedTest
 	@MethodSource("it.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideMilIntegrationErrorCases")
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_500_milError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
@@ -755,6 +792,7 @@ class ClosePaymentResourceTest {
 
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_500_otherCases() {
 
 		Mockito
@@ -808,6 +846,7 @@ class ClosePaymentResourceTest {
 
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_500_db_errorRead() {
 
 		Mockito
@@ -844,6 +883,7 @@ class ClosePaymentResourceTest {
 
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_500_db_errorWrite() {
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
@@ -890,6 +930,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePaymentKO_200_nodeOK() {
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
@@ -952,6 +993,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "SlavePos" })
 	void testClosePaymentKO_200_nodeOK_preset() {
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
@@ -1008,6 +1050,7 @@ class ClosePaymentResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePaymentKO_200_dbError() {
 
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();

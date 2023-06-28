@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
+import jakarta.annotation.security.RolesAllowed;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -152,6 +153,7 @@ public class PaymentResource extends BasePaymentResource {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"NoticePayer", "SlavePos"})
     public Uni<Response> preClose(
             @Valid @BeanParam
             CommonHeader headers,
@@ -334,6 +336,7 @@ public class PaymentResource extends BasePaymentResource {
     @Path("/{transactionId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"NoticePayer", "SlavePos"})
     public Uni<Response> closePayment(
             @Valid @BeanParam
             CommonHeader headers,
@@ -395,6 +398,7 @@ public class PaymentResource extends BasePaymentResource {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"NoticePayer", "SlavePos"})
     public Uni<Response> getPayments(@Valid @BeanParam CommonHeader headers) {
 
         Log.debugf("getPayments - Input parameters: %s", headers);
@@ -422,6 +426,7 @@ public class PaymentResource extends BasePaymentResource {
     @GET
     @Path("/{transactionId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"NoticePayer", "SlavePos"})
     public Uni<Response> getPaymentStatus(@Valid @BeanParam CommonHeader headers,
                                           @Pattern(regexp = PaymentNoticeConstants.TRANSACTION_ID_REGEX,
                                                   message = "[" + ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP + "] transactionId must match \"{regexp}\"")
@@ -448,6 +453,7 @@ public class PaymentResource extends BasePaymentResource {
     @Path("/{transactionId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"Nodo"})
     public Uni<Response> receivePaymentStatus( @Pattern(regexp = PaymentNoticeConstants.TRANSACTION_ID_REGEX, message = "[" + ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP + "] transactionId must match \"{regexp}\"")
                                                String transactionId,
                                                @Valid ReceivePaymentStatusRequest receivePaymentStatusRequest) {

@@ -30,6 +30,11 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
     }
 
     @Override
+    public int order() {
+        return 1;
+    }
+
+    @Override
     public Map<String, String> start() {
 
         logger.info("Starting WireMock container...");
@@ -38,13 +43,19 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
                 .withNetwork(getNetwork())
                 .withNetworkAliases(WIREMOCK_NETWORK_ALIAS)
                 //.withNetworkMode(devServicesContext.containerNetworkId().get())
-                .waitingFor(Wait.forListeningPort());
+                .waitingFor(Wait.forListeningPort())
+                .withExposedPorts(8080);
 
         //wiremockContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
         wiremockContainer.setCommand("--verbose --local-response-templating");
-        wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock", "/home/wiremock");
+        wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock/mappings", "/home/wiremock/mappings");
+        wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock/__files", "/home/wiremock/__files/nodo");
+        wiremockContainer.withFileSystemBind("./target/generated-idp-files", "/home/wiremock/__files/idp");
 
         wiremockContainer.start();
+
+        final Integer exposedPort = wiremockContainer.getMappedPort(8080);
+        devServicesContext.devServicesProperties().put("test.wiremock.exposed-port", exposedPort.toString());
 
         final String wiremockEndpoint = "http://" + WIREMOCK_NETWORK_ALIAS + ":" + 8080;
 
@@ -52,7 +63,8 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
         return ImmutableMap.of(
                 "node.rest-service.url", wiremockEndpoint,
                 "node.soap-service.url", wiremockEndpoint + "/nodo/node-for-psp/v1",
-                "mil.rest-service.url", wiremockEndpoint
+                "mil.rest-service.url", wiremockEndpoint,
+                "jwt-publickey-location", wiremockEndpoint + "/jwks.json"
         );
 
     }

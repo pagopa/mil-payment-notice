@@ -135,7 +135,7 @@ public class TestUtils {
                 Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
                         "preset", setAndGet(PaymentTestData.getPreset(), "paTaxCode", "abcde")), ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP),
                 Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
-                        "preset", setAndGet(PaymentTestData.getPreset(), "subscriberId", null)), ErrorCode.SUBSCRIBER_ID_CODE_MUST_NOT_BE_NULL),
+                        "preset", setAndGet(PaymentTestData.getPreset(), "subscriberId", null)), ErrorCode.SUBSCRIBER_ID_MUST_NOT_BE_NULL),
                 Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),
                         "preset", setAndGet(PaymentTestData.getPreset(), "subscriberId", "abcde")), ErrorCode.SUBSCRIBER_ID_MUST_MATCH_REGEXP),
                 Arguments.of(setAndGet(PaymentTestData.getPreCloseRequest(true, 1, false),

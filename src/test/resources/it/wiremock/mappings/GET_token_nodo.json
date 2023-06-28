@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/token",
+    "bodyPatterns": [
+      {
+        "contains": "grant_type=client_credentials"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "idp/Nodo.json"
+  }
+}

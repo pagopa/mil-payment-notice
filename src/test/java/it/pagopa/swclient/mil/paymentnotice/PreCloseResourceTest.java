@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.quarkus.test.junit.TestProfile;
+import io.quarkus.test.security.TestSecurity;
 import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.memory.InMemorySink;
 import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
@@ -105,6 +106,7 @@ class PreCloseResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testPreClose_201() {
 
 		final Map<String, Notice> noticeMap = getNoticeMap(preCloseRequest.getPaymentTokens(),
@@ -164,6 +166,7 @@ class PreCloseResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "SlavePos" })
 	void testPreClose_201_preset() {
 
 		final Map<String, Notice> noticeMap = getNoticeMap(preClosePresetRequest.getPaymentTokens(),
@@ -213,6 +216,7 @@ class PreCloseResourceTest {
 
 	@ParameterizedTest
 	@MethodSource("it.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideHeaderValidationErrorCases")
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testPreClose_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode) {
 
 		Response response = given()
@@ -234,6 +238,7 @@ class PreCloseResourceTest {
 
 	@ParameterizedTest
 	@MethodSource("it.pagopa.swclient.mil.paymentnotice.util.TestUtils#providePreCloseRequestValidationErrorCases")
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testPreClose_400_invalidRequest(PreCloseRequest preCloseRequest, String errorCode) {
 
 		if (ErrorCode.ERROR_TOTAL_AMOUNT_MUST_MATCH_TOTAL_CACHED_VALUE.equals(errorCode)) {
@@ -264,6 +269,7 @@ class PreCloseResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testPreClose_400_emptyRequest() {
 
 		Response response = given()
@@ -282,6 +288,7 @@ class PreCloseResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testPreClose_400_noticesNotFound() {
 
 		Mockito
@@ -308,6 +315,32 @@ class PreCloseResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "Nodo" })
+	void testPreClose_403_unauthorized() {
+
+		Mockito
+				.when(paymentNoticeService.mget(Mockito.any()))
+				.thenReturn(Uni.createFrom().item(getNoticeMap(preCloseRequest.getPaymentTokens(),
+						preCloseRequest.getPaymentTokens().size()-1)));
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(validMilHeaders)
+				.and()
+				.body(preCloseRequest)
+				.when()
+				.post("/")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(403, response.statusCode());
+		Assertions.assertEquals(0, response.body().asString().length());
+
+	}
+
+	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testPreClose_409_transactionAlreadyExists() {
 
 		Mockito
@@ -336,6 +369,7 @@ class PreCloseResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testPreClose_500_redisErrorRead() {
 
 		Mockito
@@ -361,6 +395,7 @@ class PreCloseResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testPreClose_500_dbErrorWrite() {
 
 		final Map<String, Notice> noticeMap = getNoticeMap(preCloseRequest.getPaymentTokens(),
@@ -393,6 +428,7 @@ class PreCloseResourceTest {
 	}
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testAbort_201() {
 
 		final Map<String, Notice> noticeMap = getNoticeMap(abortRequest.getPaymentTokens(),
@@ -442,6 +478,7 @@ class PreCloseResourceTest {
 
 
 	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testAbort_201_noNotices() {
 
 		final Map<String, Notice> noticeMap = getNoticeMap(abortRequest.getPaymentTokens(), 0);
@@ -490,6 +527,7 @@ class PreCloseResourceTest {
 
 	@ParameterizedTest
 	@MethodSource("it.pagopa.swclient.mil.paymentnotice.util.TestUtils#provideMilIntegrationErrorCases")
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testAbort_500_milError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
