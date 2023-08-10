@@ -41,6 +41,6 @@ github_repository_environment_cd = {
   custom_branch_policies = true
   reviewers_teams = [
     "infrastructure-admins",
-    "mil-team",
+    "swc-mil-team",
   ]
 }
