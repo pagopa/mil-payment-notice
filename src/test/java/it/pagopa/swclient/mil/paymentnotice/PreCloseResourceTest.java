@@ -10,12 +10,12 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.security.TestSecurity;
 import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.memory.InMemorySink;
+import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
 import jakarta.enterprise.inject.Any;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.reactive.messaging.Message;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,7 +34,6 @@ import io.restassured.response.Response;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
-import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
 import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
 import it.pagopa.swclient.mil.paymentnotice.dao.PaymentTransaction;
@@ -59,8 +58,7 @@ class PreCloseResourceTest {
 	static final Logger logger = LoggerFactory.getLogger(PreCloseResourceTest.class);
 
 	@InjectMock
-	@RestClient
-    MilRestService milRestService;
+	MilRestService milRestService;
 
 	@InjectMock
     PaymentTransactionRepository paymentTransactionRepository;
@@ -435,7 +433,7 @@ class PreCloseResourceTest {
 				abortRequest.getPaymentTokens().size());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -460,11 +458,9 @@ class PreCloseResourceTest {
 		Assertions.assertNull(response.getHeader("Location"));
 
 		// check milRestService client integration
-		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
-		Assertions.assertEquals(validMilHeaders.get("RequestId"), captorRequestId.getValue());
+		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
 		Assertions.assertEquals(validMilHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check redis integration
@@ -484,7 +480,7 @@ class PreCloseResourceTest {
 		final Map<String, Notice> noticeMap = getNoticeMap(abortRequest.getPaymentTokens(), 0);
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -509,11 +505,9 @@ class PreCloseResourceTest {
 		Assertions.assertNull(response.getHeader("Location"));
 
 		// check milRestService client integration
-		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
-		Assertions.assertEquals(validMilHeaders.get("RequestId"), captorRequestId.getValue());
+		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
 		Assertions.assertEquals(validMilHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check redis integration
@@ -531,7 +525,7 @@ class PreCloseResourceTest {
 	void testAbort_500_milError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		Response response = given()

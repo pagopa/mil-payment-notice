@@ -91,7 +91,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 		QrCode parsedQrCode = qrCodeParser.b64UrlParse(b64UrlQrCode);
 		Log.debugf("Decoded qrCode: %s", parsedQrCode);
 
-		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.ACTIVATE).
+		return retrievePSPConfiguration(headers.getAcquirerId(), NodeApi.ACTIVATE).
 				chain(pspConf -> callNodeActivatePaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(),
 						pspConf, activatePaymentNoticeRequest));
 
@@ -130,7 +130,7 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 		Log.debugf("activateByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber, body: %s",
 				headers, paTaxCode, noticeNumber, activatePaymentNoticeRequest);
 
-		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
+		return retrievePSPConfiguration(headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeActivatePaymentNotice(paTaxCode, noticeNumber, pspConf, activatePaymentNoticeRequest));
 	}
 
