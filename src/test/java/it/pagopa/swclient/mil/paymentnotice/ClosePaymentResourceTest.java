@@ -71,8 +71,7 @@ class ClosePaymentResourceTest {
     NodeRestService nodeRestService;
 
 	@InjectMock
-	@RestClient
-    MilRestService milRestService;
+	MilRestService milRestService;
 
 	@InjectMock
     PaymentTransactionRepository paymentTransactionRepository;
@@ -133,7 +132,7 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
         Mockito
@@ -171,11 +170,9 @@ class ClosePaymentResourceTest {
 		Assertions.assertNotNull(response.getHeader("Max-Retries"));
 
 		// check milRestService client integration
-		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
-		Assertions.assertEquals(commonHeaders.get("RequestId"), captorRequestId.getValue());
+		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
 		Assertions.assertEquals(commonHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check DB integration - read
@@ -226,7 +223,7 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -289,7 +286,7 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -341,7 +338,7 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -401,7 +398,7 @@ class ClosePaymentResourceTest {
 	void testClosePayment_200_nodeError_KO(int statusCode) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -452,7 +449,7 @@ class ClosePaymentResourceTest {
 	void testClosePayment_200_nodeError_OK(int statusCode) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -502,7 +499,7 @@ class ClosePaymentResourceTest {
 	void testClosePayment_200_nodeUnparsable() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -554,7 +551,7 @@ class ClosePaymentResourceTest {
 	void testClosePayment_200_nodeTimeout() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -733,7 +730,7 @@ class ClosePaymentResourceTest {
 	void testClosePayment_404_transactionNotFound() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -765,7 +762,7 @@ class ClosePaymentResourceTest {
 	void testClosePayment_500_milError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		Response response = given()
@@ -796,7 +793,7 @@ class ClosePaymentResourceTest {
 	void testClosePayment_500_otherCases() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -850,7 +847,7 @@ class ClosePaymentResourceTest {
 	void testClosePayment_500_db_errorRead() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -890,7 +887,7 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -937,7 +934,7 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -970,11 +967,9 @@ class ClosePaymentResourceTest {
 
 
 		// check milRestService client integration
-		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
-		Assertions.assertEquals(commonHeaders.get("RequestId"), captorRequestId.getValue());
+		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
 		Assertions.assertEquals(commonHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check DB integration - read
@@ -1000,7 +995,7 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -1057,7 +1052,7 @@ class ClosePaymentResourceTest {
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -1091,11 +1086,9 @@ class ClosePaymentResourceTest {
 
 
 		// check milRestService client integration
-		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
-		Assertions.assertEquals(commonHeaders.get("RequestId"), captorRequestId.getValue());
+		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
 		Assertions.assertEquals(commonHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check DB integration - read

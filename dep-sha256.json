@@ -1380,27 +1380,6 @@
       "sha256": "6YxADX3NusFQDgdUoBwEa5RBhnDnAU0envuNz_qSyAo="
     },
     {
-      "id": "io.quarkus:quarkus-caffeine:jar:3.1.2.Final",
-      "artifactId": "quarkus-caffeine",
-      "groupId": "io.quarkus",
-      "version": "3.1.2.Final",
-      "sha256": "PyENIHHVVUySk3KdjgL05GkSKuz_Awep2wbgZKrnUj4="
-    },
-    {
-      "id": "com.github.ben-manes.caffeine:caffeine:jar:3.1.5",
-      "artifactId": "caffeine",
-      "groupId": "com.github.ben-manes.caffeine",
-      "version": "3.1.5",
-      "sha256": "AsNP0rp4sZVu9uXemskVrum_pJhYmWb6hyVfuttlNJk="
-    },
-    {
-      "id": "com.google.errorprone:error_prone_annotations:jar:2.19.1",
-      "artifactId": "error_prone_annotations",
-      "groupId": "com.google.errorprone",
-      "version": "2.19.1",
-      "sha256": "rdOZAphQH9y27Fj_8mYIwdKY-13-L4DXSGe_D1xTlmg="
-    },
-    {
       "id": "io.smallrye.reactive:smallrye-reactive-messaging-kafka:jar:4.5.0",
       "artifactId": "smallrye-reactive-messaging-kafka",
       "groupId": "io.smallrye.reactive",
@@ -2603,6 +2582,41 @@
       "groupId": "org.eclipse.microprofile.jwt",
       "version": "2.1",
       "sha256": "6BojfsuB5PNg7V55KNQr8-7dHXP-OjQ9Ze0VePUWm60="
+    },
+    {
+      "id": "io.quarkus:quarkus-cache:jar:3.1.2.Final",
+      "artifactId": "quarkus-cache",
+      "groupId": "io.quarkus",
+      "version": "3.1.2.Final",
+      "sha256": "nbRiXtF-tLXtnGsBr1rQxgZEFMyfzdcz0rR8W_GuRic="
+    },
+    {
+      "id": "io.quarkus:quarkus-caffeine:jar:3.1.2.Final",
+      "artifactId": "quarkus-caffeine",
+      "groupId": "io.quarkus",
+      "version": "3.1.2.Final",
+      "sha256": "PyENIHHVVUySk3KdjgL05GkSKuz_Awep2wbgZKrnUj4="
+    },
+    {
+      "id": "com.github.ben-manes.caffeine:caffeine:jar:3.1.5",
+      "artifactId": "caffeine",
+      "groupId": "com.github.ben-manes.caffeine",
+      "version": "3.1.5",
+      "sha256": "AsNP0rp4sZVu9uXemskVrum_pJhYmWb6hyVfuttlNJk="
+    },
+    {
+      "id": "com.google.errorprone:error_prone_annotations:jar:2.19.1",
+      "artifactId": "error_prone_annotations",
+      "groupId": "com.google.errorprone",
+      "version": "2.19.1",
+      "sha256": "rdOZAphQH9y27Fj_8mYIwdKY-13-L4DXSGe_D1xTlmg="
+    },
+    {
+      "id": "io.quarkus:quarkus-cache-runtime-spi:jar:3.1.2.Final",
+      "artifactId": "quarkus-cache-runtime-spi",
+      "groupId": "io.quarkus",
+      "version": "3.1.2.Final",
+      "sha256": "2lgfI5DA4c1NrtbkL8-KVuL3mAVerXgo_8VQqKLzrpQ="
     },
     {
       "id": "com.nimbusds:nimbus-jose-jwt:jar:9.31",

@@ -169,7 +169,7 @@ public class PaymentResource extends BasePaymentResource {
             // if outcome is ABORTED, call the node to free the activated payment notices
             String transactionId = RandomStringUtils.random(32, 0, 0, true, true, null, new SecureRandom());
 
-            return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.CLOSE)
+            return retrievePSPConfiguration(headers.getAcquirerId(), NodeApi.CLOSE)
                     .chain(pspConf -> retrieveNoticesFromCache(preCloseRequest.getPaymentTokens())
                             .onFailure().recoverWithItem(List.of()) // ignore failure in accessing cache
                             .call(notices -> {
@@ -350,7 +350,7 @@ public class PaymentResource extends BasePaymentResource {
         Log.debugf("closePayment - Input parameters: %s, transactionId : %s, %s",
                 headers, transactionId, closePaymentRequest);
 
-        return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.CLOSE)
+        return retrievePSPConfiguration(headers.getAcquirerId(), NodeApi.CLOSE)
                 .chain(pspConf -> retrievePaymentTransaction(transactionId, headers)
                         .chain(txEntity -> {
                             Log.debugf("Retrieved payment transaction: %s", txEntity.paymentTransaction);

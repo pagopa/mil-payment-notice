@@ -63,7 +63,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 		QrCode parsedQrCode = qrCodeParser.b64UrlParse(b64UrlQrCode);
 		Log.debugf("Decoded qrCode: %s", parsedQrCode);
 
-		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
+		return retrievePSPConfiguration(headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeVerifyPaymentNotice(parsedQrCode.getPaTaxCode(), parsedQrCode.getNoticeNumber(), pspConf));
 
 	}
@@ -91,7 +91,7 @@ public class VerifyPaymentNoticeResource extends BasePaymentResource {
 		
 		Log.debugf("verifyByTaxCodeAndNoticeNumber - Input parameters: %s, paTaxCode: %s, noticeNumber: %s", headers, paTaxCode, noticeNumber);
 
-		return retrievePSPConfiguration(headers.getRequestId(), headers.getAcquirerId(), NodeApi.VERIFY).
+		return retrievePSPConfiguration(headers.getAcquirerId(), NodeApi.VERIFY).
 				chain(pspConf -> callNodeVerifyPaymentNotice(paTaxCode, noticeNumber, pspConf));
 
 	}

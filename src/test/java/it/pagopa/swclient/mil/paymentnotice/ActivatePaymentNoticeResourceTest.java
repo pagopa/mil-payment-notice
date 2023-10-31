@@ -28,7 +28,6 @@ import it.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.pagopa.swclient.mil.paymentnotice.util.TestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -56,8 +55,7 @@ class ActivatePaymentNoticeResourceTest {
     NodeForPspWrapper pnWrapper;
 
 	@InjectMock
-	@RestClient
-    MilRestService milRestService;
+	MilRestService milRestService;
 
 	@InjectMock
     PaymentNoticeService paymentNoticeService;
@@ -178,7 +176,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByQrCode_200_nodeOk_noticePayer() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
@@ -224,7 +222,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByQrCode_200_nodeOk_slavePos() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -272,7 +270,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByQrCode_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
@@ -440,7 +438,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByQrCode_500_nodeError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -475,7 +473,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByQrCode_500_milError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		Response response = given()
@@ -505,7 +503,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByQrCode_500_redisError() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -543,7 +541,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeOk_NoticePayer() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
@@ -586,7 +584,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeOk_SlavePos() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -630,7 +628,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -805,7 +803,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByTaxCodeAndNoticeNumber_500_nodeError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -840,7 +838,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByTaxCodeAndNoticeNumber_500_milError(ExceptionType exceptionType, String errorCode) {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		Response response = given()
@@ -871,7 +869,7 @@ class ActivatePaymentNoticeResourceTest {
 	void testActivateByTaxCodeAndNoticeNumber_500_redisError() {
 
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -908,11 +906,9 @@ class ActivatePaymentNoticeResourceTest {
 	private void validateIntegrations() {
 
 		// check milRestService client integration
-		ArgumentCaptor<String> captorRequestId = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorRequestId.capture(),captorAcquirerId.capture());
-		Assertions.assertEquals(validMilHeaders.get("RequestId"),captorRequestId.getValue());
+		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
 		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
 
 		// check pnWrapper integration

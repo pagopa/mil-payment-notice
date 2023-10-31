@@ -14,9 +14,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import io.quarkus.logging.Log;
@@ -28,7 +28,6 @@ import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PaymentTransactionOutcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.PreCloseRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.Preset;
-import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.AdditionalPaymentInformations;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
@@ -69,22 +68,21 @@ public class BasePaymentResource {
 	/**
 	 * The reactive REST client for the MIL REST interfaces
 	 */
-	@RestClient
+	@Inject
 	MilRestService milRestService;
 
 
 	/**
 	 * Retrieves the PSP configuration by acquirer id, and emits it as a Uni
 	 *
-	 * @param requestId the id of the request passed in request
 	 * @param acquirerId the id of the acquirer
 	 * @param api a {@link NodeApi} used to choose which of the two PspConfiguration return
 	 * @return the {@link Uni} emitting a {@link PspConfiguration}
 	 */
-	protected Uni<PspConfiguration> retrievePSPConfiguration(String requestId, String acquirerId, NodeApi api) {
-		Log.debugf("retrievePSPConfiguration - requestId: %s acquirerId: %s ", requestId, acquirerId);
+	protected Uni<PspConfiguration> retrievePSPConfiguration(String acquirerId, NodeApi api) {
+		Log.debugf("retrievePSPConfiguration - acquirerId: %s ", acquirerId);
 
-		return milRestService.getPspConfiguration(requestId, acquirerId)
+		return milRestService.getPspConfiguration(acquirerId)
 				.onFailure().transform(t -> {
 					if (t instanceof ClientWebApplicationException webEx && webEx.getResponse().getStatus() == 404) {
 						Log.errorf(t, "[%s] Missing psp configuration for acquirerId", ErrorCode.UNKNOWN_ACQUIRER_ID);
