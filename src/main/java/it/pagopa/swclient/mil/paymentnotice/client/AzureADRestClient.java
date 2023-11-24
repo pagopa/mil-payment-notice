@@ -2,7 +2,7 @@ package it.pagopa.swclient.mil.paymentnotice.client;
 
 import io.quarkus.rest.client.reactive.ClientQueryParam;
 import io.smallrye.mutiny.Uni;
-import it.pagopa.swclient.mil.paymentnotice.client.bean.AccessToken;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.ADAccessToken;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Produces;
@@ -21,7 +21,7 @@ public interface AzureADRestClient {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ClientQueryParam(name = "api-version", value = "${azure-auth-api.version}")
-    Uni<AccessToken> getAccessToken(
+    Uni<ADAccessToken> getAccessToken(
             @HeaderParam("x-identity-header") String identity,
             @QueryParam("resource") String scope);
 }

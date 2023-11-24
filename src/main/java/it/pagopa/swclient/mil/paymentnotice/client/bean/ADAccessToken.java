@@ -3,16 +3,10 @@ package it.pagopa.swclient.mil.paymentnotice.client.bean;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.*;
 
 @RegisterForReflection
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-@ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AccessToken {
+public class ADAccessToken {
     @JsonProperty("token_type")
     private String type;
 
@@ -27,4 +21,20 @@ public class AccessToken {
 
     @JsonProperty("access_token")
     private String token;
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setExpiresOn(long expiresOn) {
+        this.expiresOn = expiresOn;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

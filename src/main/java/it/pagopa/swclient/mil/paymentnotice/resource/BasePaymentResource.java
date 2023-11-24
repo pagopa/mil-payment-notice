@@ -14,9 +14,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import it.pagopa.swclient.mil.paymentnotice.client.AzureADRestClient;
 import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import io.quarkus.logging.Log;
@@ -51,6 +53,9 @@ public class BasePaymentResource {
 	@Inject
 	NodeErrorMapping nodeErrorMapping;
 
+	@RestClient
+	AzureADRestClient azureADRestClient;
+
 	/**
 	 * The configuration object containing the mapping between the payment methods passed in request to the MIL
 	 * APIs and the payment methods accepted by the node
@@ -71,6 +76,13 @@ public class BasePaymentResource {
 	@Inject
 	MilRestService milRestService;
 
+	@ConfigProperty(name = "azure-auth-api.identity")
+	String identity;
+
+	public static final String VAULT = "https://vault.azure.net";
+
+	private static final String BEARER = "Bearer ";
+
 
 	/**
 	 * Retrieves the PSP configuration by acquirer id, and emits it as a Uni
@@ -82,25 +94,44 @@ public class BasePaymentResource {
 	protected Uni<PspConfiguration> retrievePSPConfiguration(String acquirerId, NodeApi api) {
 		Log.debugf("retrievePSPConfiguration - acquirerId: %s ", acquirerId);
 
-		return milRestService.getPspConfiguration(acquirerId)
+		return azureADRestClient.getAccessToken(identity, VAULT)
 				.onFailure().transform(t -> {
-					if (t instanceof ClientWebApplicationException webEx && webEx.getResponse().getStatus() == 404) {
-						Log.errorf(t, "[%s] Missing psp configuration for acquirerId", ErrorCode.UNKNOWN_ACQUIRER_ID);
-						return new InternalServerErrorException(Response
+					Log.errorf(t, "[%s] Error while calling Azure AD rest service", ErrorCode.ERROR_CALLING_AZUREAD_REST_SERVICES);
+
+					return new InternalServerErrorException(Response
+							.status(Response.Status.INTERNAL_SERVER_ERROR)
+							.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_AZUREAD_REST_SERVICES)))
+							.build());
+				}).chain(token -> {
+					Log.debugf("BasePaymentResource -> retrievePspConfiguration: Azure AD service returned a 200 status, response token: [%s]", token);
+
+					if (token.getToken() == null) {
+						return Uni.createFrom().failure(new InternalServerErrorException(Response
 								.status(Response.Status.INTERNAL_SERVER_ERROR)
-								.entity(new Errors(List.of(ErrorCode.UNKNOWN_ACQUIRER_ID)))
-								.build());
-					} else {
-						Log.errorf(t, "[%s] Error retrieving the psp configuration", ErrorCode.ERROR_CALLING_MIL_REST_SERVICES);
-						return new InternalServerErrorException(Response
-								.status(Response.Status.INTERNAL_SERVER_ERROR)
-								.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_MIL_REST_SERVICES)))
-								.build());
+								.entity(new Errors(List.of(ErrorCode.AZUREAD_ACCESS_TOKEN_IS_NULL)))
+								.build()));
 					}
-				})
-				.map(acquirerConfiguration -> switch (api) {
-					case ACTIVATE, VERIFY -> acquirerConfiguration.getPspConfigForVerifyAndActivate();
-					case CLOSE -> acquirerConfiguration.getPspConfigForGetFeeAndClosePayment();
+
+					return milRestService.getPspConfiguration(BEARER + token.getToken(), acquirerId)
+							.onFailure().transform(t -> {
+								if (t instanceof ClientWebApplicationException webEx && webEx.getResponse().getStatus() == 404) {
+									Log.errorf(t, "[%s] Missing psp configuration for acquirerId", ErrorCode.UNKNOWN_ACQUIRER_ID);
+									return new InternalServerErrorException(Response
+											.status(Response.Status.INTERNAL_SERVER_ERROR)
+											.entity(new Errors(List.of(ErrorCode.UNKNOWN_ACQUIRER_ID)))
+											.build());
+								} else {
+									Log.errorf(t, "[%s] Error retrieving the psp configuration", ErrorCode.ERROR_CALLING_MIL_REST_SERVICES);
+									return new InternalServerErrorException(Response
+											.status(Response.Status.INTERNAL_SERVER_ERROR)
+											.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_MIL_REST_SERVICES)))
+											.build());
+								}
+							})
+							.map(acquirerConfiguration -> switch (api) {
+								case ACTIVATE, VERIFY -> acquirerConfiguration.getPspConfigForVerifyAndActivate();
+								case CLOSE -> acquirerConfiguration.getPspConfigForGetFeeAndClosePayment();
+							});
 				});
 	}
 

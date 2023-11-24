@@ -87,6 +87,8 @@ public final class ErrorCode {
 	public static final String PRESET_ID_MUST_MATCH_REGEXP 									= MODULE_ID + "000038";
 
 	public static final String AUTHENTICATION_ERROR											= MODULE_ID + "000039";
+	public static final String ERROR_CALLING_AZUREAD_REST_SERVICES 							= MODULE_ID + "000040";
+	public static final String AZUREAD_ACCESS_TOKEN_IS_NULL                     			= MODULE_ID + "000041";
 
 	private ErrorCode() {
 	}

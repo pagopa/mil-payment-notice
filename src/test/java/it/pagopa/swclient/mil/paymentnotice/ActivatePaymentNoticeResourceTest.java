@@ -17,8 +17,10 @@ import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.ActivatePaymentNoticeRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
 import it.pagopa.swclient.mil.paymentnotice.bean.Transfer;
+import it.pagopa.swclient.mil.paymentnotice.client.AzureADRestClient;
 import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.ADAccessToken;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
 import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
 import it.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
@@ -28,6 +30,8 @@ import it.pagopa.swclient.mil.paymentnotice.util.ExceptionType;
 import it.pagopa.swclient.mil.paymentnotice.util.PaymentTestData;
 import it.pagopa.swclient.mil.paymentnotice.util.TestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -60,6 +64,10 @@ class ActivatePaymentNoticeResourceTest {
 	@InjectMock
     PaymentNoticeService paymentNoticeService;
 
+	@InjectMock
+	@RestClient
+	AzureADRestClient azureADRestClient;
+
 	ActivatePaymentNoticeV2Response nodeActivateResponseOk;
 
 	AcquirerConfiguration acquirerConfiguration;
@@ -69,6 +77,8 @@ class ActivatePaymentNoticeResourceTest {
 	ActivatePaymentNoticeRequest validActivateRequest;
 
 	String encodedQrCode;
+
+	ADAccessToken azureAdAccessToken;
 
 	@BeforeAll
 	void createTestObjects() {
@@ -85,6 +95,8 @@ class ActivatePaymentNoticeResourceTest {
 
 		// valid activate request
 		validActivateRequest = PaymentTestData.getActivatePaymentRequest();
+
+		azureAdAccessToken = PaymentTestData.getAzureADAccessToken();
 
 		// node activate response OK
 
@@ -175,8 +187,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByQrCode_200_nodeOk_noticePayer() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
@@ -221,8 +236,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "SlavePos" })
 	void testActivateByQrCode_200_nodeOk_slavePos() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -269,8 +287,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByQrCode_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
@@ -437,8 +458,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByQrCode_500_nodeError(ExceptionType exceptionType, String errorCode) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -472,8 +496,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByQrCode_500_milError(ExceptionType exceptionType, String errorCode) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		Response response = given()
@@ -502,8 +529,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByQrCode_500_redisError() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -540,8 +570,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeOk_NoticePayer() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 		
 		Mockito
@@ -583,8 +616,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "SlavePos" })
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeOk_SlavePos() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -627,8 +663,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByTaxCodeAndNoticeNumber_200_nodeKo(String faultCode, String originalFaultCode, String milOutcome) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -802,8 +841,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByTaxCodeAndNoticeNumber_500_nodeError(ExceptionType exceptionType, String errorCode) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -837,8 +879,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByTaxCodeAndNoticeNumber_500_milError(ExceptionType exceptionType, String errorCode) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		Response response = given()
@@ -868,8 +913,11 @@ class ActivatePaymentNoticeResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testActivateByTaxCodeAndNoticeNumber_500_redisError() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -908,7 +956,10 @@ class ActivatePaymentNoticeResourceTest {
 		// check milRestService client integration
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
+		Mockito.verify(milRestService).getPspConfiguration(Mockito.any(String.class), captorAcquirerId.capture());
 		Assertions.assertEquals(validMilHeaders.get("AcquirerId"),captorAcquirerId.getValue());
 
 		// check pnWrapper integration
@@ -936,5 +987,59 @@ class ActivatePaymentNoticeResourceTest {
 		Assertions.assertEquals(nodeActivateResponseOk.getCompanyName(), captorNotice.getValue().getCompany());
 		Assertions.assertEquals(nodeActivateResponseOk.getOfficeName(), captorNotice.getValue().getOffice());
 
+	}
+
+	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
+	void testActivateByTaxCodeAndNoticeNumber_500_adTokenError() {
+
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn(Uni.createFrom().failure(new ClientWebApplicationException(500)));
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(validMilHeaders)
+				.and()
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
+				.body(validActivateRequest)
+				.when()
+				.patch("/{paTaxCode}/{noticeNumber}")
+				.then()
+				.extract()
+				.response();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_CALLING_AZUREAD_REST_SERVICES));
+		Assertions.assertNull(response.jsonPath().getJsonObject("fee"));
+	}
+
+	@Test
+	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
+	void testActivateByTaxCodeAndNoticeNumber_500_adTokenNull() {
+
+		azureAdAccessToken.setToken(null);
+
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
+		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(validMilHeaders)
+				.and()
+				.pathParam("paTaxCode", PaymentTestData.PA_TAX_CODE)
+				.pathParam("noticeNumber", PaymentTestData.NOTICE_NUMBER)
+				.body(validActivateRequest)
+				.when()
+				.patch("/{paTaxCode}/{noticeNumber}")
+				.then()
+				.extract()
+				.response();
+
+		azureAdAccessToken = PaymentTestData.getAzureADAccessToken();
+
+		Assertions.assertEquals(500, response.statusCode());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.AZUREAD_ACCESS_TOKEN_IS_NULL));
+		Assertions.assertNull(response.jsonPath().getJsonObject("fee"));
 	}
 }

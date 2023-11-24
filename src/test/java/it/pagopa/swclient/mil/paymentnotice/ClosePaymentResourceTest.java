@@ -12,8 +12,10 @@ import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.memory.InMemorySink;
 import it.pagopa.swclient.mil.paymentnotice.bean.ClosePaymentRequest;
 import it.pagopa.swclient.mil.paymentnotice.bean.Outcome;
+import it.pagopa.swclient.mil.paymentnotice.client.AzureADRestClient;
 import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
 import it.pagopa.swclient.mil.paymentnotice.client.NodeRestService;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.ADAccessToken;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
@@ -71,6 +73,10 @@ class ClosePaymentResourceTest {
     NodeRestService nodeRestService;
 
 	@InjectMock
+	@RestClient
+	AzureADRestClient azureADRestClient;
+
+	@InjectMock
 	MilRestService milRestService;
 
 	@InjectMock
@@ -95,6 +101,8 @@ class ClosePaymentResourceTest {
 
 	int receivedMessage = 0;
 
+	ADAccessToken azureAdAccessToken;
+
 	@BeforeAll
 	void createTestObjects() {
 
@@ -116,6 +124,7 @@ class ClosePaymentResourceTest {
 		paymentTransactionPresetEntity = PaymentTestData.getPaymentTransaction(transactionId,
 				PaymentTransactionStatus.PENDING, commonHeaders, 3, PaymentTestData.getPreset());
 
+		azureAdAccessToken = PaymentTestData.getAzureADAccessToken();
 	}
 
 	@AfterAll
@@ -131,8 +140,11 @@ class ClosePaymentResourceTest {
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
         Mockito
@@ -172,7 +184,10 @@ class ClosePaymentResourceTest {
 		// check milRestService client integration
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
+		Mockito.verify(milRestService).getPspConfiguration(Mockito.any(String.class), captorAcquirerId.capture());
 		Assertions.assertEquals(commonHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check DB integration - read
@@ -222,8 +237,11 @@ class ClosePaymentResourceTest {
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -285,8 +303,11 @@ class ClosePaymentResourceTest {
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -337,8 +358,11 @@ class ClosePaymentResourceTest {
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.KO.name());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -397,8 +421,11 @@ class ClosePaymentResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_nodeError_KO(int statusCode) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -448,8 +475,11 @@ class ClosePaymentResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_nodeError_OK(int statusCode) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -498,8 +528,11 @@ class ClosePaymentResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_nodeUnparsable() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -550,8 +583,11 @@ class ClosePaymentResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_200_nodeTimeout() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -729,8 +765,11 @@ class ClosePaymentResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_404_transactionNotFound() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -761,8 +800,11 @@ class ClosePaymentResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_500_milError(ExceptionType exceptionType, String errorCode) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		Response response = given()
@@ -792,8 +834,11 @@ class ClosePaymentResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_500_otherCases() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -846,8 +891,11 @@ class ClosePaymentResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testClosePayment_500_db_errorRead() {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -886,8 +934,11 @@ class ClosePaymentResourceTest {
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -933,8 +984,11 @@ class ClosePaymentResourceTest {
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -969,7 +1023,10 @@ class ClosePaymentResourceTest {
 		// check milRestService client integration
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
+		Mockito.verify(milRestService).getPspConfiguration(Mockito.any(String.class), captorAcquirerId.capture());
 		Assertions.assertEquals(commonHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check DB integration - read
@@ -994,8 +1051,11 @@ class ClosePaymentResourceTest {
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -1051,8 +1111,11 @@ class ClosePaymentResourceTest {
 		NodeClosePaymentResponse nodeClosePaymentResponse = new NodeClosePaymentResponse();
 		nodeClosePaymentResponse.setOutcome(Outcome.OK.name());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -1088,7 +1151,10 @@ class ClosePaymentResourceTest {
 		// check milRestService client integration
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
+		Mockito.verify(milRestService).getPspConfiguration(Mockito.any(String.class), captorAcquirerId.capture());
 		Assertions.assertEquals(commonHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check DB integration - read

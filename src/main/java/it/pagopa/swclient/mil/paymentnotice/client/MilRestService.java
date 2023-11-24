@@ -15,7 +15,7 @@ public class MilRestService {
     MilRestResource milRestResource;
 
     @CacheResult(cacheName = "cache-role")
-    public Uni<AcquirerConfiguration> getPspConfiguration(String acquirerId) {
-        return milRestResource.getPspConfiguration(acquirerId);
+    public Uni<AcquirerConfiguration> getPspConfiguration(String authorization, String acquirerId) {
+        return milRestResource.getPspConfiguration(authorization, acquirerId);
     }
 }

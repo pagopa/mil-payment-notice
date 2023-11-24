@@ -10,12 +10,15 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.security.TestSecurity;
 import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.memory.InMemorySink;
+import it.pagopa.swclient.mil.paymentnotice.client.AzureADRestClient;
 import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.pagopa.swclient.mil.paymentnotice.client.bean.ADAccessToken;
 import it.pagopa.swclient.mil.paymentnotice.resource.UnitTestProfile;
 import jakarta.enterprise.inject.Any;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.reactive.messaging.Message;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -66,6 +69,10 @@ class PreCloseResourceTest {
 	@InjectMock
     PaymentNoticeService paymentNoticeService;
 
+	@InjectMock
+	@RestClient
+	AzureADRestClient azureADRestClient;
+
 	@Inject @Any
 	InMemoryConnector connector;
 
@@ -80,6 +87,8 @@ class PreCloseResourceTest {
 	Map<String, String> validMilHeaders;
 
 	int tokens = 3;
+
+	ADAccessToken azureAdAccessToken;
 
 	@BeforeAll
 	void createTestObjects() {
@@ -96,6 +105,7 @@ class PreCloseResourceTest {
 
 		abortRequest = PaymentTestData.getPreCloseRequest(false, tokens, false);
 
+		azureAdAccessToken = PaymentTestData.getAzureADAccessToken();
 	}
 
 	@AfterAll
@@ -432,8 +442,11 @@ class PreCloseResourceTest {
 		final Map<String, Notice> noticeMap = getNoticeMap(abortRequest.getPaymentTokens(),
 				abortRequest.getPaymentTokens().size());
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -460,7 +473,10 @@ class PreCloseResourceTest {
 		// check milRestService client integration
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
+		Mockito.verify(milRestService).getPspConfiguration(Mockito.any(String.class), captorAcquirerId.capture());
 		Assertions.assertEquals(validMilHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check redis integration
@@ -479,8 +495,11 @@ class PreCloseResourceTest {
 
 		final Map<String, Notice> noticeMap = getNoticeMap(abortRequest.getPaymentTokens(), 0);
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().item(acquirerConfiguration));
 
 		Mockito
@@ -507,7 +526,10 @@ class PreCloseResourceTest {
 		// check milRestService client integration
 		ArgumentCaptor<String> captorAcquirerId = ArgumentCaptor.forClass(String.class);
 
-		Mockito.verify(milRestService).getPspConfiguration(captorAcquirerId.capture());
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
+		Mockito.verify(milRestService).getPspConfiguration(Mockito.any(String.class), captorAcquirerId.capture());
 		Assertions.assertEquals(validMilHeaders.get("AcquirerId"), captorAcquirerId.getValue());
 
 		// check redis integration
@@ -524,8 +546,11 @@ class PreCloseResourceTest {
 	@TestSecurity(user = "testUser", roles = { "NoticePayer" })
 	void testAbort_500_milError(ExceptionType exceptionType, String errorCode) {
 
+		Mockito.when(azureADRestClient.getAccessToken(Mockito.any(String.class), Mockito.any(String.class)))
+				.thenReturn((Uni.createFrom().item(azureAdAccessToken)));
+
 		Mockito
-				.when(milRestService.getPspConfiguration(Mockito.any(String.class)))
+				.when(milRestService.getPspConfiguration(Mockito.any(String.class), Mockito.any(String.class)))
 				.thenReturn(Uni.createFrom().failure(TestUtils.getException(exceptionType)));
 
 		Response response = given()
