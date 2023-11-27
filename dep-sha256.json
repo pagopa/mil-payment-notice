@@ -861,19 +861,19 @@
       "version": "1.11.0",
       "sha256": "PU-CzdPdMiuS6YdnM73pgqMvNy5f78OnhfqDWjmVoTU="
     },
-	{
-      "id": "com.aayushatharva.brotli4j:native-osx-aarch64:jar:1.12.0",
+    {
+      "id": "com.aayushatharva.brotli4j:native-osx-aarch64:jar:1.11.0",
       "artifactId": "native-osx-aarch64",
       "groupId": "com.aayushatharva.brotli4j",
-      "version": "1.12.0",
-      "sha256": "ZKfegpUjuDw8ZTUO92x3ZUtYMG4i6xbLLxVm_rC9qpc="
+      "version": "1.11.0",
+      "sha256": "LCxbfByd8uYohfSWydvcfO63dqxSJsJG51luCsRnPgE="
     },
     {
-      "id": "com.aayushatharva.brotli4j:native-linux-x86_64:jar:1.12.0",
+      "id": "com.aayushatharva.brotli4j:native-linux-x86_64:jar:1.11.0",
       "artifactId": "native-linux-x86_64",
       "groupId": "com.aayushatharva.brotli4j",
-      "version": "1.12.0",
-      "sha256": "ASDyLPndtKpOKj2AacUMN4wEiHk0HIFTDOW04r5vYPg="
+      "version": "1.11.0",
+      "sha256": "bD-neL_jA9OBHsi6E-qQisZH9ymMf_HGOptXgpF18m0="
     },
     {
       "id": "io.netty:netty-codec-haproxy:jar:4.1.93.Final",
@@ -2631,13 +2631,6 @@
       "groupId": "com.github.stephenc.jcip",
       "version": "1.0-1",
       "sha256": "T8z_g4Kq_FiZYsTtsmL2qlleNPHhHmEFfRxqluj8cyM="
-    },
-    {
-      "id": "org.projectlombok:lombok:jar:1.18.28",
-      "artifactId": "lombok",
-      "groupId": "org.projectlombok",
-      "version": "1.18.28",
-      "sha256": "t3TcT8pUMiXYtejBY360E8Q2Oy5hPpUiJ3b3kqjOwOA="
     }
   ]
 }
