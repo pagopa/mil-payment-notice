@@ -79,7 +79,7 @@ public class BasePaymentResource {
 	@ConfigProperty(name = "azure-auth-api.identity")
 	String identity;
 
-	public static final String VAULT = "https://storage.azure.com";
+	public static final String STORAGE = "https://storage.azure.com";
 
 	private static final String BEARER = "Bearer ";
 
@@ -94,7 +94,7 @@ public class BasePaymentResource {
 	protected Uni<PspConfiguration> retrievePSPConfiguration(String acquirerId, NodeApi api) {
 		Log.debugf("retrievePSPConfiguration - acquirerId: %s ", acquirerId);
 
-		return azureADRestClient.getAccessToken(identity, VAULT)
+		return azureADRestClient.getAccessToken(identity, STORAGE)
 				.onFailure().transform(t -> {
 					Log.errorf(t, "[%s] Error while calling Azure AD rest service", ErrorCode.ERROR_CALLING_AZUREAD_REST_SERVICES);
 
