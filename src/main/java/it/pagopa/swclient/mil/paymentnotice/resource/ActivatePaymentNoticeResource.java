@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
+import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
 import it.pagopa.swclient.mil.paymentnotice.dao.Notice;
 import it.pagopa.swclient.mil.paymentnotice.redis.PaymentNoticeService;
+import it.pagopa.swclient.mil.paymentnotice.utils.NodeErrorMapping;
 import it.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
 import it.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
 import jakarta.annotation.security.RolesAllowed;
@@ -47,6 +50,10 @@ import it.pagopa.swclient.mil.paymentnotice.bean.Transfer;
 @Path("/paymentNotices")
 public class ActivatePaymentNoticeResource extends BasePaymentResource {
 
+	public ActivatePaymentNoticeResource(NodeErrorMapping nodeErrorMapping, MilRestService milRestService, NodeForPspWrapper nodeWrapper) {
+		super(nodeErrorMapping, milRestService, nodeWrapper);
+	}
+
 	@Inject
 	QrCodeParser qrCodeParser;
 
@@ -58,7 +65,6 @@ public class ActivatePaymentNoticeResource extends BasePaymentResource {
 	 */
 	@ConfigProperty(name="paymentnotice.activatepayment.expiration-time")
 	BigInteger paymentNoticeExpirationTime;
-
 
 	/**
 	 * Activate a payment notice by its qr-code.

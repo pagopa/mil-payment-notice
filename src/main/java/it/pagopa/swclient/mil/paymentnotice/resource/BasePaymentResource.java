@@ -50,8 +50,14 @@ public class BasePaymentResource {
 	 * The configuration object containing the mapping between the errors returned by the node,
 	 * and the error returned by the MIL APIs
 	 */
+	private final NodeErrorMapping nodeErrorMapping;
+
 	@Inject
-	NodeErrorMapping nodeErrorMapping;
+	public BasePaymentResource(NodeErrorMapping nodeErrorMapping, MilRestService milRestService, NodeForPspWrapper nodeWrapper) {
+		this.nodeErrorMapping = nodeErrorMapping;
+		this.nodeWrapper = nodeWrapper;
+		this.milRestService = milRestService;
+	}
 
 	@RestClient
 	AzureADRestClient azureADRestClient;
@@ -67,14 +73,12 @@ public class BasePaymentResource {
 	/**
 	 * The async wrapper for the Node SOAP client
 	 */
-	@Inject
-	NodeForPspWrapper nodeWrapper;
+	final NodeForPspWrapper nodeWrapper;
 
 	/**
 	 * The reactive REST client for the MIL REST interfaces
 	 */
-	@Inject
-	MilRestService milRestService;
+	private final MilRestService milRestService;
 
 	@ConfigProperty(name = "azure-auth-api.identity")
 	String identity;

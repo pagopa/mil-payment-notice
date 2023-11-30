@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
+import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
+import it.pagopa.swclient.mil.paymentnotice.utils.NodeErrorMapping;
 import jakarta.annotation.security.RolesAllowed;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -79,6 +82,10 @@ import jakarta.ws.rs.core.Response.Status;
 
 @Path("/payments")
 public class PaymentResource extends BasePaymentResource {
+
+    public PaymentResource(NodeErrorMapping nodeErrorMapping, MilRestService milRestService, NodeForPspWrapper nodeWrapper) {
+        super(nodeErrorMapping, milRestService, nodeWrapper);
+    }
 	
 	@Inject
     @Channel("presets")
