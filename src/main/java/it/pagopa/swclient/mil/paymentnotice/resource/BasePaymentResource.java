@@ -79,7 +79,7 @@ public class BasePaymentResource {
 	@ConfigProperty(name = "azure-auth-api.identity")
 	String identity;
 
-	public static final String VAULT = "https://vault.azure.net";
+	public static final String VAULT = "https://storage.azure.com";
 
 	private static final String BEARER = "Bearer ";
 

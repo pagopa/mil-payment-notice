@@ -8,6 +8,7 @@ import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @RegisterRestClient(configKey = "azure-auth-api")
@@ -21,6 +22,7 @@ public interface AzureADRestClient {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ClientQueryParam(name = "api-version", value = "${azure-auth-api.version}")
+    @ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
     Uni<ADAccessToken> getAccessToken(
             @HeaderParam("x-identity-header") String identity,
             @QueryParam("resource") String scope);
