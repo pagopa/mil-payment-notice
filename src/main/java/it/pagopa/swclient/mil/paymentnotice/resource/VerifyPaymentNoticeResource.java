@@ -5,7 +5,9 @@ import java.util.List;
 
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
 import it.pagopa.swclient.mil.paymentnotice.bean.VerifyPaymentNoticeResponse;
-import it.pagopa.swclient.mil.paymentnotice.utils.QrCodeParser;
+import it.pagopa.swclient.mil.paymentnotice.client.MilRestService;
+import it.pagopa.swclient.mil.paymentnotice.client.NodeForPspWrapper;
+import it.pagopa.swclient.mil.paymentnotice.utils.*;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -30,13 +32,14 @@ import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.pagopa.swclient.mil.bean.CommonHeader;
 import it.pagopa.swclient.mil.bean.Errors;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.PspConfiguration;
-import it.pagopa.swclient.mil.paymentnotice.utils.NodeForPspLoggingUtil;
-import it.pagopa.swclient.mil.paymentnotice.utils.NodeApi;
-import it.pagopa.swclient.mil.paymentnotice.utils.PaymentNoticeConstants;
 import it.pagopa.swclient.mil.paymentnotice.bean.QrCode;
 
 @Path("/paymentNotices")
 public class VerifyPaymentNoticeResource extends BasePaymentResource {
+
+	public VerifyPaymentNoticeResource(NodeErrorMapping nodeErrorMapping, MilRestService milRestService, NodeForPspWrapper nodeWrapper) {
+		super(nodeErrorMapping, milRestService, nodeWrapper);
+	}
 
 	@Inject
 	QrCodeParser qrCodeParser;
