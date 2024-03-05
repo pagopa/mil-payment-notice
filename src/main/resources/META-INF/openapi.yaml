@@ -11,11 +11,46 @@ info:
 servers:
   - description: DEV
     url: https://mil-d-apim.azure-api.net/mil-payment-notice
+  - description: UAT
+    url: https://mil-u-apim.azure-api.net/mil-payment-notice
 
 security:
   - bearerAuth: []
 
 paths:
+  /paymentNotices:
+    # ------------------------------------------------------
+    # Retrieves debt position
+    # ------------------------------------------------------
+    get:
+      operationId: getDebtPosition
+      summary: Retrieves debt position
+      description: Retrieve the debt position using the tax code token contained in the access token
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/AcquirerId'
+        - $ref: '#/components/parameters/Channel'
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/TerminalId'
+      responses:
+        "200":
+          $ref: '#/components/responses/DebtPosition'
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
   /paymentNotices/{qrCode}:
     parameters:
       - $ref: '#/components/parameters/RequestId'
@@ -986,6 +1021,37 @@ components:
       example:
         paTaxCode: "15376371009"
         category: "KTM"
+    
+    # ------------------------------------------------------
+    # Complex type for getDebtPosition
+    # ------------------------------------------------------
+    Debt:
+      description: Debt position
+      type: object
+      additionalProperties: false
+      properties:
+        paTaxCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        description:
+          $ref: '#/components/schemas/Description'
+        dueDate:
+          $ref: '#/components/schemas/DueDate'
+    
+    DebtPosition:
+      description: Debt position
+      type: object
+      additionalProperties: false
+      properties:
+        debtPosition:
+          type: array
+          minItems: 0
+          maxItems: 64
+          items:
+            $ref: '#/components/schemas/Debt'
 
   # ========================================================
   # Request bodies
@@ -1132,6 +1198,16 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Errors'
+    
+    # ------------------------------------------------------
+    # For getDebtPosition
+    # ------------------------------------------------------
+    DebtPosition:
+      description: Retrieved debt position
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DebtPosition' 
 
     # ------------------------------------------------------
     # For verifyByQrCode and verifyByTaxCodeAndNoticeNumber
