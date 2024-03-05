@@ -2,7 +2,7 @@ openapi: 3.0.3
 
 info:
   title: Payment Notice Microservice
-  version: 13.1.0
+  version: 13.2.0
   description: Payment Notice Microservice for Multi-channel Integration Layer of SW Client Project
   contact:
     name: Antonio Tarricone
@@ -25,7 +25,7 @@ paths:
     get:
       operationId: getDebtPosition
       summary: Retrieves debt position
-      description: Retrieve the debt position using the tax code token contained in the access token
+      description: Retrieves the debt position using the tax code token contained in the access token
       parameters:
         - $ref: '#/components/parameters/RequestId'
         - $ref: '#/components/parameters/Version'
