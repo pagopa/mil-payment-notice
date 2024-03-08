@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +38,9 @@ import io.smallrye.mutiny.ItemWithContext;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.core.eventbus.EventBus;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.SendPaymentOutcomeV2Request;
+import it.gov.pagopa.pagopa_api.node.nodeforpsp.StPaymentTokens;
+import it.gov.pagopa.pagopa_api.xsd.common_types.v1_0.StOutcome;
 import it.pagopa.swclient.mil.bean.CommonHeader;
 import it.pagopa.swclient.mil.bean.Errors;
 import it.pagopa.swclient.mil.paymentnotice.ErrorCode;
@@ -145,7 +149,7 @@ public class PaymentResource extends BasePaymentResource {
      */
     @ConfigProperty(name="paymentnotice.getpayments.days-before", defaultValue = "30")
     int getPaymentsDaysBefore;
-
+    
     /**
      * Initializes the close payment flow.
      * If the outcome in request is PRE_CLOSE, retrieves the payment notice data from the cache and store the transaction in the DB.
@@ -354,7 +358,7 @@ public class PaymentResource extends BasePaymentResource {
             @NotNull(message = "[" + ErrorCode.CLOSE_REQUEST_MUST_NOT_BE_EMPTY + "] request must not be empty")
             ClosePaymentRequest closePaymentRequest) {
 
-        Log.debugf("closePayment - Input parameters: %s, transactionId : %s, %s",
+    	Log.debugf("closePayment - Input parameters: %s, transactionId : %s, %s",
                 headers, transactionId, closePaymentRequest);
 
         return retrievePSPConfiguration(headers.getAcquirerId(), NodeApi.CLOSE)
@@ -395,7 +399,103 @@ public class PaymentResource extends BasePaymentResource {
                         })
                 );
     }
+    
+    /**
+     * Closes a payment transaction previously created with the {@link #preClose(CommonHeader, PreCloseRequest) preClose} API.
+     * Calls the node to pass the outcome of the e-money transaction and updates the payment transaction on the DB.
+     * The HTTP response contains a Location header with the URL to invoke to retrieve the final status of the closing operation.
+     *
+     * @param headers the object containing all the common headers used by the mil services
+     * @param transactionId the transaction ID of the e-money transaction passed in request of the {@link #preClose(CommonHeader, PreCloseRequest)}
+     * @param closePaymentRequest a {@link ClosePaymentRequest} instance containing the outcome of the e-payment transaction
+     * @return a {@link ClosePaymentResponse} instance containing the remapped outcome from the node
+     */
+    @PATCH
+    @Path("/{transactionId}/sendPaymentOutcome")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"NoticePayer", "SlavePos"})
+    public Uni<Response> sendPaymentOutcome(
+            @Valid @BeanParam
+            CommonHeader headers,
+            @Pattern(regexp = PaymentNoticeConstants.TRANSACTION_ID_REGEX,
+                    message = "[" + ErrorCode.ERROR_TRANSACTION_ID_MUST_MATCH_REGEXP + "] transactionId must match \"{regexp}\"")
+            String transactionId,
+            @Valid
+            @NotNull(message = "[" + ErrorCode.CLOSE_REQUEST_MUST_NOT_BE_EMPTY + "] request must not be empty")
+            ClosePaymentRequest closePaymentRequest) {
 
+        	Log.debugf("closePayment with SendPaymentOutcome - Input parameters: %s, transactionId : %s, %s",
+                headers, transactionId, closePaymentRequest);
+        	
+        	return retrievePaymentTransaction(transactionId, headers)
+        		.chain(trx -> retrievePSPConfiguration(headers.getAcquirerId(), NodeApi.ACTIVATE)
+        				.chain(conf -> callNodeSendPaymentOutcome(conf, trx, closePaymentRequest)));
+    }
+    
+    /**
+	 * Branch of the sendPaymentOutcome.
+	 */
+	private Uni<Response> callNodeSendPaymentOutcome(PspConfiguration conf, 
+		PaymentTransactionEntity entity, ClosePaymentRequest closePaymentRequest) {
+
+		SendPaymentOutcomeV2Request req = new SendPaymentOutcomeV2Request();
+		req.setIdPSP(conf.getPsp());
+		req.setIdBrokerPSP(conf.getBroker());
+		req.setIdChannel(conf.getChannel());
+		req.setPassword(conf.getPassword());
+		
+		StPaymentTokens stPaymentTokens = new StPaymentTokens();
+		stPaymentTokens.getPaymentToken().addAll(entity.paymentTransaction.getNotices().stream().map(Notice::getPaymentToken).toList());
+		req.setPaymentTokens(stPaymentTokens);
+		
+		req.setOutcome(closePaymentRequest.getOutcome().equals(PaymentTransactionOutcome.CLOSE.name()) ? StOutcome.OK : StOutcome.KO);
+		
+		return nodeWrapper.sendPaymentOutcomeV2Async(req)
+				.onFailure().transform(t-> {
+					Log.errorf(t, "[%s] Error calling the node sendPaymentOutcomeV2 service", ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES);
+					return new InternalServerErrorException(Response
+							.status(Status.INTERNAL_SERVER_ERROR)
+							.entity(new Errors(List.of(ErrorCode.ERROR_CALLING_NODE_SOAP_SERVICES)))
+							.build());
+				})
+				.chain(resp -> {
+					// Aggiornamento della trx.
+					String newEntityStatus = null;
+					
+					if (closePaymentRequest.getOutcome().equals(PaymentTransactionOutcome.CLOSE.name())) {
+						if (resp.getOutcome().equals(StOutcome.OK)) {
+							newEntityStatus = PaymentTransactionStatus.CLOSED.name();
+						} else {
+							newEntityStatus = PaymentTransactionStatus.ERROR_ON_RESULT.name();
+						}
+					} else {
+						final Map<String, String> reqStatus2EntityStatus = new HashMap<>();
+						reqStatus2EntityStatus.put(PaymentTransactionOutcome.ABORT.name(), PaymentTransactionStatus.ABORTED.name());
+						reqStatus2EntityStatus.put(PaymentTransactionOutcome.ERROR_ON_PAYMENT.name(), PaymentTransactionStatus.ERROR_ON_PAYMENT.name());
+						reqStatus2EntityStatus.put(PaymentTransactionOutcome.PRE_CLOSE.name(), PaymentTransactionStatus.PRE_CLOSE.name());
+						newEntityStatus = reqStatus2EntityStatus.get(closePaymentRequest.getOutcome());
+						
+						if (newEntityStatus == null) {
+							newEntityStatus = entity.paymentTransaction.getStatus();
+						}
+					}
+					
+					entity.paymentTransaction.setStatus(newEntityStatus);
+					entity.paymentTransaction.setPaymentMethod(closePaymentRequest.getPaymentMethod());
+					entity.paymentTransaction.setPaymentTimestamp(closePaymentRequest.getPaymentTimestamp());
+					entity.paymentTransaction.setCloseTimestamp(getTimestamp());
+					
+                    // Invio dell'aggiornamento al microservizio mil-preset, se necessario.
+					sendToQueue(entity.paymentTransaction);
+					
+					// Aggiornamento del DB.
+					Log.debugf("Updating DB: %s", entity);
+					return paymentTransactionRepository.update(entity);
+				})
+				.map(x -> Response.status(Status.ACCEPTED).build());
+	}
+	
     /**
      * Retrieves the list of the last transactions done by the terminal
      *

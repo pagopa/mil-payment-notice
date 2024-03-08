@@ -381,6 +381,49 @@ paths:
         default:
           description: Unexpected error
 
+  /payments/{transactionId}/sendPaymentOutcome:
+    patch:
+      operationId: close
+      summary: Comunicates the outcome of the e-money transaction executed to pay a set of notices (PSP touchpoints flow)
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/AcquirerId'
+        - $ref: '#/components/parameters/Channel'
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/TerminalId'
+        - name: transactionId
+          description: Transaction ID
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/TransactionId'
+      requestBody:
+        $ref: '#/components/requestBodies/Close'
+      responses:
+        "201":
+          $ref: '#/components/responses/CloseProcessed'
+        "202":
+          description: Only for operation with KO outcome
+        "400":
+          $ref: '#/components/responses/Error'
+        "401":
+          description: Access token is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "415":
+          description: Unsupported media type. Did you provide application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+
 components:
   # ========================================================
   # Schemas
