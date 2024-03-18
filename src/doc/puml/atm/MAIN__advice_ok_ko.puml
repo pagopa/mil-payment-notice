@@ -2,17 +2,26 @@
 !include_many ../common/skin.puml
 !include_many actors.puml
 
-activate pos
+activate atm
 
-pos -> mil ++ : PATCH /transactions///<transaction id>///advice
+atm -> mil ++ : PATCH /transactions///<transaction id>///advice
 	note left
 		__header__
 		RequestId: //<request id>//
 		Authorization: Bearer //<access token>//
 		__body__
 		{
-			"status": "ERROR_ON_PAYMENT"
+			"status": "CLOSED_OK",
+			"paymentMethod": "//<payment method>//",
+			"pspId": "//<psp id>//",
+			"brokerId": "//<broker id>//",
+			"channelId": "//<channel id>//"
 		}
+		__//<payment method>//__
+		- DOMESTIC_CARD
+		- INTERNATIONAL_CARD
+		- CASH
+		- OTHER
 	end note
 
 note over mil #LightGreen
@@ -22,24 +31,18 @@ note over mil #LightGreen
 	//<base64url of access token signature>//
 	__//<access token payload>//__
 	{
-		"sub": "//<terminal uuid>//",
+		"sub": "//<bank id>// || //<terminal id>//",
 		"aud": "mil.pagopa.it",
 		"iss": "https:////<host name>///mil-auth",
 		"iat": //<issue unix epoch>//,
 		"exp": //<expiration unix epoch>//,
-		"payeeCode": "//<payeeCode>//",
-		"serviceProviderId": "//<service provider id>//",
-		"channel": "POS",
-		"terminalHandlerId": "//<terminal handler id>//",
+		"channel": "ATM",
+		"bankId": "//<bank id>//",
 		"terminalId": "//<terminal id>//",
+		"userCodeToken": "//<token of user code>//",
 		"groups": [
 			"NoticePayer"
-		],
-		"pagoPaConf": {
-			"pspId": "//<psp id>//",
-			"brokerId": "//<broker id>//",
-			"channelId": "//<channel id>//"
-		}
+		]
 	}
 end note
 
@@ -50,8 +53,9 @@ group get trx data
 			{
 				"id": "//<transaction id>//",
 				"client" : {
-					"channel": "POS",
-					"terminalUuid": "//<terminal uuid>//"
+				    "bankId": "//<bank id>//",
+					"channel": "ATM",
+					"terminalId": "//<terminal id>//"
 				}
 			}
 		end note
@@ -65,12 +69,9 @@ group get trx data
 				"lastUpdateTimestamp": "//<last update timestamp>//",
 				"status": "//<status>//",
 				"client": {
-					"serviceProviderId": "//<service provider id>//",
-					"channel": "POS",
-					"payeeCode": "//<payee code>//",
-					"terminalHandlerId": "//<terminal handler id>//",
-					"terminalId": "//<terminal id>//",
-					"terminalUuid": "//<terminal uuid>//"
+					"bankId": "//<bank id>//",
+					"channel": "ATM",
+					"terminalId": "//<terminal id>//"
 				},
 				"pspId": "//<psp id>//",
 				"pspBrokerId": "//<broker id>//",
@@ -133,11 +134,30 @@ group get trx data
 
 	note over mil #Orange
 		On transaction not found, return 404 (not found) with specific error body.
-		On //<status>// == "ERROR_ON_PAYMENT_OK", return 200 (ok).
-		On //<status>// != "ACTIVATED" and //<status>// != "ERROR_ON_PAYMENT_KO", return 400 (bad request) with specific error body.
+		On //<status>// == "CLOSED_OK", return 200 (ok).
+		On //<status>// != "ACTIVATED" and //<status>// != "CLOSED_KO", return 400 (bad request) with specific error body.
 		On any failure, return HTTP 500 (server error) with specific error body. 
 	end note
 end
+
+mil -> mil : Calculate //<application date>//
+	note left
+		| Condition                                               | //<application date>// |
+		| current date is holiday                                 | next working date      |
+		| current date is working day && current time is <= 13.00 | current date           |
+		| current date is working day && current time is > 13.00  | next working date      |
+	end note
+
+mil -> mil : //<transfer date>// = //<application date>// + 1 working day
+
+mil -> mil : Map //<payment method>// to //<pagopa payment method>//
+	note left
+		| //<payment method>// | //<pagopa payment method>// |
+		| DOMESTIC_CARD        | bancomat                    |
+		| INTERNATIONAL_CARD   | creditCard                  |
+		| CASH                 | cash                        |
+		| OTHER                | other                       |
+	end note
 
 group interaction with pagoPA
 	mil -> pagopa ++ : POST /nodo-auth/node-for-psp/v1
@@ -152,17 +172,30 @@ group interaction with pagoPA
 				<paymentTokens>
 					<paymentToken>//<payment token>//</paymentToken>
 				</paymentTokens>
-				<outcome>KO</outcome>
+				<outcome>OK</outcome>
+				<details>
+					<paymentMethod>//<pagopa payment method>//</paymentMethod>
+					<fee>//<fee charged to the payer>// + //<fee charged to the payee>//</fee>
+					<primaryCiIncurredFee>//<fee charged to the payee>//</primaryCiIncurredFee>
+					<idBundle>//<fee bundle id>//</idBundle>
+					<idCiBundle>//<fee ci bundle id>//</idCiBundle>
+					<applicationDate>//<application date>//</applicationDate>
+					<transferDate>//<transfer date>//</transferDate>
+				</details>
 			</sendPaymentOutcomeV2Request>
 		end note
 
-	pagopa --> mil -- : HTTP 200 (ok)
-		note right
-			__body__
-			<sendPaymentOutcomeV2Response>
-				<outcome>OK</outcome>
-			</sendPaymentOutcomeV2Response>
-		end note
+	alt HTTP 200 with ko
+		pagopa --> mil : HTTP 200 (ok)
+			note right
+				__body__
+				<sendPaymentOutcomeV2Response>
+					<outcome>KO</outcome>
+				</sendPaymentOutcomeV2Response>
+			end note
+	else HTTP Status code != 200
+		pagopa --> mil -- : HTTP != 200
+	end
 end
 
 group update trx data
@@ -173,14 +206,11 @@ group update trx data
 				"id": "//<transaction id>//",
 				"creationTimestamp": "//<creation timestamp>//",
 				"lastUpdateTimestamp": "//<current timestamp>//",
-				"status": "ERROR_ON_PAYMENT_OK",
+				"status": "CLOSED_KO",
 				"client": {
-					"serviceProviderId": "//<service provider id>//",
-					"channel": "POS",
-					"payeeCode": "//<payee code>//",
-					"terminalHandlerId": "//<terminal handler id>//",
-					"terminalId": "//<terminal id>//",
-					"terminalUuid": "//<terminal uuid>//"
+					"bankId": "//<bank id>//",
+					"channel": "ATM",
+					"terminalId": "//<terminal id>//"
 				},
 				"pspId": "//<psp id>//",
 				"pspBrokerId": "//<broker id>//",
@@ -248,7 +278,10 @@ group update trx data
 	end note
 end
 
-mil --> pos -- : HTTP 204 (ok)
+mil --> atm -- : HTTP 500 (server error)
+	note right
+		With specific error body.
+	end note
 
-deactivate pos
+deactivate atm
 @enduml

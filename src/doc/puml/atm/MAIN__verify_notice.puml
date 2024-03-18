@@ -1,0 +1,106 @@
+@startuml
+!include_many ../common/skin.puml
+!include_many actors.puml
+
+activate atm
+
+alt
+	atm -> mil ++ : get /paymentNotices?payeeCode=///<notice payee code>//&noticeNumber=//<notice number>//&pspId=//<psp id>//&brokerId=//<broker id>//&channelId=//<channel id>//
+		note left
+			__header__
+			RequestId: //<request id>//
+			Authorization: Bearer //<access token>//
+		end note
+else
+	atm -> mil : get /paymentNotices?qrCode=//<qr code>//&pspId=//<psp id>//&brokerId=//<broker id>//&channelId=//<channel id>//
+		note left
+			__header__
+			RequestId: //<request id>//
+			Authorization: Bearer //<access token>//
+		end note
+	
+	mil -> mil : extract from //<qr code>// the values of //<notice payee code>// and //<notice number>//
+end
+
+note over mil #LightGreen
+	__//<access token>//__
+	base64url(//<token header>//) + "." +
+	base64url(//<access token payload>//) + "." +
+	//<base64url of access token signature>//
+	__//<access token payload>//__
+	{
+		"sub": "//<bank id>// || //<terminal id>//",
+		"aud": "mil.pagopa.it",
+		"iss": "https:////<host name>///mil-auth",
+		"iat": //<issue unix epoch>//,
+		"exp": //<expiration unix epoch>//,
+		"channel": "ATM",
+		"bankId": "//<bank id>//",
+		"terminalId": "//<terminal id>//",
+		"userCodeToken": "//<token of user code>//",
+		"groups": [
+			"NoticePayer"
+		]
+	}
+end note
+
+group interaction with pagoPA
+	mil -> pagopa ++ : POST /nodo-auth/node-for-psp/v1
+		note left
+			__body__
+			<verifyPaymentNoticeReq>
+				<idPSP>//<psp id>//</idPSP>
+				<idBrokerPSP>//<broker id>//</idBrokerPSP>
+				<idChannel>//<channel id>//</idChannel>
+				<password>//<password>//</password>
+				<qrCode>
+					<fiscalCode>//<notice payee code>//</fiscalCode>
+					<noticeNumber>//<notice number>//</noticeNumber>
+				</qrCode>
+			</verifyPaymentNoticeReq>
+		end note
+
+	pagopa --> mil -- : HTTP 200 (ok)
+		note right
+			__body__
+			<verifyPaymentNoticeRes>
+				<outcome>OK</outcome>
+				<paymentList>
+					<paymentOptionDescription>
+						<amount>//<notice amount>//</amount>
+						<options>EQ</options>
+						<dueDate>//<due date>//</dueDate>
+						<paymentNote>//<note>//</paymentNote>
+					</paymentOptionDescription>
+				</paymentList>
+				<paymentDescription>//<description>//</paymentDescription>
+				<fiscalCodePA>//<notice payee code>//</fiscalCodePA>
+				<companyName>//<payee name>//</companyName>
+				<officeName>//<payee office name>//</officeName>
+			</verifyPaymentNoticeRes>
+		end note
+
+	mil -> mil : verify that the response doesn't contain only one paymentOptionDescription with options equals to EQ
+	
+	note over mil #Orange
+		On any failure (including outcome not OK), return HTTP 500 (server error) with specific error body.
+		If the response doesn't contain only one paymentOptionDescription with options equals to EQ, return HTTP 500 (server error) with specific error body.
+	end note
+end
+
+mil --> atm -- : HTTP 200 (ok)
+	note right
+		__body__
+		{
+			"payeeCode": "//<notice payee code>//",
+			"noticeNumber": "//<notice number>//",
+			"amount": //<notice amount>//,
+			"description": "//<description>//",
+			"dueDate": "//<due date>//",
+			"payeeName": "//<payee name>//",
+			"officeName": "//<payee office name>//"
+		}
+	end note
+
+deactivate atm
+@enduml

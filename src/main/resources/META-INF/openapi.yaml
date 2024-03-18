@@ -2,7 +2,7 @@ openapi: 3.0.3
 
 info:
   title: Payment Notice Microservice
-  version: 13.2.0
+  version: 14.0.0
   description: Payment Notice Microservice for Multi-channel Integration Layer of SW Client Project
   contact:
     name: Antonio Tarricone
@@ -36,7 +36,7 @@ security:
   - bearerAuth: [ ]
 
 paths:
-  /paymentNotices:
+  /debtPositions:
     get:
       operationId: getDebtPosition
       summary: Retrieves debt position
@@ -69,6 +69,56 @@ paths:
         default:
           description: Unexpected error
 
+  /paymentNotices:
+    get:
+      operationId: verifyNotice
+      summary: Verifies a notice
+      description: |
+        Verifies a notice retrieving its status and data.
+        The following query parameters combinations are allowed:
+          * If the request is originated from the POS channel:
+            - payeeCode, noticeNumber
+            - qrCode
+          * If the request is originated from the ATM channel:
+            - payeeCode, noticeNumber, pspId, brokerId, channelId
+            - qrCode, pspId, brokerId, channelId
+      tags: [ read ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/PayeeCode'
+        - $ref: '#/components/parameters/NoticeNumber'
+        - $ref: '#/components/parameters/QrCode'
+        - $ref: '#/components/parameters/PspId'
+        - $ref: '#/components/parameters/BrokerId'
+        - $ref: '#/components/parameters/ChannelId'
+      responses:
+        "200":
+          #description: Found
+          $ref: '#/components/responses/Notice'
+        "400":
+          #description: Bad request
+          $ref: '#/components/responses/Error'
+        "401":
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
+        "403":
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
+        "404":
+          #descritpion: Not found
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
+        "429":
+          #description: Too many request
+          $ref: '#/components/responses/Error'
+        "500":
+          #description: Server error
+          $ref: '#/components/responses/Error'
+        default:
+          description: Unexpected error
+    
   /transactions:
     parameters:
       - $ref: '#/components/parameters/RequestId'
@@ -272,6 +322,22 @@ components:
       maxLength: 2048
       example: "https://mil-d-apim.azure-api.net/portal"
 
+    AtmId:
+      description: ID of the ATM. It must be unique per Bank ID.
+      type: string
+      pattern: "^\\d{4,9}$"
+      minLength: 4
+      maxLength: 9
+      example: "34523860"
+
+    BankId:
+      description: ID of the Bank assigned by the ABI.
+      type: string
+      pattern: "^\\d{5}$"
+      minLength: 5
+      maxLength: 5
+      example: "05424"
+
     BrokerId:
       description: ID of pagoPA broker
       type: string
@@ -472,6 +538,14 @@ components:
       maxLength: 35
       example: "648fhg36s95jfg7DS"
 
+    PosId:
+      description: ID of the POS. It must be unique per terminal handler.
+      type: string
+      pattern: "^\\d{8}$"
+      minLength: 8
+      maxLength: 8
+      example: "34523860"
+
     PspId:
       description: ID of pagoPA PSP
       type: string
@@ -479,6 +553,14 @@ components:
       minLength: 1
       maxLength: 35
       example: "AGID_01"
+
+    QrCodeBase64UrlEnc:
+      description: Base64Url of the string encoded by the QR-code. This is due to a bug of Azure routing system which decodes %2F before routing the request.
+      type: string
+      pattern: "^[a-zA-Z0-9_-]{32,128}$"
+      minLength: 32
+      maxLength: 128
+      example: "UEFHT1BBfDAwMnwwMDAwMDAwMDAwMDAwMDAwMDB8MDAwMDAwMDAwMDB8OTk5OQ"
 
     RateLimitLimit:
       description: The number of allowed requests in the current period
@@ -542,14 +624,6 @@ components:
       maxLength: 5
       example: "45856"
 
-    TerminalId:
-      description: ID of the terminal. It must be unique per terminal handler.
-      type: string
-      pattern: "^\\d{8}$"
-      minLength: 8
-      maxLength: 8
-      example: "34523860"
-
     TerminalUuid:
       description: UUID of a terminal
       type: string
@@ -578,8 +652,75 @@ components:
     # ------------------------------------------------------
     # Complex types
     # ------------------------------------------------------
+    AdviceFromAtm:
+      description: Advice from POS to communicate the outcome of the transaction. If status is CLOSED_OK, paymentMethod is mandatory, otherwise it is ignored.
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        pspId:
+          $ref: '#/components/schemas/PspId'
+        brokerId:
+          $ref: '#/components/schemas/BrokerId'
+        channelId:
+          $ref: '#/components/schemas/ChannelId'
+      required:
+        - status
+        - pspId
+        - brokerId
+        - channelId
+      example:
+        status: "CLOSED_OK"
+        paymentMethod: "DOMESTIC_CARD"
+        pspId: "AGID_01"
+        brokerId: "97735020584"
+        channelId: "97735020584_03"
+
+    AdviceFromPos:
+      description: Advice from POS to communicate the outcome of the transaction. If status is CLOSED_OK, paymentMethod is mandatory, otherwise it is ignored.
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+      required:
+        - status
+      example:
+        status: "CLOSED_OK"
+        paymentMethod: "DOMESTIC_CARD"
+
     Client:
-      description: Client data
+      oneOf:
+        - $ref: '#/components/schemas/ClientPos'
+        - $ref: '#/components/schemas/ClientAtm'
+
+    ClientAtm:
+      description: ATM data
+      type: object
+      additionalProperties: false
+      properties:
+        bankId:
+          $ref: '#/components/schemas/BankId'
+        channel:
+          $ref: '#/components/schemas/Channel'
+        terminalId:
+          $ref: '#/components/schemas/AtmId'
+      required:
+        - bankId
+        - channel
+        - terminalId
+      example:
+        bankId: "05424"
+        channel: "ATM"
+        terminalId: "3452"
+
+    ClientPos:
+      description: POS data
       type: object
       additionalProperties: false
       properties:
@@ -590,7 +731,7 @@ components:
         terminalHandlerId:
           $ref: '#/components/schemas/TerminalHandlerId'
         terminalId:
-          $ref: '#/components/schemas/TerminalId'
+          $ref: '#/components/schemas/PosId'
         terminalUuid:
           $ref: '#/components/schemas/TerminalUuid'
       required:
@@ -626,6 +767,42 @@ components:
         noticeNumber: "485564829563528563"
         amount: 12345
 
+    CreateFromAtm:
+      description: Request to create a transaction from ATM
+      type: object
+      additionalProperties: false
+      properties:
+        payeeCode:
+          $ref: '#/components/schemas/PayeeCode'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        idempotencyKey:
+          $ref: '#/components/schemas/IdempotencyKey'
+        pspId:
+          $ref: '#/components/schemas/PspId'
+        brokerId:
+          $ref: '#/components/schemas/BrokerId'
+        channelId:
+          $ref: '#/components/schemas/ChannelId'
+      required:
+          - payeeCode
+          - noticeNumber
+          - amount
+          - idempotencyKey
+          - pspId
+          - brokerId
+          - channelId
+      example:
+        payeeCode: "06534340721"
+        noticeNumber: "485564829563528563"
+        amount: 12345
+        idempotencyKey: "47583764545_Ahf479elk0"
+        pspId: "AGID_01"
+        brokerId: "97735020584"
+        channelId: "97735020584_03"
+
     CreateFromPos:
       description: Request to create a transaction from POS
       type: object
@@ -649,32 +826,6 @@ components:
         noticeNumber: "485564829563528563"
         amount: 12345
         idempotencyKey: "47583764545_Ahf479elk0"
-
-    Debt:
-      description: Debt position
-      type: object
-      additionalProperties: false
-      properties:
-        payeeCode:
-          $ref: '#/components/schemas/PayeeCode'
-        noticeNumber:
-          $ref: '#/components/schemas/NoticeNumber'
-        amount:
-          $ref: '#/components/schemas/EuroCents'
-        description:
-          $ref: '#/components/schemas/Description'
-        dueDate:
-          $ref: '#/components/schemas/DueDate'
-      required:
-        - payeeCode
-        - noticeNumber
-        - amount
-        - description
-      example:
-        payeeCode: "06534340721"
-        noticeNumber: "485564829563528563"
-        amount: 12345
-        description: "Health ticket for chest x-ray"
 
     Error:
       description: Error details
@@ -721,48 +872,106 @@ components:
         - key: "REGIONAL_REF"
           value: "q76_089"
 
-    Notice:
-      description: Notice details
+    NoticeBasic:
+      description: Basic data of a notice
       type: object
       additionalProperties: false
       properties:
-        paymentToken:
-          $ref: '#/components/schemas/PaymentToken'
-        description:
-          $ref: '#/components/schemas/Description'
         payeeCode:
           $ref: '#/components/schemas/PayeeCode'
         noticeNumber:
           $ref: '#/components/schemas/NoticeNumber'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        description:
+          $ref: '#/components/schemas/Description'
+        dueDate:
+          $ref: '#/components/schemas/DueDate'
+      required:
+        - payeeCode
+        - noticeNumber
+        - amount
+        - description
+      example:
+        payeeCode: "06534340721"
+        noticeNumber: "485564829563528563"
+        amount: 12345
+        description: "Health ticket for chest x-ray"
+    
+    Notice:
+      description: Notice data
+      type: object
+      additionalProperties: false
+      properties:
+        payeeCode:
+          $ref: '#/components/schemas/PayeeCode'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        description:
+          $ref: '#/components/schemas/Description'
+        dueDate:
+          $ref: '#/components/schemas/DueDate'
         payeeName:
           $ref: '#/components/schemas/PayeeName'
         officeName:
           $ref: '#/components/schemas/OfficeName'
-        creditorReferenceId:
-          $ref: '#/components/schemas/CreditorReferenceId'
+      required:
+        - payeeCode
+        - noticeNumber
+        - amount
+        - description
+        - payeeName
+      example:
+        payeeCode: "06534340721"
+        noticeNumber: "248394875506035295"
+        amount: 12345
+        description: "Health ticket for chest x-ray"
+        payeeName: "ASL Roma"
+
+    NoticeDetails:
+      description: Notice details
+      type: object
+      additionalProperties: false
+      properties:
+        payeeCode:
+          $ref: '#/components/schemas/PayeeCode'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
         amount:
           $ref: '#/components/schemas/EuroCents'
+        description:
+          $ref: '#/components/schemas/Description'
+        payeeName:
+          $ref: '#/components/schemas/PayeeName'
+        officeName:
+          $ref: '#/components/schemas/OfficeName'
+        paymentToken:
+          $ref: '#/components/schemas/PaymentToken'
+        creditorReferenceId:
+          $ref: '#/components/schemas/CreditorReferenceId'
         transfers:
           $ref: '#/components/schemas/Transfers'
         metadata:
           $ref: '#/components/schemas/MetadataList'
       required:
-        - paymentToken
-        - description
         - payeeCode
         - noticeNumber
-        - payeeName
-        - creditorReferenceId
         - amount
+        - description
+        - payeeName
+        - paymentToken
+        - creditorReferenceId
         - transfers
       example:
-        paymentToken: "648fhg36s95jfg7DS"
-        description: "Health ticket for chest x-ray"
         payeeCode: "06534340721"
         noticeNumber: "248394875506035295"
-        payeeName: "ASL Roma"
-        creditorReferenceId: "48394875506035295"
         amount: 12345
+        description: "Health ticket for chest x-ray"
+        payeeName: "ASL Roma"
+        paymentToken: "648fhg36s95jfg7DS"
+        creditorReferenceId: "48394875506035295"
         transfers:
           - id: 1
             amount: 12345
@@ -775,15 +984,15 @@ components:
       minItems: 1
       maxItems: 5
       items:
-        $ref: '#/components/schemas/Notice'
+        $ref: '#/components/schemas/NoticeDetails'
       example:
-        - paymentToken: "648fhg36s95jfg7DS"
-          description: "Health ticket for chest x-ray"
-          payeeCode: "06534340721"
+        - payeeCode: "06534340721"
           noticeNumber: "248394875506035295"
-          payeeName: "ASL Roma"
-          creditorReferenceId: "48394875506035295"
           amount: 12345
+          description: "Health ticket for chest x-ray"
+          payeeName: "ASL Roma"
+          paymentToken: "648fhg36s95jfg7DS"
+          creditorReferenceId: "48394875506035295"
           transfers:
             - id: 1
               amount: 12345
@@ -1040,19 +1249,13 @@ components:
   # ========================================================
   requestBodies:
     Advice:
-      description: Advice from POS to communicate the outcome of the transaction. If status is CLOSED_OK, paymentMethod is mandatory, otherwise it is ignored.
+      description: Advice from POS or ATM to communicate the outcome of the transaction.
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties: false
-            properties:
-              status:
-                $ref: '#/components/schemas/Status'
-              paymentMethod:
-                $ref: '#/components/schemas/PaymentMethod'
-            required:
-              - status
+            oneOf:
+              - $ref: '#/components/schemas/AdviceFromPos'
+              - $ref: '#/components/schemas/AdviceFromAtm'
     
     Create:
       description: Request to create a transaction from POS or from Public Administration (payee) portal
@@ -1062,6 +1265,7 @@ components:
             oneOf:
               - $ref: '#/components/schemas/CreateFromPos'
               - $ref: '#/components/schemas/CreateFromPa'
+              - $ref: '#/components/schemas/CreateFromAtm'
 
     Start:
       description: Request to start a transaction created from Public Administration (payee) portal
@@ -1080,6 +1284,22 @@ components:
   # Parameters
   # ========================================================
   parameters:
+    BrokerId:
+      name: brokerId
+      in: query
+      description: ID of pagoPA broker
+      required: false
+      schema:
+        $ref: '#/components/schemas/BrokerId'
+
+    ChannelId:
+      name: channelId
+      in: query
+      description: ID of pagoPA channel
+      required: false
+      schema:
+        $ref: '#/components/schemas/ChannelId'
+
     EndDate:
       name: endDate
       in: query
@@ -1091,6 +1311,14 @@ components:
         maxLength: 10
         example: "2022-11-30"
 
+    NoticeNumber:
+      name: noticeNumber
+      in: query
+      description: Notice number
+      required: false
+      schema:
+        $ref: '#/components/schemas/NoticeNumber'
+
     Page:
       name: page
       in: query
@@ -1098,6 +1326,30 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/PageNumber'
+
+    PayeeCode:
+      name: payeeCode
+      in: query
+      description: Fiscal code of the subject that receives the payment (the payee)
+      required: false
+      schema:
+        $ref: '#/components/schemas/PayeeCode'
+
+    PspId:
+      name: pspId
+      in: query
+      description: ID of pagoPA PSP
+      required: false
+      schema:
+        $ref: '#/components/schemas/PspId'
+
+    QrCode:
+      name: qrCode
+      in: query
+      description: Base64Url without trailing equals of the string encoded by the QR-code
+      required: false
+      schema:
+        $ref: '#/components/schemas/QrCodeBase64UrlEnc'
 
     RequestId:
       name: RequestId
@@ -1218,7 +1470,7 @@ components:
                 minItems: 0
                 maxItems: 64
                 items:
-                  $ref: '#/components/schemas/Debt'
+                  $ref: '#/components/schemas/NoticeBasic'
 
     Error:
       description: Error response
@@ -1282,6 +1534,29 @@ components:
           required: false
           schema:
             $ref: '#/components/schemas/RateLimitReset'
+
+    Notice:
+      description: Notice data
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Notice'
 
     PageOfTransactions:
       description: Page of retrieved transactions

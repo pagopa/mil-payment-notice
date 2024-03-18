@@ -1,0 +1,5 @@
+participant "ATM Layer" as atm
+participant "mil-payment-notice" as mil
+participant "mil-auth" as mil_auth
+participant "pagoPA" as pagopa
+database "pagopa-trx\n(MongoDB)" as registry

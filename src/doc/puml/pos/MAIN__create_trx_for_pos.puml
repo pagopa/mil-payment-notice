@@ -47,7 +47,7 @@ note over mil #LightGreen
 end note
 
 group interaction with pagoPA
-	mil -> pagopa ++ : POST /nodo-auth/node-for-psp/v1/?soapAction=activatePaymentNoticeV2
+	mil -> pagopa ++ : POST /nodo-auth/node-for-psp/v1
 		note left
 			__body__
 			<activatePaymentNoticeV2Request>
@@ -62,6 +62,7 @@ group interaction with pagoPA
 				</qrCode>
 				<expirationTime>//<expiration time>//</expirationTime>
 				<amount>//<notice amount>//</amount>
+				<touchPoint>POS</touchPoint>
 			</activatePaymentNoticeV2Request>
 		end note
 
@@ -128,7 +129,7 @@ group interaction with pagoPA
 		end note
 
 	note over mil #Orange
-		On any failure, return HTTP 500 (server error) with specific error body. 
+		On any failure (including outcome not OK), return HTTP 500 (server error) with specific error body. 
 	end note
 end
 

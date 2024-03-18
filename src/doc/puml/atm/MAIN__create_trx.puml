@@ -2,16 +2,22 @@
 !include_many ../common/skin.puml
 !include_many actors.puml
 
-activate pos
+activate atm
 
-pos -> mil ++ : PATCH /transactions///<transaction id>///start
+atm -> mil ++ : POST /transactions
 	note left
 		__header__
 		RequestId: //<request id>//
 		Authorization: Bearer //<access token>//
 		__body__
 		{
-			"idempotencyKey": "//<idempotency key>//"
+			"payeeCode": "//<notice payee code>//",
+			"noticeNumber": "//<notice number>//",
+			"amount": "//<notice amount in eurocents>//",
+			"idempotencyKey": "//<idempotency key>//",
+			"pspId": "//<psp id>//",
+			"brokerId": "//<broker id>//",
+			"channelId": "//<channel id>//"
 		}
 	end note
 
@@ -22,72 +28,20 @@ note over mil #LightGreen
 	//<base64url of access token signature>//
 	__//<access token payload>//__
 	{
-		"sub": "//<terminal uuid>//",
+		"sub": "//<bank id>// || //<terminal id>//",
 		"aud": "mil.pagopa.it",
 		"iss": "https:////<host name>///mil-auth",
 		"iat": //<issue unix epoch>//,
 		"exp": //<expiration unix epoch>//,
-		"payeeCode": "//<payeeCode>//",
-		"serviceProviderId": "//<service provider id>//",
-		"channel": "POS",
-		"terminalHandlerId": "//<terminal handler id>//",
+		"channel": "ATM",
+		"bankId": "//<bank id>//",
 		"terminalId": "//<terminal id>//",
+		"userCodeToken": "//<token of user code>//",
 		"groups": [
 			"NoticePayer"
-		],
-		"pagoPaConf": {
-			"pspId": "//<psp id>//",
-			"brokerId": "//<broker id>//",
-			"channelId": "//<channel id>//"
-		}
+		]
 	}
 end note
-
-group get trx data
-	mil -> registry ++ : find(//query document//).firstResult()
-		note left
-			__//query document//__
-			{
-				"id": "//<transaction id>//",
-				"client" : {
-					"channel": "POS",
-					"terminalUuid": "//<terminal uuid>//"
-				}
-			}
-		end note
-
-	registry --> mil -- : //document//
-		note right
-			__//document//__
-			{
-				"id": "//<transaction id>//",
-				"creationTimestamp": "//<creation timestamp>//",
-				"lastUpdateTimestamp": "//<last update timestamp>//",
-				"status": "//<status>//",
-				"client": {
-					"serviceProviderId": "//<service provider id>//",
-					"channel": "POS",
-					"payeeCode": "//<payee code>//",
-					"terminalHandlerId": "//<terminal handler id>//",
-					"terminalId": "//<terminal id>//",
-					"terminalUuid": "//<terminal uuid>//"
-				},
-				"notices": [
-					{
-						"payeeCode": "//<notice payee code>//",
-						"noticeNumber": "//<notice number>//",
-						"amount": //<notice amount>//
-					}
-				]
-			}
-		end note
-
-	note over mil #Orange
-		On transaction not found, return 404 (not found) with specific error body.
-		On //<status>// != "CREATED", return 400 (bad request) with specific error body.
-		On any failure, return HTTP 500 (server error) with specific error body. 
-	end note
-end
 
 group interaction with pagoPA
 	mil -> pagopa ++ : POST /nodo-auth/node-for-psp/v1
@@ -105,7 +59,7 @@ group interaction with pagoPA
 				</qrCode>
 				<expirationTime>//<expiration time>//</expirationTime>
 				<amount>//<notice amount>//</amount>
-				<touchPoint>POS</touchPoint>
+				<touchPoint>ATM</touchPoint>
 			</activatePaymentNoticeV2Request>
 		end note
 
@@ -176,22 +130,27 @@ group interaction with pagoPA
 	end note
 end
 
-group update trx data
-	mil -> registry ++ : update(//document//)
+mil -> mil : Generate //<transaction id>//
+	note left
+		new SecureRandom().ints(0, 16)
+			.limit(24)
+			.mapToObj(Integer::toHexString)
+			.collect(Collectors.joining());
+	end note
+
+group store trx data
+	mil -> registry ++ : persist(//document//)
 		note left
 			__//document//__
 			{
 				"id": "//<transaction id>//",
-				"creationTimestamp": "//<creation timestamp>//",
+				"creationTimestamp": "//<current timestamp>//",
 				"lastUpdateTimestamp": "//<current timestamp>//",
 				"status": "ACTIVATED",
 				"client": {
-					"serviceProviderId": "//<service provider id>//",
-					"channel": "POS",
-					"payeeCode": "//<payee code>//",
-					"terminalHandlerId": "//<terminal handler id>//",
+					"bankId": "//<bank id>//",
+					"channel": "ATM",
 					"terminalId": "//<terminal id>//",
-					"terminalUuid": "//<terminal uuid>//"
 				},
 				"pspId": "//<psp id>//",
 				"pspBrokerId": "//<broker id>//",
@@ -259,7 +218,11 @@ group update trx data
 	end note
 end
 
-mil --> pos -- : HTTP 204 (no content)
+mil --> atm -- : HTTP 201 (created)
+	note right
+		__header__
+		Location: /transactions///<transaction id>//
+	end note
 
-deactivate pos
+deactivate atm
 @enduml

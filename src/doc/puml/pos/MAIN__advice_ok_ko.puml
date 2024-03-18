@@ -4,7 +4,7 @@
 
 activate pos
 
-pos -> mil ++ : PATCH /transactions///<transaction id>//
+pos -> mil ++ : PATCH /transactions///<transaction id>///advice
 	note left
 		__header__
 		RequestId: //<request id>//
@@ -165,7 +165,7 @@ mil -> mil : Map //<payment method>// to //<pagopa payment method>//
 	end note
 
 group interaction with pagoPA
-	mil -> pagopa ++ : POST /nodo-auth/node-for-psp/v1/?soapAction=sendPaymentOutcomeV2
+	mil -> pagopa ++ : POST /nodo-auth/node-for-psp/v1
 		note left
 			__body__
 			<sendPaymentOutcomeV2Request>
