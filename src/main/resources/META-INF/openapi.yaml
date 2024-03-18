@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 
 info:
   title: Payment Notice Microservice
@@ -16,369 +16,242 @@ servers:
     url: https://mil-u-apim.azure-api.net/mil-payment-notice
     x-internal: true
 
+tags:
+  - name: create
+    description: Related to 'create' operation
+  - name: read
+    description: Related to 'read' operation
+  - name: update
+    description: Related to 'update' operation
+  - name: delete
+    description: Related to 'delete' operation
+  - name: internal
+    description: For internal purpose only
+  - name: psp
+    description: Intended for use by the PSP
+  - name: pa
+    description: Intended for use by the Public Administration (payee)
+
 security:
   - bearerAuth: [ ]
 
 paths:
   /paymentNotices:
-    # ------------------------------------------------------
-    # Retrieves debt position
-    # ------------------------------------------------------
     get:
       operationId: getDebtPosition
       summary: Retrieves debt position
       description: Retrieves the debt position using the tax code token contained in the access token
+      tags: [ read ]
       parameters:
         - $ref: '#/components/parameters/RequestId'
-        - $ref: '#/components/parameters/Version'
-        - $ref: '#/components/parameters/AcquirerId'
-        - $ref: '#/components/parameters/Channel'
-        - $ref: '#/components/parameters/MerchantId'
-        - $ref: '#/components/parameters/TerminalId'
       responses:
         "200":
+          #description: Found
           $ref: '#/components/responses/DebtPosition'
         "400":
+          #description: Bad request
           $ref: '#/components/responses/Error'
         "401":
-          description: Access token is missing or invalid
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
         "403":
-          description: Forbidden
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
         "406":
-          description: Not acceptable. Did you require application/json?
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
         "429":
-          description: Too many request
+          #description: Too many request
+          $ref: '#/components/responses/Error'
         "500":
+          #description: Server error
           $ref: '#/components/responses/Error'
         default:
           description: Unexpected error
 
-  /paymentNotices/{qrCode}:
+  /transactions:
     parameters:
       - $ref: '#/components/parameters/RequestId'
-      - $ref: '#/components/parameters/Version'
-      - $ref: '#/components/parameters/AcquirerId'
-      - $ref: '#/components/parameters/Channel'
-      - $ref: '#/components/parameters/MerchantId'
-      - $ref: '#/components/parameters/TerminalId'
-      - name: qrCode
-        description: Base64Url of the string encoded by the QR-code. This is due to a bug of Azure routing system which decodes %2F before routing the request.
-        in: path
-        required: true
-        schema:
-          $ref: '#/components/schemas/QrCodeBase64UrlEnc'
 
-    # ------------------------------------------------------
-    # Verifies a payment notice by QR-code
-    # ------------------------------------------------------
-    get:
-      operationId: verifyByQrCode
-      summary: Verifies a payment notice by QR-code
-      responses:
-        "200":
-          $ref: '#/components/responses/VerifyProcessed'
-        "400":
-          $ref: '#/components/responses/Error'
-        "401":
-          description: Access token is missing or invalid
-        "403":
-          description: Forbidden
-        "404":
-          description: Payment notice not found
-        "406":
-          description: Not acceptable. Did you require application/json?
-        "429":
-          description: Too many request
-        "500":
-          $ref: '#/components/responses/Error'
-        default:
-          description: Unexpected error
-
-    # ------------------------------------------------------
-    # Activates the payment of a notice by QR-code
-    # ------------------------------------------------------
-    patch:
-      operationId: activateByQrCode
-      summary: Activates the payment of a notice by QR-code
-      requestBody:
-        $ref: '#/components/requestBodies/Activate'
-      responses:
-        "200":
-          $ref: '#/components/responses/ActivateProcessed'
-        "400":
-          $ref: '#/components/responses/Error'
-        "401":
-          description: Access token is missing or invalid
-        "403":
-          description: Forbidden
-        "404":
-          description: Payment notice not found
-        "406":
-          description: Not acceptable. Did you require application/json?
-        "415":
-          description: Unsupported media type. Did you provide application/json?
-        "429":
-          description: Too many request
-        "500":
-          $ref: '#/components/responses/Error'
-        default:
-          description: Unexpected error
-
-  /paymentNotices/{paTaxCode}/{noticeNumber}:
-    parameters:
-      - $ref: '#/components/parameters/RequestId'
-      - $ref: '#/components/parameters/Version'
-      - $ref: '#/components/parameters/AcquirerId'
-      - $ref: '#/components/parameters/Channel'
-      - $ref: '#/components/parameters/MerchantId'
-      - $ref: '#/components/parameters/TerminalId'
-      - name: paTaxCode
-        description: Tax code of the creditor company
-        in: path
-        required: true
-        schema:
-          $ref: '#/components/schemas/PaTaxCode'
-      - name: noticeNumber
-        description: Notice number
-        in: path
-        required: true
-        schema:
-          $ref: '#/components/schemas/NoticeNumber'
-
-    # ------------------------------------------------------
-    # Verifies a payment notice by PA tax code and notice
-    # number
-    # ------------------------------------------------------
-    get:
-      operationId: verifyByTaxCodeAndNoticeNumber
-      summary: Verifies a payment notice by PA tax code and notice number
-      responses:
-        "200":
-          $ref: '#/components/responses/VerifyProcessed'
-        "400":
-          $ref: '#/components/responses/Error'
-        "401":
-          description: Access token is missing or invalid
-        "403":
-          description: Forbidden
-        "404":
-          description: Payment notice not found
-        "406":
-          description: Not acceptable. Did you require application/json?
-        "429":
-          description: Too many request
-        "500":
-          $ref: '#/components/responses/Error'
-        default:
-          description: Unexpected error
-
-    # ------------------------------------------------------
-    # Activates the payment of a notice by PA tax code and
-    # notice number
-    # ------------------------------------------------------
-    patch:
-      operationId: activateByTaxCodeAndNoticeNumber
-      summary: Activates the payment of a notice by PA tax code and notice number
-      requestBody:
-        $ref: '#/components/requestBodies/Activate'
-      responses:
-        "200":
-          $ref: '#/components/responses/ActivateProcessed'
-        "400":
-          $ref: '#/components/responses/Error'
-        "401":
-          description: Access token is missing or invalid
-        "403":
-          description: Forbidden
-        "404":
-          description: Payment notice not found
-        "406":
-          description: Not acceptable. Did you require application/json?
-        "415":
-          description: Unsupported media type. Did you provide application/json?
-        "429":
-          description: Too many request
-        "500":
-          $ref: '#/components/responses/Error'
-        default:
-          description: Unexpected error
-
-  /payments:
-    parameters:
-      - $ref: '#/components/parameters/RequestId'
-      - $ref: '#/components/parameters/Version'
-      - $ref: '#/components/parameters/AcquirerId'
-      - $ref: '#/components/parameters/Channel'
-      - $ref: '#/components/parameters/MerchantId'
-      - $ref: '#/components/parameters/TerminalId'
-
-    # ------------------------------------------------------
-    # Pre-closes or aborts the payment of a set of notices
-    # ------------------------------------------------------
     post:
-      operationId: preCloseOrAbort
-      summary: Pre-closes or aborts the payment of a set of notices
+      operationId: create
+      summary: Creates a transaction
+      description: Create a transaction from POS or from Public Admnitration portal
+      tags: [ create ]
       requestBody:
-        $ref: '#/components/requestBodies/PreCloseOrAbort'
+        $ref: '#/components/requestBodies/Create'
       responses:
-        "201":
-          $ref: '#/components/responses/PreCloseOrAbortProcessed'
-        "202":
-          description: Only for abort operation.
+        "204":
+          #description: No content
+          $ref: '#/components/responses/Create'
         "400":
+          #description: Bad request
           $ref: '#/components/responses/Error'
         "401":
-          description: Access token is missing or invalid
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
         "403":
-          description: Forbidden
-        "406":
-          description: Not acceptable. Did you require application/json?
-        "409":
-          description: Transaction ID already exists
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
         "415":
-          description: Unsupported media type. Did you provide application/json?
+          #description: Unsupported media type. Did you provide application/json?
+          $ref: '#/components/responses/Error'
         "429":
-          description: Too many request
+          #description: Too many request
+          $ref: '#/components/responses/Error'
         "500":
+          #description: Server error
           $ref: '#/components/responses/Error'
         default:
           description: Unexpected error
 
-    # ------------------------------------------------------
-    # Gets last 30 transactions executed by the client in
-    # the last 30 days
-    # ------------------------------------------------------
     get:
-      operationId: getLastTransactions
-      summary: Gets last 30 transactions executed by the client in the last 30 days
+      operationId: getTransactions
+      summary: Retrieves the list of transactions
+      description: Retrieves the list of transactions by service provider or payee
+      tags: [ read ]
+      parameters:
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - $ref: '#/components/parameters/SortStrategy'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
       responses:
         "200":
-          $ref: '#/components/responses/Transactions'
+          #description: Found
+          $ref: '#/components/responses/PageOfTransactions'
         "400":
+          #description: Bad request
           $ref: '#/components/responses/Error'
         "401":
-          description: Access token is missing or invalid
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
         "403":
-          description: Forbidden
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
         "406":
-          description: Not acceptable. Did you require application/json?
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
         "429":
-          description: Too many request
+          #description: Too many request
+          $ref: '#/components/responses/Error'
         "500":
+          #description: Server error
           $ref: '#/components/responses/Error'
         default:
           description: Unexpected error
-          
-  /payments/{transactionId}:
-    parameters:
-      - name: transactionId
-        description: Transaction ID
-        in: path
-        required: true
-        schema:
-          $ref: '#/components/schemas/TransactionId'
 
-    # ------------------------------------------------------
-    # Comunicates the outcome of the e-money transaction
-    # executed to pay a set of notices
-    # ------------------------------------------------------
-    patch:
-      operationId: close
-      summary: Comunicates the outcome of the e-money transaction executed to pay a set of notices
+  /transactions/latest:
+    get:
+      operationId: getLatestTransaction
+      summary: Retrieves the latest transaction
+      description: Retrieves the latest transaction by POS and status
+      tags: [ read ]
       parameters:
         - $ref: '#/components/parameters/RequestId'
-        - $ref: '#/components/parameters/Version'
-        - $ref: '#/components/parameters/AcquirerId'
-        - $ref: '#/components/parameters/Channel'
-        - $ref: '#/components/parameters/MerchantId'
-        - $ref: '#/components/parameters/TerminalId'
-      requestBody:
-        $ref: '#/components/requestBodies/Close'
+        - $ref: '#/components/parameters/Status'
       responses:
-        "201":
-          $ref: '#/components/responses/CloseProcessed'
-        "202":
-          description: Only for operation with KO outcome
+        "200":
+          #description: Found
+          $ref: '#/components/responses/Transaction'
         "400":
+          #description: Bad request
           $ref: '#/components/responses/Error'
         "401":
-          description: Access token is missing or invalid
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
         "403":
-          description: Forbidden
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
         "404":
-          description: Not found
+          #description: Not found
+          $ref: '#/components/responses/Error'
         "406":
-          description: Not acceptable. Did you require application/json?
-        "415":
-          description: Unsupported media type. Did you provide application/json?
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
         "429":
-          description: Too many request
+          #description: Too many request
+          $ref: '#/components/responses/Error'
         "500":
+          #description: Server error
           $ref: '#/components/responses/Error'
         default:
           description: Unexpected error
 
-    # ------------------------------------------------------
-    # Retrieves the status of the payment of a set of
-    # payment notices
-    # ------------------------------------------------------
-    get:
-      operationId: getPaymentStatus
-      summary: Retrieves the status of the payment of a set of payment notices
+  /transactions/{transactionId}/start:
+    patch:
+      operationId: start
+      summary: Starts a transaction
+      description: Starts a transaction created from Public Administration (payee) portal
+      tags: [ update ]
       parameters:
         - $ref: '#/components/parameters/RequestId'
-        - $ref: '#/components/parameters/Version'
-        - $ref: '#/components/parameters/AcquirerId'
-        - $ref: '#/components/parameters/Channel'
-        - $ref: '#/components/parameters/MerchantId'
-        - $ref: '#/components/parameters/TerminalId'
+        - $ref: '#/components/parameters/TransactionId'
+      requestBody:
+        $ref: '#/components/requestBodies/Start'
       responses:
-        "200":
-          $ref: '#/components/responses/PaymentStatus'
+        "204":
+          #description: No content
+          $ref: '#/components/responses/NoContent'
         "400":
+          #description: Bad request
           $ref: '#/components/responses/Error'
         "401":
-          description: Access token is missing or invalid
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
         "403":
-          description: Forbidden
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
         "404":
-          description: Payment status not found
-        "406":
-          description: Not acceptable. Did you require application/json?
+          #description: Not found
+          $ref: '#/components/responses/Error'
+        "415":
+          #description: Unsupported media type. Did you provide application/json?
+          $ref: '#/components/responses/Error'
         "429":
-          description: Too many request
+          #description: Too many request
+          $ref: '#/components/responses/Error'
         "500":
+          #description: Server error
           $ref: '#/components/responses/Error'
         default:
           description: Unexpected error
 
-    # ------------------------------------------------------
-    # Receives from the Nodo the result of the payment of a
-    # set of payment notices
-    # ------------------------------------------------------
-    post:
-      operationId: receivePaymentStatus
-      summary: Receives from the Nodo the result of the payment of a set of payment notices. This API is invoked by the Nodo for sendPaymentResult.
+  /transactions/{transactionId}/advice:
+    patch:
+      operationId: advice
+      summary: Advice for a transaction
+      description: Receives and process the advice of a transaction
+      tags: [ update ]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/TransactionId'
       requestBody:
-        $ref: '#/components/requestBodies/PaymentStatusByNodo'
+        $ref: '#/components/requestBodies/Advice'
       responses:
-        "200":
-          $ref: '#/components/responses/PaymentStatusReceived'
+        "204":
+          #description: No content
+          $ref: '#/components/responses/NoContent'
         "400":
+          #description: Bad request
           $ref: '#/components/responses/Error'
         "401":
-          description: Access token is missing or invalid
+          #description: Access token is missing or invalid
+          $ref: '#/components/responses/Error'
         "403":
-          description: Forbidden
+          #description: Forbidden
+          $ref: '#/components/responses/Error'
         "404":
-          $ref: '#/components/responses/TransactionNotFound'
-        "406":
-          description: Not acceptable. Did you require application/json?
+          #description: Not found
+          $ref: '#/components/responses/Error'
         "415":
-          description: Unsupported media type. Did you provide application/json?
+          #description: Unsupported media type. Did you provide application/json?
+          $ref: '#/components/responses/Error'
         "429":
-          description: Too many request
+          #description: Too many request
+          $ref: '#/components/responses/Error'
         "500":
+          #description: Server error
           $ref: '#/components/responses/Error'
         default:
           description: Unexpected error
@@ -397,6 +270,7 @@ components:
       pattern: "^[ -~]{1,2048}$"
       minLength: 1
       maxLength: 2048
+      example: "https://mil-d-apim.azure-api.net/portal"
 
     BrokerId:
       description: ID of pagoPA broker
@@ -421,17 +295,6 @@ components:
       minLength: 1
       maxLength: 35
       example: "97735020584_03"
-
-    CreationTimestamp:
-      description: Moment of creation of the transaction
-      type: string
-      format: date-time
-      pattern: "^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|(\\+|\\-)\\d{2}:\\d{2})$"
-      minLength: 20
-      maxLength: 25
-      examples:
-        - "2024-03-06T13:15:54Z"
-        - "2024-03-06T14:15:54+01:00"
 
     CreditorReferenceId:
       description: IUV of the notice
@@ -512,17 +375,6 @@ components:
       maxLength: 70
       example: "06534340721"
 
-    LastUpdateTimestamp:
-      description: Moment of last update of the transaction
-      type: string
-      format: date-time
-      pattern: "^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|(\\+|\\-)\\d{2}:\\d{2})$"
-      minLength: 20
-      maxLength: 25
-      examples:
-        - "2024-03-06T13:15:54Z"
-        - "2024-03-06T14:15:54+01:00"
-
     MetadataKey:
       description: Key of metadata
       type: string
@@ -547,7 +399,7 @@ components:
       maxLength: 18
       example: "485564829563528563"
 
-    Office:
+    OfficeName:
       description: Name of the payee office
       type: string
       pattern: "^[\\u0001-\\uD7FF\\uE000-\\uFFFD\\U10000-\\U10FFFF]{1,140}$"
@@ -555,20 +407,20 @@ components:
       maxLength: 140
       example: "Ufficio di Roma"
 
-    Outcome:
-      description: Outcome returned to verify and activate operations when something went wrong (this will be removed)
-      type: string
-      enum:
-        - NOTICE_GLITCH               # Spiacenti, c'è un problema tecnico con questo avviso.
-        - WRONG_NOTICE_DATA           # Spiacenti, i dati dell’avviso non sono corretti.
-        - CREDITOR_PROBLEMS           # Spiacenti, l’Ente Creditore sta avendo problemi nella risposta.
-        - PAYMENT_ALREADY_IN_PROGRESS # Il pagamento è già in corso, riprova fra qualche minuto.
-        - EXPIRED_NOTICE              # Spiacenti, l’avviso è scaduto e non è più possibile pagarlo.
-        - REVOKED_NOTICE              # Spiacenti, l’Ente Creditore ha revocato questo avviso.
-        - NOTICE_ALREADY_PAID         # Questo avviso è stato già pagato!
-        - UNKNOWN_NOTICE              # Avviso sconosciuto.
-        - UNEXPECTED_ERROR            # Spiacenti, si è verificato un errore imprevisto.
-      example: "NOTICE_GLITCH"
+    #Outcome:
+    #  description: Outcome returned to verify and activate operations when something went wrong (this will be removed)
+    #  type: string
+    #  enum:
+    #    - NOTICE_GLITCH               # Spiacenti, c'è un problema tecnico con questo avviso.
+    #    - WRONG_NOTICE_DATA           # Spiacenti, i dati dell’avviso non sono corretti.
+    #    - CREDITOR_PROBLEMS           # Spiacenti, l’Ente Creditore sta avendo problemi nella risposta.
+    #    - PAYMENT_ALREADY_IN_PROGRESS # Il pagamento è già in corso, riprova fra qualche minuto.
+    #    - EXPIRED_NOTICE              # Spiacenti, l’avviso è scaduto e non è più possibile pagarlo.
+    #    - REVOKED_NOTICE              # Spiacenti, l’Ente Creditore ha revocato questo avviso.
+    #    - NOTICE_ALREADY_PAID         # Questo avviso è stato già pagato!
+    #    - UNKNOWN_NOTICE              # Avviso sconosciuto.
+    #    - UNEXPECTED_ERROR            # Spiacenti, si è verificato un errore imprevisto.
+    #  example: "NOTICE_GLITCH"
 
     PageNumber:
       description: Number of the page
@@ -634,6 +486,7 @@ components:
       format: int32
       minimum: 1
       maximum: 240
+      example: 2
 
     RateLimitReset:
       description: The number of seconds left in the current period
@@ -641,6 +494,7 @@ components:
       format: int32
       minimum: 1
       maximum: 60
+      example: 30
 
     RetryAfter:
       description: The number of seconds to wait before allowing a follow-up request
@@ -648,6 +502,7 @@ components:
       format: int32
       minimum: 1
       maximum: 240
+      example: 60
 
     RemittanceInfo:
       description: Reason of the payment
@@ -703,6 +558,15 @@ components:
       maxLength: 24
       example: "c7a1b24b0583477292ebdbaa"
 
+    Timestamp:
+      description: Timestamp (ex. 2024-03-06T13:15:54Z, 2024-03-06T14:15:54+01:00)
+      type: string
+      format: date-time
+      pattern: "^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|(\\+|\\-)\\d{2}:\\d{2})$"
+      minLength: 20
+      maxLength: 25
+      example: "2024-03-06T14:15:54+01:00"
+
     TransactionId:
       description: Transaction ID
       type: string
@@ -710,22 +574,6 @@ components:
       minLength: 24
       maxLength: 24
       example: "4658fcb36e520a65b1be79d0"
-
-    TransactionLocation:
-      description: URL of the transaction
-      type: string
-      pattern: "^[ -~]{1,2048}$"
-      minLength: 1
-      maxLength: 2048
-      example: "https://mil-d-apim.azure-api.net/mil-payment-notice/transactions/4658fcb36e520a65b1be79d0"
-
-    UUID:
-      description: UUID
-      type: string
-      pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
-      minLength: 36
-      maxLength: 36
-      example: "d0d654e6-97da-4848-b568-99fedccb642b"
 
     # ------------------------------------------------------
     # Complex types
@@ -758,6 +606,50 @@ components:
         terminalId: "34523860"
         terminalUuid: "c7a1b24b0583477292ebdbaa"
 
+    CreateFromPa:
+      description: Request to create a transaction from Public Administration (payee) portal
+      type: object
+      additionalProperties: false
+      properties:
+        terminalUuid:
+          $ref: '#/components/schemas/TerminalUuid'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+      required:
+        - terminalUuid
+        - noticeNumber
+        - amount
+      example:
+        terminalUuid: "c7a1b24b0583477292ebdbaa"
+        noticeNumber: "485564829563528563"
+        amount: 12345
+
+    CreateFromPos:
+      description: Request to create a transaction from POS
+      type: object
+      additionalProperties: false
+      properties:
+        payeeCode:
+          $ref: '#/components/schemas/PayeeCode'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        idempotencyKey:
+          $ref: '#/components/schemas/IdempotencyKey'
+      required:
+          - payeeCode
+          - noticeNumber
+          - amount
+          - idempotencyKey
+      example:
+        payeeCode: "06534340721"
+        noticeNumber: "485564829563528563"
+        amount: 12345
+        idempotencyKey: "47583764545_Ahf479elk0"
+
     Debt:
       description: Debt position
       type: object
@@ -773,18 +665,17 @@ components:
           $ref: '#/components/schemas/Description'
         dueDate:
           $ref: '#/components/schemas/DueDate'
-    
-    DebtPosition:
-      description: Debt position
-      type: object
-      additionalProperties: false
-      properties:
-        debtPosition:
-          type: array
-          minItems: 0
-          maxItems: 64
-          items:
-            $ref: '#/components/schemas/Debt'
+      required:
+        - payeeCode
+        - noticeNumber
+        - amount
+        - description
+      example:
+        payeeCode: "06534340721"
+        noticeNumber: "485564829563528563"
+        amount: 12345
+        description: "Health ticket for chest x-ray"
+
     Error:
       description: Error details
       type: object
@@ -801,30 +692,10 @@ components:
         errorCode: "001000001"
         errorDescription: "Generic error"
 
-    Errors:
-      description: List of errors
-      type: object
-      additionalProperties: false
-      properties:
-        errors:
-          type: array
-          minItems: 1
-          maxItems: 32
-          items:
-            $ref: '#/components/schemas/Error'
-      required:
-        - errors
-      example:
-        errors:
-          - errorCode: "00000000A"
-            errorDescription: "Generic error"
-          - errorCode: "001000001"
-            errorDescription: "Unexpected error from server"
-
     Metadata:
       description: Metadata for use and consumption of payee which issued the notice
       type: object
-      aditionalProperties: false
+      additionalProperties: false
       properties:
         key:
           $ref: '#/components/schemas/MetadataKey'
@@ -1001,9 +872,11 @@ components:
         id:
           $ref: '#/components/schemas/TransactionId'
         creationTimestamp:
-          $ref: '#/components/schemas/CreationTimestamp'
+          #description: Moment of creation of the transaction (ex. 2024-03-06T13:15:54Z, 2024-03-06T14:15:54+01:00)
+          $ref: '#/components/schemas/Timestamp'
         lastUpdateTimestamp:
-          $ref: '#/components/schemas/LastUpdateTimestamp'
+          #description: Moment of last update of the transaction (ex. 2024-03-06T13:15:54Z, 2024-03-06T14:15:54+01:00)
+          $ref: '#/components/schemas/Timestamp'
         status:
           $ref: '#/components/schemas/Status'
         client:
@@ -1011,20 +884,20 @@ components:
         pspId:
           $ref: '#/components/schemas/PspId'
         pspBrokerId:
-          $ref: '#/components/schemas/BrockerId'
+          $ref: '#/components/schemas/BrokerId'
         channelId:
           $ref: '#/components/schemas/ChannelId'
         noticesTotalAmount:
-          description: Total notices amount
+          #description: Total notices amount
           $ref: '#/components/schemas/EuroCents'
         payerFees:
-          description: Fee charged to the payer
+          #description: Fee charged to the payer
           $ref: '#/components/schemas/EuroCents'
         payeeFees:
-          description: Fee charged to the payee
+          #description: Fee charged to the payee
           $ref: '#/components/schemas/EuroCents'
         payerAmount:
-          description: Total notices amount + Fee charged to the payer
+          #description: Total notices amount + Fee charged to the payer
           $ref: '#/components/schemas/EuroCents'
         idBundle:
           $ref: '#/components/schemas/IdBundle'
@@ -1146,7 +1019,7 @@ components:
       example:
         id: 1
         amount: 12345
-        payeeCode: 06534340721
+        payeeCode: "06534340721"
         remittanceInformation: "Health ticket for chest x-ray"
 
     Transfers:
@@ -1159,62 +1032,39 @@ components:
       example:
         - id: 1
           amount: 12345
-          payeeCode: 06534340721
+          payeeCode: "06534340721"
           remittanceInformation: "Health ticket for chest x-ray"
 
   # ========================================================
   # Request bodies
   # ========================================================
   requestBodies:
-    CreateTransactionFromPa:
-      description: Request to create a transaction from Public Administration portal
+    Advice:
+      description: Advice from POS to communicate the outcome of the transaction. If status is CLOSED_OK, paymentMethod is mandatory, otherwise it is ignored.
       content:
         application/json:
           schema:
             type: object
             additionalProperties: false
             properties:
-              terminalUUid:
-                $ref: '#/components/schemas/TerminalUuid'
-              noticeNumber:
-                $ref: '#/components/schemas/NoticeNumber'
-              amount:
-                $ref: '#/components/schemas/EuroCents'
+              status:
+                $ref: '#/components/schemas/Status'
+              paymentMethod:
+                $ref: '#/components/schemas/PaymentMethod'
             required:
-              - terminalUUid
-              - noticeNumber
-              - amount
-
-    CreateTransactionFromPos:
-      description: Request to create a transaction from POS
+              - status
+    
+    Create:
+      description: Request to create a transaction from POS or from Public Administration (payee) portal
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties: false
-            properties:
-              payeeCode:
-                $ref: '#/components/schemas/PayeeCode'
-              noticeNumber:
-                $ref: '#/components/schemas/NoticeNumber'
-              amount:
-                $ref: '#/components/schemas/EuroCents'
-              idempotencyKey:
-                $ref: '#/components/schemas/IdemPotencyKey'
-            required:
-              - payeeCode
-              - noticeNumber
-              - amount
-              - idempotencyKey
-    
+            oneOf:
+              - $ref: '#/components/schemas/CreateFromPos'
+              - $ref: '#/components/schemas/CreateFromPa'
 
-    
-    # ------------------------------------------------------
-    # For activateByQrCode and
-    # activateByTaxCodeAndNoticeNumber
-    # ------------------------------------------------------
-    Activate:
-      description: Request to activate payment notice
+    Start:
+      description: Request to start a transaction created from Public Administration (payee) portal
       content:
         application/json:
           schema:
@@ -1223,282 +1073,261 @@ components:
             properties:
               idempotencyKey:
                 $ref: '#/components/schemas/IdempotencyKey'
-              amount:
-                $ref: '#/components/schemas/EuroCents'
             required:
               - idempotencyKey
-              - amount
-            example:
-              idempotencyKey: "47583764545_Ahf479elk0"
-              amount: 12345
-
-    # ------------------------------------------------------
-    # For preCloseOrAbort
-    # ------------------------------------------------------
-    PreCloseOrAbort:
-      description: Request to pre-close or abort a transaction
-      content:
-        application/json:
-          schema:
-            oneOf:
-              - $ref: '#/components/schemas/PreClose'
-              - $ref: '#/components/schemas/Abort'       
     
-    # ------------------------------------------------------
-    # For close
-    # ------------------------------------------------------
-    Close:
-      description: Request to close a transaction
-      content:
-        application/json:
-          schema:
-            type: object
-            additionalProperties: false
-            properties:
-              outcome:
-                $ref: '#/components/schemas/CloseOutcome'
-              paymentMethod:
-                $ref: '#/components/schemas/PaymentMethod'
-              paymentTimestamp:
-                description: Timestamp of e-money transaction
-                type: string
-                format: date-time
-                maxLength: 19
-              presetId:
-                $ref: '#/components/schemas/UUID'
-            required:
-              - outcome
-              - paymentMethod
-              - paymentTimestamp
-            example:
-              outcome: "CLOSE"
-              paymentMethod: "PAGOBANCOMAT"
-              paymentTimestamp: "2022-11-12T08:53:55"
-
-    # ------------------------------------------------------
-    # For receivePaymentStatus
-    # ------------------------------------------------------
-    PaymentStatusByNodo:
-      description: Payment status communicated by the Nodo
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PaymentStatusByNodo'
-
   # ========================================================
   # Parameters
   # ========================================================
   parameters:
-    #
-    # NEW PARAMETERS
-    #
+    EndDate:
+      name: endDate
+      in: query
+      description: End date of the time range in which to search for transactions
+      required: true
+      schema:
+        type: string
+        format: date
+        maxLength: 10
+        example: "2022-11-30"
+
+    Page:
+      name: page
+      in: query
+      description: Number of the required transactions page
+      required: true
+      schema:
+        $ref: '#/components/schemas/PageNumber'
+
     RequestId:
       name: RequestId
       in: header
       description: Request ID that will be logged by service
       required: true
       schema:
-        $ref: '#/components/schemas/UUID'
+        type: string
+        pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+        minLength: 36
+        maxLength: 36
+        example: "d0d654e6-97da-4848-b568-99fedccb642b"
 
-    Version:
-      name: Version
-      in: header
-      description: Version of the required API
-      required: false
+    Size:
+      name: size
+      in: query
+      description: Size of the required transactions page
+      required: true
+      schema:
+        $ref: '#/components/schemas/PageSize'
+
+    SortStrategy:
+      name: sortStrategy
+      in: query
+      required: true
+      description: Strategy used to sort returned transactions by creation timestamp
       schema:
         type: string
-        pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
-        maxLength: 64
-        example: "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay"
+        enum:
+          - asc
+          - desc
+        example: "desc"
 
-    AcquirerId:
-      name: AcquirerId
-      in: header
-      description: Acquirer ID assigned by PagoPA
+    StartDate:
+      name: startDate
+      in: query
+      description: Start date of the time range in which to search for transactions
       required: true
       schema:
-        $ref: '#/components/schemas/AcquirerId'
+        type: string
+        format: date
+        maxLength: 10
+        example: "2022-11-30"
 
-    Channel:
-      name: Channel
-      in: header
-      description: Channel originating the request
+    Status:
+      name: status
+      in: query
+      description: Status of the transactions to search for
       required: true
       schema:
-        $ref: '#/components/schemas/Channel'
+        $ref: '#/components/schemas/Status'
 
-    MerchantId:
-      name: MerchantId
-      description: Merchant ID. Mandatory when Channel equals POS.
-      in: header
-      required: false
-      schema:
-        $ref: '#/components/schemas/MerchantId'
-
-    TerminalId:
-      name: TerminalId
-      in: header
-      description: ID of the terminal originating the transaction. It must be unique per acquirer and channel.
+    TransactionId:
+      name: transactionId
+      in: path
+      description: ID of the transaction target of the invoked operation
       required: true
       schema:
-        $ref: '#/components/schemas/TerminalId'
+        $ref: '#/components/schemas/TransactionId' 
 
   # ========================================================
   # Responses
   # ========================================================
   responses:
-    Error:
-      description: Error response
-      content:
-        application/json:
+    Create:
+      description: Response to request to create a transaction from POS or from Public Administration (payee) portal
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
           schema:
-            $ref: '#/components/schemas/Errors'
-    
-    # ------------------------------------------------------
-    # For getDebtPosition
-    # ------------------------------------------------------
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
+        Location:
+          description: URL of the transaction
+          schema:
+            type: string
+            pattern: "^[ -~]{1,2048}$"
+            minLength: 1
+            maxLength: 2048
+            example: "https://mil-d-apim.azure-api.net/mil-payment-notice/transactions/4658fcb36e520a65b1be79d0"
+            
     DebtPosition:
       description: Retrieved debt position
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/DebtPosition' 
-
-    # ------------------------------------------------------
-    # For verifyByQrCode and verifyByTaxCodeAndNoticeNumber
-    # ------------------------------------------------------
-    VerifyProcessed:
-      description: Verify processed
-      content:
-        application/json:
-          schema:
-            oneOf:
-              - $ref: '#/components/schemas/VerifyOk'
-              - $ref: '#/components/schemas/VerifyOrActivateKo'
-
-    # ------------------------------------------------------
-    # For activateByQrCode and
-    # activateByTaxCodeAndNoticeNumber
-    # ------------------------------------------------------
-    ActivateProcessed:
-      description: Activate processed
-      content:
-        application/json:
-          schema:
-            oneOf:
-              - $ref: '#/components/schemas/ActivateOk'
-              - $ref: '#/components/schemas/VerifyOrActivateKo'
-
-    # ------------------------------------------------------
-    # For preCloseOrAbort
-    # ------------------------------------------------------
-    PreCloseOrAbortProcessed:
-      description: Response to pre-close or abort successfully processed
       headers:
-        Location:
-          description: URL to get the status of the transaction (only for pre-close operation)
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
           required: false
           schema:
-            $ref: '#/components/schemas/URI'
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
       content:
         application/json:
           schema:
             type: object
             additionalProperties: false
             properties:
-              outcome:
-                $ref: '#/components/schemas/OkOutcome'
-            required:
-              - outcome
-            example:
-              outcome: "OK"
-    
-    # ------------------------------------------------------
-    # For close
-    # ------------------------------------------------------
-    CloseProcessed:
-      description: Response to close successfully processed
+              debtPosition:
+                type: array
+                minItems: 0
+                maxItems: 64
+                items:
+                  $ref: '#/components/schemas/Debt'
+
+    Error:
+      description: Error response
       headers:
-        Location:
-          description: URL to check the status of payment confirmation. If outcome = OK the field is present.
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
           required: false
           schema:
-            $ref: '#/components/schemas/URI'
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
         Retry-After:
-          description: Number of seconds after which to check the status of payment confirmation. If outcome = OK the field is present.
+          description: The number of seconds to wait before allowing a follow-up request
           required: false
           schema:
-            $ref: '#/components/schemas/PositiveInteger'
-        Max-Retries:
-          description: Max number of retries to check the status of payment confirmation. If outcome = OK the field is present.
+            $ref: '#/components/schemas/RetryAfter'
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              errors:
+                type: array
+                minItems: 1
+                maxItems: 32
+                items:
+                  $ref: '#/components/schemas/Error'
+            required:
+              - errors
+            example:
+              errors:
+                - errorCode: "00000000A"
+                  errorDescription: "Generic error"
+                - errorCode: "001000001"
+                  errorDescription: "Unexpected error from server"
+
+    NoContent:
+      description: No content response
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
           required: false
           schema:
-            $ref: '#/components/schemas/PositiveInteger'
-      content:
-        application/json:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
           schema:
-            type: object
-            additionalProperties: false
-            properties:
-              outcome:
-                $ref: '#/components/schemas/AllOrNothingOutcome'
-            required:
-              - outcome
-            example:
-              outcome: "OK"
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
 
-    # ------------------------------------------------------
-    # For getPaymentStatus
-    # ------------------------------------------------------
-    PaymentStatus:
-      description: Payment status received
+    PageOfTransactions:
+      description: Page of retrieved transactions
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/PaymentStatus'
+            $ref: '#/components/schemas/PageOfTransactions'
 
-    # ------------------------------------------------------
-    # For receivePaymentStatus
-    # ------------------------------------------------------
-    PaymentStatusReceived:
-      description: Payment status received
+    Transaction:
+      description: Retrieved transaction
+      headers:
+        Access-Control-Allow-Origin:
+          description: Indicates whether the response can be shared with requesting code from the given origin
+          required: false
+          schema:
+            $ref: '#/components/schemas/AccessControlAllowOrigin'
+        RateLimit-Limit:
+          description: The number of allowed requests in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitLimit'
+        RateLimit-Reset:
+          description: The number of seconds left in the current period
+          required: false
+          schema:
+            $ref: '#/components/schemas/RateLimitReset'
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties: false
-            properties:
-              outcome:
-                $ref: '#/components/schemas/OkOutcome'
-            required:
-              - outcome
-            example:
-              outcome: "OK"
-
-    TransactionNotFound:
-      description: Transaction not found
-      content:
-        application/json:
-          schema:
-            type: object
-            additionalProperties: false
-            properties:
-              outcome:
-                $ref: '#/components/schemas/TrxNotFoundOutcome'
-            required:
-              - outcome
-            example:
-              outcome: "PAYMENT_NOT_FOUND"
-
-    # ------------------------------------------------------
-    # For getLastTransactions
-    # ------------------------------------------------------
-    Transactions:
-      description: Details of transactions
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Transactions'
+            $ref: '#/components/schemas/Transaction'
 
   # ========================================================
   # Security schemes
