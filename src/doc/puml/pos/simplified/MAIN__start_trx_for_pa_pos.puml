@@ -1,0 +1,21 @@
+@startuml
+!include_many ../../common/skin.puml
+!include_many ../actors.puml
+
+activate pos
+
+pos -> mil ++ : PATCH /transactions///<transaction id>///start
+	note left
+		__header__
+		RequestId: //<request id>//
+		Authorization: Bearer //<access token>//
+		__body__
+		{
+			"idempotencyKey": "//<idempotency key>//"
+		}
+	end note
+
+mil --> pos -- : HTTP 204 (no content)
+
+deactivate pos
+@enduml

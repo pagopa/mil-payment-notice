@@ -1,0 +1,90 @@
+@startuml
+!include_many ../../common/skin.puml
+!include_many ../actors.puml
+
+activate pos
+
+pos -> mil ++ : GET /transactions/latest?status=//<status>//
+	note left
+		__header__
+		RequestId: //<request id>//
+		Authorization: Bearer //<access token>//
+	end note
+
+mil --> pos -- : HTTP 200 (ok)
+	note right
+		__body__
+		{
+			"id": "//<transaction id>//",
+			"creationTimestamp": "//<creation timestamp>//",
+			"lastUpdateTimestamp": "//<last update timestamp>//",
+			"status": "//<status>//",
+			"client": {
+				"serviceProviderId": "//<service provider id>//",
+				"channel": "POS",
+				"payeeCode": "//<payee code>//",
+				"terminalHandlerId": "//<terminal handler id>//",
+				"terminalId": "//<terminal id>//",
+				"terminalUuid": "//<terminal uuid>//"
+			},
+			"pspId": "//<psp id>//",
+			"pspBrokerId": "//<broker id>//",
+			"channelId": "//<channel id>//",
+			"noticesTotalAmount": //<total notices amount>//,
+			"payerFees": //<fee charged to the payer>//,
+			"payeeFees": //<fee charged to the payee>//,
+			"payerAmount": //<total notices amount>// + //<fee charged to the payer>//,
+			"idBundle": "//<fee bundle id>//",
+			"idCiBundle": "//<fee ci bundle id>//",
+			"notices": [
+				{
+					"paymentToken": "//<payment token>//",
+					"description": "//<description>//",
+					"payeeCode": "//<notice payee code>//",
+					"noticeNumber": "//<notice number>//",
+					"payeeName": "//<payee name>//",
+					"officeName": "//<payee office name>//",
+					"creditorReferenceId": "//<iuv>//",
+					"amount": //<notice amount>//,
+					"transfers": [
+						{
+							"id": "//<n>//",
+							"amount": "//<transfer amount #n>//",
+							"payeeCode": "//<payee code #n>//",
+							"payeeName": "//<payee name #n>//",
+							"iban": "//<payee iban #n>//",
+							"remittanceInformation": "//<remittance info #n>//",
+							"metadata": [
+								.
+								.
+								.
+								{
+									"key": "//<metadata key #n.m>//",
+									"value": "//<metadata value #n.m>//"
+								},
+								.
+								.
+								.
+							]
+						}
+					],
+					"metadata": [
+						.
+						.
+						.
+						{
+							"key": "//<metadata key #k>//",
+							"value": "//<metadata value #k>//"
+						},
+						.
+						.
+						.
+					]
+				}
+			],
+			"standin": "//<stand id>//"
+		}
+	end note
+
+deactivate pos
+@enduml

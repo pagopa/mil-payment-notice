@@ -1,0 +1,28 @@
+@startuml
+!include_many ../../common/skin.puml
+!include_many ../actors.puml
+
+activate pos
+
+pos -> mil ++ : POST /transactions
+	note left
+		__header__
+		RequestId: //<request id>//
+		Authorization: Bearer //<access token>//
+		__body__
+		{
+			"payeeCode": "//<notice payee code>//",
+			"noticeNumber": "//<notice number>//",
+			"amount": "//<notice amount in eurocents>//",
+			"idempotencyKey": "//<idempotency key>//"
+		}
+	end note
+
+mil --> pos -- : HTTP 201 (created)
+	note right
+		__header__
+		Location: /transactions///<transaction id>//
+	end note
+
+deactivate pos
+@enduml

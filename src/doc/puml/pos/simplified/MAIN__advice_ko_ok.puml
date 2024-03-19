@@ -1,0 +1,21 @@
+@startuml
+!include_many ../../common/skin.puml
+!include_many ../actors.puml
+
+activate pos
+
+pos -> mil ++ : PATCH /transactions///<transaction id>///advice
+	note left
+		__header__
+		RequestId: //<request id>//
+		Authorization: Bearer //<access token>//
+		__body__
+		{
+			"status": "ERROR_ON_PAYMENT"
+		}
+	end note
+
+mil --> pos -- : HTTP 204 (ok)
+
+deactivate pos
+@enduml
