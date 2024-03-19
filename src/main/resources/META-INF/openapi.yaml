@@ -143,6 +143,9 @@ paths:
         "403":
           #description: Forbidden
           $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
         "415":
           #description: Unsupported media type. Did you provide application/json?
           $ref: '#/components/responses/Error'
@@ -255,6 +258,9 @@ paths:
         "404":
           #description: Not found
           $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
+          $ref: '#/components/responses/Error'
         "415":
           #description: Unsupported media type. Did you provide application/json?
           $ref: '#/components/responses/Error'
@@ -293,6 +299,9 @@ paths:
           $ref: '#/components/responses/Error'
         "404":
           #description: Not found
+          $ref: '#/components/responses/Error'
+        "406":
+          #description: Not acceptable. Did you require application/json?
           $ref: '#/components/responses/Error'
         "415":
           #description: Unsupported media type. Did you provide application/json?
