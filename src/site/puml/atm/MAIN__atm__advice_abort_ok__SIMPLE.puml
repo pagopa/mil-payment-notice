@@ -1,0 +1,246 @@
+@startuml
+!include_many ../common/skin.puml
+!include_many actors.puml
+
+activate atm
+
+atm -> mil ++ : PATCH /transactions///<transaction id>///advice
+	note left
+		__header__
+		RequestId: //<request id>//
+		Authorization: Bearer //<access token>//
+		__body__
+		{
+			"status": "ABORT",
+			"pspId": "//<psp id>//",
+			"brokerId": "//<broker id>//",
+			"channelId": "//<channel id>//"
+		}
+	end note
+
+note over mil #LightGreen
+	__//<access token>//__
+	base64url(//<token header>//) + "." +
+	base64url(//<access token payload>//) + "." +
+	//<base64url of access token signature>//
+	__//<access token payload>//__
+	{
+		"sub": "//<bank id>// || //<terminal id>//",
+		"aud": "mil.pagopa.it",
+		"iss": "https:////<host name>///mil-auth",
+		"iat": //<issue unix epoch>//,
+		"exp": //<expiration unix epoch>//,
+		"channel": "ATM",
+		"bankId": "//<bank id>//",
+		"terminalId": "//<terminal id>//",
+		"userCodeToken": "//<token of user code>//",
+		"groups": [
+			"NoticePayer"
+		]
+	}
+end note
+
+group get trx data
+	mil -> registry ++ : find(//query document//).firstResult()
+		note left
+			__//query document//__
+			{
+				"id": "//<transaction id>//",
+				"client" : {
+				    "bankId": "//<bank id>//",
+					"channel": "ATM",
+					"terminalId": "//<terminal id>//"
+				}
+			}
+		end note
+
+	registry --> mil -- : //document//
+		note right
+			__//document//__
+			{
+				"id": "//<transaction id>//",
+				"creationTimestamp": "//<creation timestamp>//",
+				"lastUpdateTimestamp": "//<last update timestamp>//",
+				"status": "//<status>//",
+				"client": {
+					"bankId": "//<bank id>//",
+					"channel": "ATM",
+					"terminalId": "//<terminal id>//"
+				},
+				"pspId": "//<psp id>//",
+				"pspBrokerId": "//<broker id>//",
+				"channelId": "//<channel id>//",
+				"noticesTotalAmount": //<total notices amount>//,
+				"payerFees": //<fee charged to the payer>//,
+				"payeeFees": //<fee charged to the payee>//,
+				"payerAmount": //<total notices amount>// + //<fee charged to the payer>//,
+				"idBundle": "//<fee bundle id>//",
+				"idCiBundle": "//<fee ci bundle id>//",
+				"notices": [
+					{
+						"paymentToken": "//<payment token>//",
+						"description": "//<description>//",
+						"payeeCode": "//<notice payee code>//",
+						"noticeNumber": "//<notice number>//",
+						"payeeName": "//<payee name>//",
+						"officeName": "//<payee office name>//",
+						"creditorReferenceId": "//<iuv>//",
+						"amount": //<notice amount>//,
+						"transfers": [
+							{
+								"id": "//<n>//",
+								"amount": "//<transfer amount #n>//",
+								"payeeCode": "//<payee code #n>//",
+								"payeeName": "//<payee name #n>//",
+								"iban": "//<payee iban #n>//",
+								"remittanceInformation": "//<remittance info #n>//",
+								"metadata": [
+									.
+									.
+									.
+									{
+										"key": "//<metadata key #n.m>//",
+										"value": "//<metadata value #n.m>//"
+									},
+									.
+									.
+									.
+								]
+							}
+						],
+						"metadata": [
+							.
+							.
+							.
+							{
+								"key": "//<metadata key #k>//",
+								"value": "//<metadata value #k>//"
+							},
+							.
+							.
+							.
+						]
+					}
+				],
+				"standin": "//<stand id>//"
+			}
+		end note
+
+	note over mil #Orange
+		On transaction not found, return 404 (not found) with specific error body.
+		On //<status>// == "ABORT_OK", return 200 (ok).
+		On //<status>// != "ACTIVATED" and //<status>// != "ABORT_KO", return 400 (bad request) with specific error body.
+		On any failure, return HTTP 500 (server error) with specific error body. 
+	end note
+end
+
+group interaction with pagoPA
+	mil -> pagopa ++ : POST /nodo-auth/node-for-psp/v1
+		note left
+			__body__
+			<sendPaymentOutcomeV2Request>
+				<idPSP>//<psp id>//</idPSP>
+				<idBrokerPSP>//<broker id>//</idBrokerPSP>
+				<idChannel>//<channel id>//</idChannel>
+				<password>//<password>//</password>
+				<idempotencyKey>//<idempotency key>//</idempotencyKey>
+				<paymentTokens>
+					<paymentToken>//<payment token>//</paymentToken>
+				</paymentTokens>
+				<outcome>KO</outcome>
+			</sendPaymentOutcomeV2Request>
+		end note
+
+	pagopa --> mil -- : HTTP 200 (ok)
+		note right
+			__body__
+			<sendPaymentOutcomeV2Response>
+				<outcome>OK</outcome>
+			</sendPaymentOutcomeV2Response>
+		end note
+end
+
+group update trx data
+	mil -> registry ++ : update(//document//)
+		note left
+			__//document//__
+			{
+				"id": "//<transaction id>//",
+				"creationTimestamp": "//<creation timestamp>//",
+				"lastUpdateTimestamp": "//<current timestamp>//",
+				"status": "ABORT_OK",
+				"client": {
+					"bankId": "//<bank id>//",
+					"channel": "ATM",
+					"terminalId": "//<terminal id>//"
+				},
+				"pspId": "//<psp id>//",
+				"pspBrokerId": "//<broker id>//",
+				"channelId": "//<channel id>//",
+				"noticesTotalAmount": //<total notices amount>//,
+				"payerFees": //<fee charged to the payer>//,
+				"payeeFees": //<fee charged to the payee>//,
+				"payerAmount": //<total notices amount>// + //<fee charged to the payer>//,
+				"idBundle": "//<fee bundle id>//",
+				"idCiBundle": "//<fee ci bundle id>//",
+				"notices": [
+					{
+						"paymentToken": "//<payment token>//",
+						"description": "//<description>//",
+						"payeeCode": "//<notice payee code>//",
+						"noticeNumber": "//<notice number>//",
+						"payeeName": "//<payee name>//",
+						"officeName": "//<payee office name>//",
+						"creditorReferenceId": "//<iuv>//",
+						"amount": //<notice amount>//,
+						"transfers": [
+							{
+								"id": "//<n>//",
+								"amount": "//<transfer amount #n>//",
+								"payeeCode": "//<payee code #n>//",
+								"payeeName": "//<payee name #n>//",
+								"iban": "//<payee iban #n>//",
+								"remittanceInformation": "//<remittance info #n>//",
+								"metadata": [
+									.
+									.
+									.
+									{
+										"key": "//<metadata key #n.m>//",
+										"value": "//<metadata value #n.m>//"
+									},
+									.
+									.
+									.
+								]
+							}
+						],
+						"metadata": [
+							.
+							.
+							.
+							{
+								"key": "//<metadata key #k>//",
+								"value": "//<metadata value #k>//"
+							},
+							.
+							.
+							.
+						]
+					}
+				],
+				"standin": "//<stand id>//"
+			}
+		end note
+
+	registry --> mil -- : ok
+
+	note over mil #Orange
+		On any failure, return HTTP 500 (server error) with specific error body.
+	end note
+end
+
+mil --> atm -- : HTTP 204 (ok)
+
+deactivate atm
+@enduml

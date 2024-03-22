@@ -1,6 +1,6 @@
 @startuml
-!include_many ../../common/skin.puml
-!include_many ../actors.puml
+!include_many ../common/skin.puml
+!include_many actors.puml
 
 activate pos
 
@@ -11,7 +11,7 @@ pos -> mil ++ : PATCH /transactions///<transaction id>///advice
 		Authorization: Bearer //<access token>//
 		__body__
 		{
-			"status": "ERROR_ON_PAYMENT"
+			"status": "ABORT"
 		}
 	end note
 
