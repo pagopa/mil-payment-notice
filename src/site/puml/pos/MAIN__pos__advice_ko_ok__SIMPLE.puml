@@ -1,6 +1,6 @@
 @startuml
-!include_many ../../common/skin.puml
-!include_many ../actors.puml
+!include_many ../common/skin.puml
+!include_many actors.puml
 
 activate pos
 
@@ -11,14 +11,8 @@ pos -> mil ++ : PATCH /transactions///<transaction id>///advice
 		Authorization: Bearer //<access token>//
 		__body__
 		{
-			"status": "CLOSED_OK",
-			"paymentMethod": "//<payment method>//"
+			"status": "ERROR_ON_PAYMENT"
 		}
-		__//<payment method>//__
-		- DOMESTIC_CARD
-		- INTERNATIONAL_CARD
-		- CASH
-		- OTHER
 	end note
 
 mil --> pos -- : HTTP 204 (ok)

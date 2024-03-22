@@ -1,0 +1,30 @@
+@startuml
+!include_many ../common/skin.puml
+!include_many actors.puml
+
+activate atm
+
+atm -> mil ++ : PATCH /transactions///<transaction id>///advice
+	note left
+		__header__
+		RequestId: //<request id>//
+		Authorization: Bearer //<access token>//
+		__body__
+		{
+			"status": "CLOSED_OK",
+			"paymentMethod": "//<payment method>//",
+			"pspId": "//<psp id>//",
+			"brokerId": "//<broker id>//",
+			"channelId": "//<channel id>//"
+		}
+		__//<payment method>//__
+		- DOMESTIC_CARD
+		- INTERNATIONAL_CARD
+		- CASH
+		- OTHER
+	end note
+
+mil --> atm -- : HTTP 204 (ok)
+
+deactivate atm
+@enduml

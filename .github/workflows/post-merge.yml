@@ -6,6 +6,7 @@ on:
       - closed
     branches:
       - main
+      - v2
 
 jobs:
   post_merge:
@@ -40,7 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           semantic_version: 19
-          branch: main
+          branch: ${{ github.ref_name }}
           extra_plugins: |
             @semantic-release/release-notes-generator@10.0.3
             @semantic-release/git@10.0.1
@@ -209,7 +210,7 @@ jobs:
           git config user.email "<>"
           git add pom.xml
           git commit -m "pom.xml updated with new version ${{ steps.semantic.outputs.new_release_version }}"
-          git push origin main
+          git push origin ${{ github.ref_name }}
       
       #
       # Calculation of the new version (again) with tagging + releasing + etc.
@@ -221,7 +222,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           semantic_version: 19
-          branch: main
+          branch: ${{ github.ref_name }}
           extra_plugins: |
             @semantic-release/release-notes-generator@10.0.3
             @semantic-release/git@10.0.1

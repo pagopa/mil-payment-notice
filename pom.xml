@@ -12,6 +12,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<compiler-plugin.version>3.11.0</compiler-plugin.version>
+		<exec-plugin.version>3.2.0</exec-plugin.version>
 		<surefire-plugin.version>3.1.2</surefire-plugin.version>
 		<sonar-plugin.version>3.9.1.2184</sonar-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,6 +29,7 @@
 		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
 		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<plantuml.version>1.2024.3</plantuml.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -299,6 +301,41 @@
 					<includePlugins>false</includePlugins>
 					<includeParent>false</includeParent>
 				</configuration>
+			</plugin>
+			<!-- To generate images from PlantUML files: mvn exec:java -->
+			<!-- Generates images from PlantUML files (mvn exec:java) -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>${exec-plugin.version}</version>
+				<configuration>
+					<includeProjectDependencies>false</includeProjectDependencies>
+					<includePluginDependencies>true</includePluginDependencies>
+					<executableDependency>
+						<groupId>net.sourceforge.plantuml</groupId>
+						<artifactId>plantuml-mit</artifactId>
+					</executableDependency>
+					<mainClass>net.sourceforge.plantuml.Run</mainClass>
+					<arguments>
+						<argument>${basedir}/src/site/puml/**/MAIN*.puml</argument>
+						<argument>-o</argument>
+						<argument>${basedir}/src/site/puml-img</argument>
+					</arguments>
+					<systemProperties>
+						<systemProperty>
+							<key>PLANTUML_LIMIT_SIZE</key>
+							<value>2147483647</value>
+						</systemProperty>
+					</systemProperties>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>net.sourceforge.plantuml</groupId>
+						<artifactId>plantuml-mit</artifactId>
+						<version>${plantuml.version}</version>
+						<type>jar</type>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>

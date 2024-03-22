@@ -1,6 +1,6 @@
 @startuml
-!include_many ../../common/skin.puml
-!include_many ../actors.puml
+!include_many ../common/skin.puml
+!include_many actors.puml
 
 activate pos
 

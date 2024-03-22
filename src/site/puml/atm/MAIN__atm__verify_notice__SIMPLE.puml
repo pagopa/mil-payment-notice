@@ -1,0 +1,40 @@
+@startuml
+!include_many ../common/skin.puml
+!include_many actors.puml
+
+activate atm
+
+alt
+	atm -> mil ++ : get /paymentNotices?payeeCode=///<notice payee code>//&noticeNumber=//<notice number>//&pspId=//<psp id>//&brokerId=//<broker id>//&channelId=//<channel id>//
+		note left
+			__header__
+			RequestId: //<request id>//
+			Authorization: Bearer //<access token>//
+		end note
+else
+	atm -> mil : get /paymentNotices?qrCode=//<qr code>//&pspId=//<psp id>//&brokerId=//<broker id>//&channelId=//<channel id>//
+		note left
+			__header__
+			RequestId: //<request id>//
+			Authorization: Bearer //<access token>//
+		end note
+	
+	mil -> mil : extract from //<qr code>// the values of //<notice payee code>// and //<notice number>//
+end
+
+mil --> atm -- : HTTP 200 (ok)
+	note right
+		__body__
+		{
+			"payeeCode": "//<notice payee code>//",
+			"noticeNumber": "//<notice number>//",
+			"amount": //<notice amount>//,
+			"description": "//<description>//",
+			"dueDate": "//<due date>//",
+			"payeeName": "//<payee name>//",
+			"officeName": "//<payee office name>//"
+		}
+	end note
+
+deactivate atm
+@enduml
