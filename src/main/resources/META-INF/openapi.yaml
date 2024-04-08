@@ -383,7 +383,7 @@ paths:
 
   /payments/{transactionId}/sendPaymentOutcome:
     patch:
-      operationId: close
+      operationId: sendPaymentOutcome
       summary: Comunicates the outcome of the e-money transaction executed to pay a set of notices (PSP touchpoints flow)
       parameters:
         - $ref: '#/components/parameters/RequestId'
