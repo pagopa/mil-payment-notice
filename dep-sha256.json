@@ -1,6 +1,13 @@
 {
   "dependencies": [
     {
+      "id": "io.quarkus:quarkus-logging-json:jar:3.9.3",
+      "artifactId": "quarkus-logging-json",
+      "groupId": "io.quarkus",
+      "version": "3.9.3",
+      "sha256": "yHTiCN-Ic86E-kteZ6R5iEMhP-uvw9ZrZm5jo0SqzPM="
+    },
+    {
       "id": "io.quarkus:quarkus-rest-jackson:jar:3.9.3",
       "artifactId": "quarkus-rest-jackson",
       "groupId": "io.quarkus",
