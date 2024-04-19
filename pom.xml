@@ -1,11 +1,14 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.pagopa.swclient.mil</groupId>
 	<artifactId>paymentnotice</artifactId>
 	<version>3.0.0</version>
-	<description>Payment notice Microservice for Multi-channel Integration Layer of SW Client Project</description>
+	<description>Payment notice Microservice for Multi-channel Integration Layer
+		of SW Client Project</description>
 	<properties>
 		<!-- Java version -->
 		<java.version>21</java.version>
@@ -22,7 +25,7 @@
 		<!-- Quarkus version -->
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>3.9.3</quarkus.platform.version>
+		<quarkus.platform.version>3.9.4</quarkus.platform.version>
 		<!-- Other dependecies version -->
 		<depcheck-plugin.version>1.1.1</depcheck-plugin.version>
 		<common.version>2.0.2</common.version>
@@ -34,7 +37,7 @@
 		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
 		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-		
+
 		<skipITs>true</skipITs>
 	</properties>
 	<dependencyManagement>
@@ -183,6 +186,28 @@
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-logging-json</artifactId>
 		</dependency>
+		<!-- Tracing -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-opentelemetry</artifactId>
+		</dependency>
+		<!-- OpenTelemetry exporter for Azure Application Insights -->
+		<dependency>
+			<groupId>io.quarkiverse.opentelemetry.exporter</groupId>
+			<artifactId>quarkus-opentelemetry-exporter-azure</artifactId>
+			<version>3.8.3.0</version>
+		</dependency>
+		<!-- Metrics -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-micrometer</artifactId>
+		</dependency>
+		<!-- To send metrics data to Azure Insights Monitor -->
+		<dependency>
+			<groupId>io.quarkiverse.micrometer.registry</groupId>
+			<artifactId>quarkus-micrometer-registry-azure-monitor</artifactId>
+			<version>3.2.4</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -227,7 +252,8 @@
 				<version>${surefire-plugin.version}</version>
 				<configuration>
 					<systemPropertyVariables>
-						<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+						<java.util.logging.manager>
+							org.jboss.logmanager.LogManager</java.util.logging.manager>
 						<maven.home>${maven.home}</maven.home>
 					</systemPropertyVariables>
 				</configuration>
@@ -243,8 +269,10 @@
 						</goals>
 						<configuration>
 							<systemPropertyVariables>
-								<native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-								<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+								<native.image.path>
+									${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+								<java.util.logging.manager>
+									org.jboss.logmanager.LogManager</java.util.logging.manager>
 								<maven.home>${maven.home}</maven.home>
 							</systemPropertyVariables>
 						</configuration>
@@ -284,7 +312,7 @@
 				<quarkus.package.type>native</quarkus.package.type>
 			</properties>
 		</profile>
-		
+
 		<!-- To execute SCA with SonarCloud:                                      -->
 		<!--   1. export SONAR_TOKEN=<sonar token provided by PagoPA DevOps team> -->
 		<!--   2. mvn verify -Pvalidate                                       -->
