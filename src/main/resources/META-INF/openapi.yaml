@@ -424,6 +424,46 @@ paths:
         default:
           description: Unexpected error
 
+  /q/health/live:
+    get:
+      operationId: isAlive
+      summary: The application is up and running
+      responses:
+        "200":
+          description: Result of health check
+        default:
+          description: Unexpected error
+
+  /q/health/ready:
+    get:
+      operationId: isReady
+      summary: The application is ready to serve requests
+      responses:
+        "200":
+          description: Result of health check
+        default:
+          description: Unexpected error
+
+  /q/health/started:
+    get:
+      operationId: isStarted
+      summary: The application is started
+      responses:
+        "200":
+          description: Result of health check
+        default:
+          description: Unexpected error
+
+  /q/health:
+    get:
+      operationId: allHealthCheck
+      summary: Accumulating all health check procedures in the application
+      responses:
+        "200":
+          description: Result of health check
+        default:
+          description: Unexpected error
+
 components:
   # ========================================================
   # Schemas

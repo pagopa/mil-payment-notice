@@ -10,7 +10,8 @@ import java.util.concurrent.Future;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkiverse.cxf.annotation.CXFClient;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.pagopa_api.node.nodeforpsp.ActivatePaymentNoticeV2Request;
@@ -63,6 +64,7 @@ public class NodeForPspWrapper {
      * @param verifyPaymentNoticeReq the request to be serialized and passed to the node
      * @return an @{@link Uni} emitting the response of the SOAP service
      */
+    @WithSpan(kind = SpanKind.CLIENT)
     public Uni<VerifyPaymentNoticeRes> verifyPaymentNotice(VerifyPaymentNoticeReq verifyPaymentNoticeReq) {
     	return Uni.createFrom().future(() ->
                 (Future<VerifyPaymentNoticeRes>)nodeForPsp.verifyPaymentNoticeAsync(verifyPaymentNoticeReq, res -> {}));
@@ -73,6 +75,7 @@ public class NodeForPspWrapper {
      * @param activatePaymentNoticeV2Request the request to be serialized and passed to the node
      * @return an @{@link Uni} emitting the response of the SOAP service
      */
+    @WithSpan(kind = SpanKind.CLIENT)
     public Uni<ActivatePaymentNoticeV2Response> activatePaymentNoticeV2Async(ActivatePaymentNoticeV2Request activatePaymentNoticeV2Request) {
     	return Uni.createFrom().future(() ->
                 (Future<ActivatePaymentNoticeV2Response>)nodeForPsp.activatePaymentNoticeV2Async(activatePaymentNoticeV2Request, res -> {}));
@@ -83,6 +86,7 @@ public class NodeForPspWrapper {
      * @param req
      * @return
      */
+    @WithSpan(kind = SpanKind.CLIENT)
     public Uni<SendPaymentOutcomeV2Response> sendPaymentOutcomeV2Async(SendPaymentOutcomeV2Request req) {
     	return Uni.createFrom().future(() ->
         	(Future<SendPaymentOutcomeV2Response>)nodeForPsp.sendPaymentOutcomeV2Async(req, res -> {}));
