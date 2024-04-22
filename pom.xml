@@ -6,9 +6,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.pagopa.swclient.mil</groupId>
 	<artifactId>paymentnotice</artifactId>
-	<version>3.0.0</version>
-	<description>Payment notice Microservice for Multi-channel Integration Layer
-		of SW Client Project</description>
+	<version>3.0.1</version>
+	<description>Payment notice Microservice for Multi-channel Integration Layer of SW Client Project</description>
 	<properties>
 		<!-- Java version -->
 		<java.version>21</java.version>
