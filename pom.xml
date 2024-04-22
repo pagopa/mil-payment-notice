@@ -182,6 +182,8 @@
 			<artifactId>nimbus-jose-jwt</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Observability -->
+		<!-- Logging -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-logging-json</artifactId>
@@ -198,16 +200,27 @@
 			<version>3.8.3.0</version>
 		</dependency>
 		<!-- Metrics -->
+		<!--
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-micrometer</artifactId>
 		</dependency>
+		-->
 		<!-- To send metrics data to Azure Insights Monitor -->
+		<!--
 		<dependency>
 			<groupId>io.quarkiverse.micrometer.registry</groupId>
 			<artifactId>quarkus-micrometer-registry-azure-monitor</artifactId>
 			<version>3.2.4</version>
 		</dependency>
+		-->
+		<!-- Health check -->
+		<!--
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-smallrye-health</artifactId>
+		</dependency>
+		-->
 	</dependencies>
 	<repositories>
 		<repository>
