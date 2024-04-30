@@ -1,7 +1,5 @@
 package it.pagopa.swclient.mil.paymentnotice.client;
 
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.rest.client.reactive.ClientQueryParam;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.ADAccessToken;
@@ -23,7 +21,6 @@ public interface AzureADRestClient {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ClientQueryParam(name = "api-version", value = "${azure-auth-api.version}")
-    @WithSpan(kind = SpanKind.CLIENT)
     Uni<ADAccessToken> getAccessToken(
             @HeaderParam("x-identity-header") String identity,
             @QueryParam("resource") String scope);
