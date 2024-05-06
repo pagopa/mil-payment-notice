@@ -296,7 +296,7 @@ jobs:
       #
       # Login to Azure for OpenApi version Update
       #
-      - name: Login to Azure
+      - name: Login to Azure for OpenApi version Update
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
