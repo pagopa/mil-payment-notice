@@ -1,7 +1,5 @@
 package it.pagopa.swclient.mil.paymentnotice.client;
 
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.AcquirerConfiguration;
 import jakarta.ws.rs.HeaderParam;
@@ -25,7 +23,6 @@ public interface MilRestResource {
 	@GET
 	@Path("/acquirers/{acquirerId}.json")
 	@ClientHeaderParam(name = "x-ms-version", value = "${azure-storage-api.version}")
-	@WithSpan(kind = SpanKind.CLIENT)
     Uni<AcquirerConfiguration> getPspConfiguration(
 			@HeaderParam("Authorization") String authorization,
 			@PathParam(value = "acquirerId") String acquirerId);

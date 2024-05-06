@@ -1,7 +1,5 @@
 package it.pagopa.swclient.mil.paymentnotice.client;
 
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.rest.client.reactive.ClientQueryParam;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentRequest;
 import it.pagopa.swclient.mil.paymentnotice.client.bean.NodeClosePaymentResponse;
@@ -33,7 +31,6 @@ public interface NodeRestService {
 	@Path("/closepayment")
 	@ClientHeaderParam(name = "Ocp-Apim-Subscription-Key", value = "{determineHeaderValue}", required=false)
 	@ClientQueryParam(name="clientId", value = "${node-rest-client.client-id}")
-	@WithSpan(kind = SpanKind.CLIENT)
 	Uni<NodeClosePaymentResponse> closePayment(@QueryParam("deviceId") String deviceId, NodeClosePaymentRequest nodeClosePaymentRequest);
 
 	default String determineHeaderValue(String headerName) {
