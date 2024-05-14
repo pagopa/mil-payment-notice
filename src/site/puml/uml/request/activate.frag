@@ -1,4 +1,5 @@
-!include_many ../../common/request_header_with_access_token.frag
+!include_many header.frag
+
 __body__
 {
 	"idempotencyKey": "//<idempotency key>//",

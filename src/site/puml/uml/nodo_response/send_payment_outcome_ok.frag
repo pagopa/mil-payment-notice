@@ -6,14 +6,8 @@ __body__
 	xmlns:common="http://pagopa-api.pagopa.gov.it/xsd/common-types/v1.0.0/"
 	xmlns:nfp="http://pagopa-api.pagopa.gov.it/node/nodeForPsp.xsd">
 	<soapenv:Body>
-		<nfp:activatePaymentNoticeV2Response>
-			<outcome>KO</outcome>
-			<fault>
-				<faultCode>//<fault code>//</faultCode>
-				<faultString>//<fault string>//</faultString>
-				<id>//<fault id>//</id>
-				<description>//<fault description>//</description>
-			</fault>
-		</nfp:activatePaymentNoticeV2Response>
+		<nfp:sendPaymentOutcomeV2Response>
+			<outcome>OK</outcome>
+		</nfp:sendPaymentOutcomeV2Response>
 	</soapenv:Body>
 </soapenv:Envelope>

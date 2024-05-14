@@ -343,6 +343,7 @@ public class PaymentResource extends BasePaymentResource {
      * @param closePaymentRequest a {@link ClosePaymentRequest} instance containing the outcome of the e-payment transaction
      * @return a {@link ClosePaymentResponse} instance containing the remapped outcome from the node
      */
+	@Deprecated
     @PATCH
     @Path("/{transactionId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -556,6 +557,7 @@ public class PaymentResource extends BasePaymentResource {
      * @param receivePaymentStatusRequest a {@link ReceivePaymentStatusRequest} instance containing the status of the close payment operation and the details of the payment notices
      * @return a {@link ReceivePaymentStatusResponse} instance containing the outcome of the store operation
      */
+    @Deprecated
     @POST
     @Path("/{transactionId}")
     @Consumes(MediaType.APPLICATION_JSON)

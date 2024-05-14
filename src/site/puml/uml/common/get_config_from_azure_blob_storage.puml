@@ -1,0 +1,51 @@
+@startuml
+group Get configuration to communicate with Nodo
+	NoticeSrv -> AzureAD ++ : GET //${IDENTITY_ENDPOINT}//?api-version=2019-08-01\n&resource=https://storage.azure.com
+		note left
+			__header__
+			x-identity-header: //${IDENTITY_HEADER}//
+		end note
+
+	AzureAD --> NoticeSrv -- : HTTP 200 (ok) 
+		note right
+			__body__
+			{
+				"token_type": "Bearer",
+				"expires_on": //don't care//,
+				"client_id": "//don't care//",
+				"resource": "//don't care//",
+				"access_token": "//<access token for storage account>//"
+			}
+		end note
+
+	NoticeSrv -> AzureST ++ : GET https:////<storage account>//.blob.core.windows.net/acquirers///<acquirer id>//.json
+		note left
+			__header__
+			x-ms-version: 2019-07-07
+			Authorization: Bearer //<access token for storage account>//
+		end note
+
+	AzureST --> NoticeSrv -- : HTTP 200 (ok)
+		note right
+			__body__
+			{
+				"pspConfigForVerifyAndActivate": {
+					"psp": "//<psp id>//",
+					"broker": "//<psp broker id>//",
+					"channel": "//<channel id>//",
+					"password": "//don't care//"
+				},
+				"pspConfigForGetFeeAndClosePayment" : {
+					"psp": "//don't care//",
+					"broker": "//don't care//",
+					"channel": "//don't care//",
+					"password": "//don't care//"
+				}
+			}
+		end note
+end
+
+note over NoticeSrv #Orange
+	On any failure, return HTTP 500 (server error) with specific error body. 
+end note
+@enduml

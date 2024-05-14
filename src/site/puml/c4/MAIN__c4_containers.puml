@@ -1,0 +1,38 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/AzureCommon.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/AzureC4Integration.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Containers/AzureContainerApp.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Identity/AzureActiveDirectory.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Storage/AzureBlobStorage.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/DevOps/AzureApplicationInsights.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Databases/AzureRedisCache.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Databases/AzureCosmosDb.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist/Analytics/AzureEventHub.puml
+
+LAYOUT_LEFT_RIGHT()
+
+Container_Ext(client, "Client", "Client Application")
+
+AzureContainerApp(noticesrv, "mil-payment-notice", "This microservice")
+AzureContainerApp(auth, "mil-auth", "MIL Authorization Server")
+AzureActiveDirectory(entraid, "Authorization Server", "Azure Entra ID")
+AzureBlobStorage(storage, "Storage", "Azure Blob Storage")
+AzureRedisCache(cache, "Cache", "Redis")
+AzureCosmosDb(db, "MongoDB", "Azure Cosmos DB for MongoDB")
+AzureEventHub(topic, "Preset Topic", "Azure Event Hub for Apache Kafka")
+AzureApplicationInsights(appinsights, "OpenTelemetry", "Azure Application Insights")
+
+Container_Ext(nodo, "Nodo", "Nodo dei Pagamenti")
+
+Rel(client, noticesrv, "Uses")
+Rel(noticesrv, auth, "Gets JWKS")
+Rel(noticesrv, entraid, "Gets access token for storage")
+Rel(noticesrv, storage, "Gets configuration")
+Rel(noticesrv, cache, "Uses")
+Rel(noticesrv, db, "Uses")
+Rel(noticesrv, topic, "To communicate with mil-preset")
+Rel(noticesrv, appinsights, "Sends OpenTelemetry data")
+
+Rel(noticesrv, nodo, "Uses")
+@enduml

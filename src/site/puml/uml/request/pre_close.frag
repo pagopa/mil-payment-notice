@@ -1,7 +1,8 @@
-!include_many ../../common/request_header_with_access_token.frag
+!include_many header.frag
+
 __body__
 {
-	"outcome": "<font color="red">**PRE_CLOSE**</font>",
+	"outcome": "PRE_CLOSE",
 	"paymentTokens": [
 		"//<payment token>//",
 		.

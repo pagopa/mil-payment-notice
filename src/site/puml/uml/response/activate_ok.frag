@@ -1,6 +1,6 @@
 __body__
 {
-	"outcome": "<font color="red">**OK**</font>",
+	"outcome": "OK",
 	"amount": //<amount>//,
 	"paTaxCode": "//<pa tax code>//",
 	"paymentToken": "//<payment token>//",

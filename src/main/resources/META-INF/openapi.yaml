@@ -281,6 +281,7 @@ paths:
     # executed to pay a set of notices
     # ------------------------------------------------------
     patch:
+      deprecated: true
       operationId: close
       summary: Comunicates the outcome of the e-money transaction executed to pay a set of notices
       parameters:
@@ -355,6 +356,7 @@ paths:
     # set of payment notices
     # ------------------------------------------------------
     post:
+      deprecated: true
       operationId: receivePaymentStatus
       summary: Receives from the Nodo the result of the payment of a set of payment notices. This API is invoked by the Nodo for sendPaymentResult.
       requestBody:
@@ -401,10 +403,8 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/Close'
       responses:
-        "201":
-          $ref: '#/components/responses/CloseProcessed'
         "202":
-          description: Only for operation with KO outcome
+          description: Accepted, send get status to know the result
         "400":
           $ref: '#/components/responses/Error'
         "401":
@@ -421,46 +421,6 @@ paths:
           description: Too many request
         "500":
           $ref: '#/components/responses/Error'
-        default:
-          description: Unexpected error
-
-  /q/health/live:
-    get:
-      operationId: isAlive
-      summary: The application is up and running
-      responses:
-        "200":
-          description: Result of health check
-        default:
-          description: Unexpected error
-
-  /q/health/ready:
-    get:
-      operationId: isReady
-      summary: The application is ready to serve requests
-      responses:
-        "200":
-          description: Result of health check
-        default:
-          description: Unexpected error
-
-  /q/health/started:
-    get:
-      operationId: isStarted
-      summary: The application is started
-      responses:
-        "200":
-          description: Result of health check
-        default:
-          description: Unexpected error
-
-  /q/health:
-    get:
-      operationId: allHealthCheck
-      summary: Accumulating all health check procedures in the application
-      responses:
-        "200":
-          description: Result of health check
         default:
           description: Unexpected error
 

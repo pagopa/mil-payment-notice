@@ -1,0 +1,10 @@
+@startuml
+group Write trx data to DB
+	NoticeSrv -> NoticeDB ++ : insert(//<value>//)
+		note left
+			!include_many ../trx_doc/pre_close.frag
+		end note
+
+	NoticeDB --> NoticeSrv -- : //<result>//
+end group
+@enduml

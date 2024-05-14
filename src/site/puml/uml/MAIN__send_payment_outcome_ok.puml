@@ -1,0 +1,40 @@
+@startuml
+!include_many common/init.puml
+
+activate Client
+
+Client -> NoticeSrv ++ : PATCH /payments///<transaction id>///sendPaymentOutcome
+	note left
+		!include_many request/send_payment_outcome_ok.frag
+	end note
+
+!include_many db_interaction/read_trx_with_pre_close.puml
+	note over NoticeSrv #Orange
+		On document not found, return HTTP 404 (not found)
+		On any other failure, return HTTP 500 (server error) with specific error body.
+	end note
+
+!include_many common/get_config_from_azure_blob_storage.puml
+
+alt ok
+	!include_many nodo_interaction/send_payment_outcome_ok_ok.puml
+	!include_many db_interaction/write_trx_with_send_payment_outcome_ok_ok.puml
+	!include_many preset_interaction/trx_with_send_payment_outcome_ok_ok.puml
+else ko
+	!include_many nodo_interaction/send_payment_outcome_ok_ko.puml
+	!include_many db_interaction/write_trx_with_send_payment_outcome_ok_ko.puml
+	!include_many preset_interaction/trx_with_send_payment_outcome_ok_ko.puml
+end
+
+NoticeSrv --> Client : HTTP 202 (accepted)
+	note right
+		For backward compatibility, the Client must send a 'get status' request to know the result.
+	end note
+
+
+note over NoticeSrv #Orange
+	On any other failure while communicating with Nodo, return HTTP 500 (server error) with specific error body.
+end note
+
+deactivate Client
+@enduml
