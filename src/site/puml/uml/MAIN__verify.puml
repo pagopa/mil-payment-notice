@@ -1,0 +1,43 @@
+@startuml
+!include_many common/init.puml
+
+activate Client
+
+alt qr-code
+	Client -> NoticeSrv ++ : GET /paymentNotices///<qr code>//
+		note left
+			!include_many request/verify.frag
+		end note
+
+	NoticeSrv -> NoticeSrv : parse //<qr code>//: //<pa tax code>//, //<notice number>//
+else w/o qr-code
+	Client -> NoticeSrv : GET /paymentNotices///<pa tax code>/////<notice number>//
+		note left
+			!include_many request/verify.frag
+		end note
+end
+
+!include_many common/get_config_from_azure_blob_storage.puml
+
+alt ok
+	!include_many nodo_interaction/verify_ok.puml
+
+	NoticeSrv --> Client : HTTP 200 (ok)
+		note right
+			!include_many response/verify_ok.frag
+		end note
+else ko
+	!include_many nodo_interaction/verify_ko.puml
+
+	NoticeSrv --> Client -- : HTTP 200 (ok)
+		note right
+			!include_many response/verify_ko.frag
+		end note
+end
+
+note over NoticeSrv #Orange
+	On any other failure while communicating with Nodo, return HTTP 500 (server error) with specific error body.
+end note
+
+deactivate Client
+@enduml

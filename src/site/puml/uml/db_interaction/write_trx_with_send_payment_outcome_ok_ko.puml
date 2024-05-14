@@ -1,0 +1,10 @@
+@startuml
+group write trx data to db
+	NoticeSrv -> NoticeDB ++ : save(//<value>//)
+		note left
+			!include_many ../trx_doc/send_payment_outcome_ok_ko.frag
+		end note
+
+	NoticeDB --> NoticeSrv -- : //don't care//
+end
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+group Interaction with Nodo
+	NoticeSrv -> Nodo ++ : POST https:////<nodo host>///nodo-auth/node-for-psp/v1
+		note left
+			!include_many ../nodo_request/send_payment_outcome_ok.frag
+		end note
+
+	Nodo --> NoticeSrv -- : HTTP 200 (ok)
+		note right
+			!include_many ../nodo_response/send_payment_outcome_ko.frag
+		end note
+end
+@enduml

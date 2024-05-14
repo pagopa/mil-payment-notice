@@ -1,0 +1,19 @@
+@startuml
+!include_many common/init.puml
+
+activate Client
+
+Client -> NoticeSrv ++ : GET /payments
+	note left
+		!include_many request/trx_list.frag
+	end note
+
+!include_many db_interaction/read_trx_list.puml
+
+NoticeSrv --> Client -- : HTTP 200 (ok)
+	note right
+		!include_many response/trx_list.frag
+	end note
+
+deactivate Client	
+@enduml

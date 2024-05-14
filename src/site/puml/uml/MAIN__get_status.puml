@@ -1,0 +1,24 @@
+@startuml
+!include_many common/init.puml
+
+activate Client
+
+Client -> NoticeSrv ++ : GET /payments///<transaction id>//
+	note left
+		!include_many request/get_status.frag
+	end note
+
+!include_many db_interaction/read_trx_by_id.puml
+
+note over NoticeSrv #Orange
+	On document not found, return HTTP 404 (not found)
+	On any other failure, return HTTP 500 (server error) with specific error body.
+end note
+
+NoticeSrv --> Client -- : HTTP 200 (ok)
+	note right
+		!include_many response/get_status.frag
+	end note
+
+deactivate Client	
+@enduml
