@@ -7,7 +7,7 @@ __body__
 	"transfers": [
 		{
 			"paTaxCode": "//<pa tax code #1>//",
-			"category": "//<category #1>//"
+			"category": "//<category code #1>//"
 		},
 		.
 		.

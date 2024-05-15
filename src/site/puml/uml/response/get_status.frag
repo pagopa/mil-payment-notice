@@ -22,7 +22,7 @@ __body__
 	],
 	"totalAmount": "//<total amount of notices>//",
 	"fee": "//<total fee>//",
-	"status": "//<staus>//",
+	"status": "//<status>//",
 	"paymentMethod": "//<payment method>//",
 	"paymentTimestamp": "//<payment timestamp>//",
 	"closeTimestamp": "//<close timestamp>//",
