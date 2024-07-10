@@ -11,6 +11,8 @@ on:
 jobs:
   build_push_update:
     runs-on: ubuntu-latest
+
+    environment: dev-cd
     
     permissions:
       id-token: write
@@ -95,7 +97,14 @@ jobs:
       # Build native executable.
       #
       - name: Build native executable
-        run: ${{ runner.temp }}/maven/bin/mvn clean package -Pnative -Dmaven.test.skip=${{ github.event.inputs.skip-unit-test }} -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:05baf3fd2173f6f25ad35216b6b066c35fbfb97f06daba75efb5b22bc0a85b9c -s ${{ runner.temp }}/settings.xml --no-transfer-progress
+        run: |
+          ${{ runner.temp }}/maven/bin/mvn clean package \
+            -Pnative \
+            -Dmaven.test.skip=${{ github.event.inputs.skip-unit-test }} \
+            -Dquarkus.native.container-build=true \
+            -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image@sha256:ce70e1a8016471ff0fc9c8f048cd9e37afddacd3de37ed0bca74201d102e45f5 \
+            -s ${{ runner.temp }}/settings.xml \
+            --no-transfer-progress
 
       #
       # Build Docker image.
@@ -103,7 +112,11 @@ jobs:
       - name: Build Docker image
         run: |
           BRANCH_NAME="${GITHUB_REF////_}"
-          docker build -f src/main/docker/Dockerfile.native-micro -t ghcr.io/${{ github.repository }}:$BRANCH_NAME .
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+          docker build \
+            -f src/main/docker/Dockerfile.native-micro \
+            -t ghcr.io/${{ github.repository }}:$BRANCH_NAME \
+            .
 
       #
       # Push Docker image.
@@ -114,10 +127,16 @@ jobs:
           docker push -a ghcr.io/${{ github.repository }}
 
       #
+      # Get Docker image with sha256.
+      #
+      - name: Get Docker image with sha256
+        run: echo "image_sha256=$(docker image inspect -f '{{index .RepoDigests 0}}' ghcr.io/${{ github.repository }}:${{ env.branch_name }})" >> "$GITHUB_ENV"
+
+      #
       # Login to Azure.
       #
       - name: Login to Azure
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a #v2.0.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -131,5 +150,8 @@ jobs:
         with:
           inlineScript: |
             az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp update -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} --image ghcr.io/${{ github.repository }}:$BRANCH_NAME
-
+            az containerapp update \
+              -n ${{ secrets.AZURE_CONTAINER_APP_NAME }} \
+              -g ${{ secrets.AZURE_RESOURCE_GROUP_NAME }} \
+              --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+              -i ${{ env.image_sha256 }}
