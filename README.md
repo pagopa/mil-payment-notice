@@ -12,3 +12,4 @@ Payment Notice Microservice for Multi-channel Integration Layer of SW Client Pro
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=pagopa_mil-payment-notice&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=pagopa_mil-payment-notice)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=pagopa_mil-payment-notice&metric=bugs)](https://sonarcloud.io/summary/new_code?id=pagopa_mil-payment-notice)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=pagopa_mil-payment-notice&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=pagopa_mil-payment-notice)
+ 
